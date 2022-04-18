@@ -195,9 +195,13 @@ export class Governance {
   }
 
   handle_pending_proposal(prec: governance.proposal_record, height: u64): void {
+    System.log('Vote start height: ' + prec.vote_start_height.toString());
+    System.log('Height: ' + height.toString());
     if (prec.vote_start_height != height) {
       return;
     }
+
+    System.log('Handling pending proposal');
 
     let id = prec.proposal!.id!;
 
@@ -215,6 +219,8 @@ export class Governance {
     if (prec.vote_start_height + Constants.VOTE_PERIOD != height) {
       return;
     }
+
+    System.log('Handling active proposal');
 
     let id = prec.proposal!.id!;
 
@@ -245,6 +251,8 @@ export class Governance {
       return;
     }
 
+    System.log('Handling approved proposal');
+
     let id = prec.proposal!.id!;
 
     prec.shall_authorize = true;
@@ -263,18 +271,46 @@ export class Governance {
   }
 
   handle_votes(): void {
-    const proposal_votes_field = System.getBlockField('header.approved_proposals');
-    if (proposal_votes_field == null || proposal_votes_field.message_value == null) {
+    const proposal_votes_bytes = System.getBlockField('header.approved_proposals');
+    if (proposal_votes_bytes == null || proposal_votes_bytes.message_value == null) {
       System.log('No approved proposal message on block');
       return;
     }
 
-    if (proposal_votes_field.message_value!.type_url != null) {
-      let type_url = proposal_votes_field.message_value!.type_url!;
-      System.log('Approved proposal field type_url: ' + type_url);
+    const votes = Protobuf.decode<value.list_type>(proposal_votes_bytes.message_value!.value!, value.list_type.decode);
+
+    let proposal_set = new Set<Uint8Array>()
+    for (let index = 0; index < votes.values.length; index++) {
+        const proposal = votes.values[index].bytes_value!;
+        proposal_set.add(proposal);
     }
-    else {
-      System.log('Approved proposal field type_url is null');
+
+    let proposals = proposal_set.values();
+
+    for (let index = 0; index < proposals.length; index++) {
+      let id = proposals[index];
+
+      let prec = System.getObject<Uint8Array, governance.proposal_record>(State.Space.PROPOSAL, id, governance.proposal_record.decode);
+
+      if (!prec)
+        continue;
+
+      if (prec.status != governance.proposal_status.active)
+        continue;
+
+      let current_vote_tally = prec.vote_tally as u64;
+
+      if (current_vote_tally != u64.MAX_VALUE)
+        prec.vote_tally = current_vote_tally + 1;
+
+      System.putObject(State.Space.PROPOSAL, id, prec, governance.proposal_record.encode);
+
+      let event = new governance.proposal_vote_event();
+      event.id = id;
+      event.vote_tally = current_vote_tally;
+      event.vote_threshold = prec.vote_threshold;
+
+      System.event('proposal.vote', Protobuf.encode(event, governance.proposal_vote_event.encode), []);
     }
   }
 
@@ -287,6 +323,7 @@ export class Governance {
     }
 
     //this.handle_votes();
+    System.log('Executing governance block callback');
 
     const block_height_field = System.getBlockField('header.height');
     if (block_height_field == null) {
