@@ -8,7 +8,7 @@ namespace State {
 }
 
 namespace Constants {
-  export const BLOCKS_PER_WEEK: u64 = 604800/10;
+  export const BLOCKS_PER_WEEK: u64 = 10;
   export const REVIEW_PERIOD: u64 = BLOCKS_PER_WEEK;
   export const VOTE_PERIOD: u64 = BLOCKS_PER_WEEK*2;
   export const APPLICATION_DELAY: u64 = BLOCKS_PER_WEEK;
@@ -97,7 +97,7 @@ export class Governance {
           return true;
       }
     }
-    return true;
+    return false;
   }
 
   submit_proposal(
@@ -237,6 +237,7 @@ export class Governance {
     }
     else {
       prec.status = governance.proposal_status.approved;
+      System.putObject(State.Space.PROPOSAL, id, prec, governance.proposal_record.encode);
 
       let event = new governance.proposal_status_event();
       event.id = id;
@@ -271,14 +272,18 @@ export class Governance {
   }
 
   handle_votes(): void {
+    System.log('Handling votes');
+
     const proposal_votes_bytes = System.getBlockField('header.approved_proposals');
-    if (proposal_votes_bytes == null || proposal_votes_bytes.message_value == null) {
+    if (proposal_votes_bytes == null || proposal_votes_bytes.message_value == null || proposal_votes_bytes.message_value!.value == null) {
       System.log('No approved proposal message on block');
       return;
     }
 
+    System.log('Decoding list value');
     const votes = Protobuf.decode<value.list_type>(proposal_votes_bytes.message_value!.value!, value.list_type.decode);
 
+    System.log('Filling set');
     let proposal_set = new Set<Uint8Array>()
     for (let index = 0; index < votes.values.length; index++) {
         const proposal = votes.values[index].bytes_value!;
@@ -287,6 +292,7 @@ export class Governance {
 
     let proposals = proposal_set.values();
 
+    System.log('Looping set');
     for (let index = 0; index < proposals.length; index++) {
       let id = proposals[index];
 
@@ -322,7 +328,7 @@ export class Governance {
       System.exitContract(1);
     }
 
-    //this.handle_votes();
+    this.handle_votes();
     System.log('Executing governance block callback');
 
     const block_height_field = System.getBlockField('header.height');
@@ -334,6 +340,7 @@ export class Governance {
     const height =  block_height_field.uint64_value as u64;
 
     let proposals = this.retrieve_proposals(0, new Uint8Array(0));
+    System.log("Found " + proposals.length.toString() + " proposals")
     for (let i = 0; i < proposals.length; i++) {
       let proposal = proposals[i];
       switch (proposal.status) {
