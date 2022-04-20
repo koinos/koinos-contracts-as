@@ -1,4 +1,4 @@
-import { System, Protobuf, authority, system_calls } from "koinos-as-sdk";
+import { System, Protobuf, authority, system_calls } from "koinos-sdk-as";
 import { Governance as ContractClass } from "./Governance";
 import { governance as ProtoNamespace } from "./proto/governance";
 

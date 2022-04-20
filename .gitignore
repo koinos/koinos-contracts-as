@@ -4,3 +4,4 @@ build
 \.vs/
 *.wasm
 *.pb
+yarn-error.log

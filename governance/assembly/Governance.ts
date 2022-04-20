@@ -1,4 +1,4 @@
-import { authority, chain, protocol, system_call_id, System, Protobuf, Base58, value, google, system_calls } from "koinos-as-sdk";
+import { authority, chain, protocol, system_call_ids, System, Protobuf, Base58, value, any, system_calls } from "koinos-sdk-as";
 import { governance } from "./proto/governance";
 
 namespace State {
@@ -88,11 +88,11 @@ export class Governance {
         System.log('Does set system call')
         const set_system_call_operation = (op.set_system_call as protocol.set_system_call_operation);
 
-        const syscalls = new Array<system_call_id>();
-        syscalls.push(system_call_id.pre_block_callback);
-        syscalls.push(system_call_id.require_system_authority);
-        syscalls.push(system_call_id.apply_set_system_call_operation);
-        syscalls.push(system_call_id.apply_set_system_contract_operation);
+        const syscalls = new Array<system_call_ids.system_call_id>();
+        syscalls.push(system_call_ids.system_call_id.pre_block_callback);
+        syscalls.push(system_call_ids.system_call_id.require_system_authority);
+        syscalls.push(system_call_ids.system_call_id.apply_set_system_call_operation);
+        syscalls.push(system_call_ids.system_call_id.apply_set_system_contract_operation);
 
         for (let i = 0; i < syscalls.length; i++) {
           if (set_system_call_operation.call_id == syscalls[i])
