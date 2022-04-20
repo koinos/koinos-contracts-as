@@ -1,4 +1,4 @@
-import { System, Protobuf, authority } from "koinos-as-sdk";
+import { System, Protobuf, authority, system_calls } from "koinos-as-sdk";
 import { Governance as ContractClass } from "./Governance";
 import { governance as ProtoNamespace } from "./proto/governance";
 
@@ -82,6 +82,19 @@ export function main(): i32 {
       retbuf = Protobuf.encode(
         res,
         authority.authorize_result.encode
+      );
+      break;
+    }
+
+    case 0x279b51fa: {
+      const args = Protobuf.decode<system_calls.require_system_authority_arguments>(
+        rdbuf,
+        system_calls.require_system_authority_arguments.decode
+      );
+      const res = c.require_system_authority(args)
+      retbuf = Protobuf.encode(
+        res,
+        system_calls.require_system_authority_result.encode
       );
       break;
     }
