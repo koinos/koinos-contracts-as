@@ -372,7 +372,7 @@ export class Governance {
   }
 
   transaction_authorized(): bool {
-    let id: Uint8Array = System.getTransactionField('header.id')!.bytes_value!;
+    let id: Uint8Array = System.getTransactionField('id')!.bytes_value!;
 
     let prec = System.getObject<Uint8Array, governance.proposal_record>(State.Space.PROPOSAL, id, governance.proposal_record.decode);
 
