@@ -186,7 +186,7 @@ export class Governance {
 
     System.log('Storing proposal');
     let bytes = System.putObject(State.Space.PROPOSAL, args.proposal!.id!, prec, governance.proposal_record.encode);
-    System.log('Stored proposal ' + Base58.encode(args.proposal!.id!) + ' using ' + bytes.toString() + ' bytes')
+    System.log('Stored proposal');
 
     let event = new governance.proposal_status_event();
     event.id = args.proposal!.id!;
