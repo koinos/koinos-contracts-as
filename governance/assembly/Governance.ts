@@ -8,7 +8,7 @@ namespace State {
   }
 }
 
-System.MAX_BUFFER_SIZE = 1024 * 10
+System.MAX_BUFFER_SIZE = 1024 * 100;
 
 namespace Constants {
   export const TOKEN_CONTRACT_ID = Base58.decode('19JntSm8pSNETT9aHTwAUHC5RMoaSmgZPJ');
@@ -23,10 +23,6 @@ namespace Constants {
 }
 
 export class Governance {
-  constructor() {
-    System.MAX_BUFFER_SIZE = 1024 * 100
-  }
-
   retrieve_proposals(limit: u64, start: Uint8Array | null): Array<governance.proposal_record> {
     const proposalsLimit = limit != 0 ? limit : u64.MAX_VALUE;
     const proposalsStart = start != null ? start : new Uint8Array(0);
