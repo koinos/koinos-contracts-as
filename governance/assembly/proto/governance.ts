@@ -1,5 +1,5 @@
 import { Writer, Reader } from "as-proto";
-import { protocol } from "koinos-as-sdk";
+import { protocol } from "koinos-sdk-as";
 
 export namespace governance {
   export class proposal_record {

@@ -1,4 +1,5 @@
-import { authority, chain, protocol, system_call_id, System, Protobuf, Base58, value, google, system_calls } from "koinos-as-sdk";
+import { authority, chain, protocol, system_call_ids, System, Protobuf, 
+  Base58, value, any, system_calls, Token, SafeMath } from "koinos-sdk-as";
 import { governance } from "./proto/governance";
 
 namespace State {
@@ -7,9 +8,10 @@ namespace State {
   }
 }
 
-System.MAX_BUFFER_SIZE = 1024 * 10
+System.MAX_BUFFER_SIZE = 1024 * 100;
 
 namespace Constants {
+  export const TOKEN_CONTRACT_ID = Base58.decode('19JntSm8pSNETT9aHTwAUHC5RMoaSmgZPJ');
   export const BLOCKS_PER_WEEK: u64 = 10;
   export const REVIEW_PERIOD: u64 = BLOCKS_PER_WEEK;
   export const VOTE_PERIOD: u64 = BLOCKS_PER_WEEK*2;
@@ -21,10 +23,6 @@ namespace Constants {
 }
 
 export class Governance {
-  constructor() {
-    System.MAX_BUFFER_SIZE = 1024 * 100
-  }
-
   retrieve_proposals(limit: u64, start: Uint8Array | null): Array<governance.proposal_record> {
     const proposalsLimit = limit != 0 ? limit : u64.MAX_VALUE;
     const proposalsStart = start != null ? start : new Uint8Array(0);
@@ -88,11 +86,11 @@ export class Governance {
         System.log('Does set system call')
         const set_system_call_operation = (op.set_system_call as protocol.set_system_call_operation);
 
-        const syscalls = new Array<system_call_id>();
-        syscalls.push(system_call_id.pre_block_callback);
-        syscalls.push(system_call_id.require_system_authority);
-        syscalls.push(system_call_id.apply_set_system_call_operation);
-        syscalls.push(system_call_id.apply_set_system_contract_operation);
+        const syscalls = new Array<system_call_ids.system_call_id>();
+        syscalls.push(system_call_ids.system_call_id.pre_block_callback);
+        syscalls.push(system_call_ids.system_call_id.require_system_authority);
+        syscalls.push(system_call_ids.system_call_id.apply_set_system_call_operation);
+        syscalls.push(system_call_ids.system_call_id.apply_set_system_contract_operation);
 
         for (let i = 0; i < syscalls.length; i++) {
           if (set_system_call_operation.call_id == syscalls[i])
@@ -144,6 +142,27 @@ export class Governance {
       return res;
     }
 
+    System.log('Burning proposal fee');
+    const token = new Token(Constants.TOKEN_CONTRACT_ID);
+    const total_supply = token.totalSupply();
+
+    // TODO: use a safe max or w/e
+    const a = SafeMath.div(total_supply, Constants.MIN_PROPOSAL_DENOMINATOR);
+    const b = SafeMath.mul(args.proposal!.header!.rc_limit, Constants.MAX_PROPOSAL_MULTIPLIER);
+    const fee = a > b ? a : b;
+      
+    if (args.fee < fee)
+    {
+      System.log("Proposal fee threshold not met - " + fee.toString() + ", actual: " + args.fee.toString());
+      return res;
+    }
+
+    if (!token.burn(payer, args.fee))
+    {
+      System.log("Could not burn KOIN for proposal submission");
+      return res;
+    }
+
     System.log('Creating proposal record');
     let prec = new governance.proposal_record();
     prec.proposal = args.proposal!;
@@ -163,7 +182,7 @@ export class Governance {
 
     System.log('Storing proposal');
     let bytes = System.putObject(State.Space.PROPOSAL, args.proposal!.id!, prec, governance.proposal_record.encode);
-    System.log('Stored proposal ' + Base58.encode(args.proposal!.id!) + ' using ' + bytes.toString() + ' bytes')
+    System.log('Stored proposal');
 
     let event = new governance.proposal_status_event();
     event.id = args.proposal!.id!;
@@ -372,7 +391,7 @@ export class Governance {
   }
 
   transaction_authorized(): bool {
-    let id: Uint8Array = System.getTransactionField('header.id')!.bytes_value!;
+    let id: Uint8Array = System.getTransactionField('id')!.bytes_value!;
 
     let prec = System.getObject<Uint8Array, governance.proposal_record>(State.Space.PROPOSAL, id, governance.proposal_record.decode);
 
