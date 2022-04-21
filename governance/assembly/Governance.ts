@@ -9,9 +9,9 @@ namespace State {
 }
 
 System.MAX_BUFFER_SIZE = 1024 * 10
-const TOKEN_CONTRACT_ID = Base58.decode('19JntSm8pSNETT9aHTwAUHC5RMoaSmgZPJ');
 
 namespace Constants {
+  export const TOKEN_CONTRACT_ID = Base58.decode('19JntSm8pSNETT9aHTwAUHC5RMoaSmgZPJ');
   export const BLOCKS_PER_WEEK: u64 = 10;
   export const REVIEW_PERIOD: u64 = BLOCKS_PER_WEEK;
   export const VOTE_PERIOD: u64 = BLOCKS_PER_WEEK*2;
@@ -147,7 +147,7 @@ export class Governance {
     }
 
     System.log('Burning proposal fee');
-    const token = new Token(TOKEN_CONTRACT_ID);
+    const token = new Token(Constants.TOKEN_CONTRACT_ID);
     const total_supply = token.totalSupply();
 
     // TODO: use a safe max or w/e
