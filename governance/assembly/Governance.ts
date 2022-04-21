@@ -1,4 +1,5 @@
-import { authority, chain, protocol, system_call_ids, System, Protobuf, Base58, value, any, system_calls } from "koinos-sdk-as";
+import { authority, chain, protocol, system_call_ids, System, Protobuf, 
+  Base58, value, any, system_calls, Token, SafeMath } from "koinos-sdk-as";
 import { governance } from "./proto/governance";
 
 namespace State {
@@ -8,6 +9,7 @@ namespace State {
 }
 
 System.MAX_BUFFER_SIZE = 1024 * 10
+const TOKEN_CONTRACT_ID = Base58.decode('19JntSm8pSNETT9aHTwAUHC5RMoaSmgZPJ');
 
 namespace Constants {
   export const BLOCKS_PER_WEEK: u64 = 10;
@@ -141,6 +143,27 @@ export class Governance {
     if (System.getBytes(State.Space.PROPOSAL, args.proposal!.id!))
     {
       System.log('Proposal exists and cannot be updated');
+      return res;
+    }
+
+    System.log('Burning proposal fee');
+    const token = new Token(TOKEN_CONTRACT_ID);
+    const total_supply = token.totalSupply();
+
+    // TODO: use a safe max or w/e
+    const a = SafeMath.div(total_supply, Constants.MIN_PROPOSAL_DENOMINATOR);
+    const b = SafeMath.mul(args.proposal!.header!.rc_limit, Constants.MAX_PROPOSAL_MULTIPLIER);
+    const fee = a > b ? a : b;
+      
+    if (args.fee < fee)
+    {
+      System.log("Proposal fee threshold not met - " + fee.toString() + ", actual: " + args.fee.toString());
+      return res;
+    }
+
+    if (!token.burn(payer, args.fee))
+    {
+      System.log("Could not burn KOIN for proposal submission");
       return res;
     }
 
