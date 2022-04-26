@@ -1,6 +1,6 @@
 import { System, Protobuf, authority, system_calls } from "koinos-sdk-as";
 import { Governance as ContractClass } from "./Governance";
-import { governance as ProtoNamespace } from "./proto/governance";
+import { governance as ProtoNamespace } from "koinos-sdk-as";
 
 export function main(): i32 {
   const entryPoint = System.getEntryPoint();
@@ -61,14 +61,14 @@ export function main(): i32 {
     }
 
     case 0x531d5d4e: {
-      const args = Protobuf.decode<ProtoNamespace.block_callback_arguments>(
+      const args = Protobuf.decode<system_calls.pre_block_callback_arguments>(
         rdbuf,
-        ProtoNamespace.block_callback_arguments.decode
+        system_calls.pre_block_callback_arguments.decode
       );
       const res = c.block_callback(args);
       retbuf = Protobuf.encode(
         res,
-        ProtoNamespace.block_callback_result.encode
+        system_calls.pre_block_callback_result.encode
       );
       break;
     }

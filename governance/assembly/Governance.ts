@@ -1,6 +1,5 @@
-import { authority, chain, protocol, system_call_ids, System, Protobuf, 
-  Base58, value, any, system_calls, Token, SafeMath } from "koinos-sdk-as";
-import { governance } from "./proto/governance";
+import { authority, chain, governance, protocol, system_call_ids, System, Protobuf,
+  Base58, value, any, system_calls, Token, SafeMath, Crypto } from "koinos-sdk-as";
 
 namespace State {
   export namespace Space {
@@ -8,7 +7,7 @@ namespace State {
   }
 }
 
-System.MAX_BUFFER_SIZE = 1024 * 100;
+System.MAX_BUFFER_SIZE = 1024 * 1024; // 1 MB
 
 namespace Constants {
   export const TOKEN_CONTRACT_ID = Base58.decode('19JntSm8pSNETT9aHTwAUHC5RMoaSmgZPJ');
@@ -71,10 +70,10 @@ export class Governance {
     return proposals;
   }
 
-  proposal_updates_governance(proposal: protocol.transaction): bool {
+  proposal_updates_governance(operations: Array<protocol.operation>): bool {
     System.log('Checking if proposal updates governance')
-    for (let index = 0; index < proposal.operations.length; index++) {
-      const op = proposal.operations[index];
+    for (let index = 0; index < operations.length; index++) {
+      const op = operations[index];
 
       if (op.upload_contract) {
         System.log('Does upload contract')
@@ -129,16 +128,28 @@ export class Governance {
     }
     const block_height =  block_height_field.uint64_value as u64;
 
-    System.log('Checking proposal');
-    if (args.proposal == null || args.proposal!.header == null) {
-      System.log('The proposal and proposal header cannot be null');
+    System.log('Checking prior proposal existence');
+    if (System.getBytes<Uint8Array>(State.Space.PROPOSAL, args.operation_merkle_root!))
+    {
+      System.log('Proposal exists and cannot be updated');
       return res;
     }
 
-    System.log('Checking prior proposal existence');
-    if (System.getBytes(State.Space.PROPOSAL, args.proposal!.id!))
+    var hashes = new Array<Uint8Array>()
+    for (var i = 0; i < args.operations.length; i++)
     {
-      System.log('Proposal exists and cannot be updated');
+      const hash = System.hash(Crypto.multicodec.sha2_256, Protobuf.encode(args.operations[i], protocol.operation.encode))
+      if (hash == null)
+      {
+        System.log('Unexpected error hashing operation');
+        return res;
+      }
+      hashes.push(hash)
+    }
+
+    if (!System.verifyMerkleRoot(args.operation_merkle_root!, hashes))
+    {
+      System.log('Operation Merkle Root does not match');
       return res;
     }
 
@@ -148,9 +159,9 @@ export class Governance {
 
     // TODO: use a safe max or w/e
     const a = SafeMath.div(total_supply, Constants.MIN_PROPOSAL_DENOMINATOR);
-    const b = SafeMath.mul(args.proposal!.header!.rc_limit, Constants.MAX_PROPOSAL_MULTIPLIER);
+    const b = SafeMath.mul(args.fee, Constants.MAX_PROPOSAL_MULTIPLIER);
     const fee = a > b ? a : b;
-      
+
     if (args.fee < fee)
     {
       System.log("Proposal fee threshold not met - " + fee.toString() + ", actual: " + args.fee.toString());
@@ -165,13 +176,14 @@ export class Governance {
 
     System.log('Creating proposal record');
     let prec = new governance.proposal_record();
-    prec.proposal = args.proposal!;
+    prec.operations = args.operations;
+    prec.operation_merkle_root = args.operation_merkle_root!;
     prec.vote_start_height = block_height + Constants.BLOCKS_PER_WEEK;
     prec.vote_tally = 0;
     prec.shall_authorize = false;
     prec.status = governance.proposal_status.pending;
 
-    if (this.proposal_updates_governance(args.proposal!)) {
+    if (this.proposal_updates_governance(args.operations)) {
       prec.updates_governance = true;
       prec.vote_threshold = Constants.VOTE_PERIOD * Constants.GOVERNANCE_THRESHOLD / 100;
     }
@@ -181,11 +193,11 @@ export class Governance {
     }
 
     System.log('Storing proposal');
-    let bytes = System.putObject(State.Space.PROPOSAL, args.proposal!.id!, prec, governance.proposal_record.encode);
+    let bytes = System.putObject(State.Space.PROPOSAL, args.operation_merkle_root!, prec, governance.proposal_record.encode);
     System.log('Stored proposal');
 
     let event = new governance.proposal_status_event();
-    event.id = args.proposal!.id!;
+    event.id = args.operation_merkle_root!;
     event.status = governance.proposal_status.pending;
 
     System.event('proposal.submission', Protobuf.encode(event, governance.proposal_status_event.encode), []);
@@ -231,7 +243,7 @@ export class Governance {
 
     System.log('Handling pending proposal');
 
-    let id = prec.proposal!.id!;
+    let id = prec.operation_merkle_root!;
 
     prec.status = governance.proposal_status.active;
     System.putObject(State.Space.PROPOSAL, id, prec, governance.proposal_record.encode);
@@ -250,7 +262,7 @@ export class Governance {
 
     System.log('Handling active proposal');
 
-    let id = prec.proposal!.id!;
+    let id = prec.operation_merkle_root!;
 
     if (prec.vote_tally < prec.vote_threshold) {
       prec.status = governance.proposal_status.expired;
@@ -282,12 +294,17 @@ export class Governance {
 
     System.log('Handling approved proposal');
 
-    let id = prec.proposal!.id!;
+    let id = prec.operation_merkle_root!;
 
     prec.shall_authorize = true;
     System.putObject(State.Space.PROPOSAL, id, prec, governance.proposal_record.encode);
 
-    System.applyTransaction(prec.proposal!);
+    var trx = new protocol.transaction();
+    trx.operations = prec.operations;
+    trx.header = new protocol.transaction_header();
+    trx.header!.operation_merkle_root = prec.operation_merkle_root;
+
+    System.applyTransaction(trx);
     prec.status = governance.proposal_status.applied;
 
     System.removeObject(State.Space.PROPOSAL, id);
@@ -349,8 +366,8 @@ export class Governance {
   }
 
   block_callback(
-    args: governance.block_callback_arguments
-  ): governance.block_callback_result {
+    args: system_calls.pre_block_callback_arguments
+  ): system_calls.pre_block_callback_result {
     if (System.getCaller().caller_privilege != chain.privilege.kernel_mode) {
       System.log('Governance contract block callback must be called from kernel');
       System.exitContract(1);
@@ -363,7 +380,7 @@ export class Governance {
     if (block_height_field == null) {
       System.log('The block height cannot be null');
       System.exitContract(1);
-      return new governance.block_callback_result();
+      return new system_calls.pre_block_callback_result();
     }
     const height =  block_height_field.uint64_value as u64;
 
@@ -387,7 +404,7 @@ export class Governance {
       }
     }
 
-    return new governance.block_callback_result();
+    return new system_calls.pre_block_callback_result();
   }
 
   transaction_authorized(): bool {
