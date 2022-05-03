@@ -1538,22 +1538,19 @@ koinos-mock-vm@^1.0.3:
     protobufjs "^6.11.2"
     somap "^0.5.14"
 
-koinos-proto-as@0.4.0:
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/koinos-proto-as/-/koinos-proto-as-0.4.0.tgz#908e803b6168f8267e18dd65e85d96a2a905ae90"
-  integrity sha512-rLvRlSz+CaiDsXi23w2oghopBeC9OeYr4w7Mt/ON/v6FUcZ5EHdV81K3utGGwC+HmnYi0Ul/3GQgWU5vDXk8Rg==
+"koinos-proto-as@https://github.com/koinos/koinos-proto-as.git#testnet-4":
+  version "0.4.2"
+  resolved "https://github.com/koinos/koinos-proto-as.git#131fa7b8808fd67ee30c4b8a8b75c8b966bfa122"
   dependencies:
     as-proto "^0.2.2"
 
-koinos-sdk-as@^0.4.8:
-  version "0.4.8"
-  resolved "https://registry.yarnpkg.com/koinos-sdk-as/-/koinos-sdk-as-0.4.8.tgz#bdedf7ee21df6a4711a98de0a667d44cba267c15"
-  integrity sha512-geSlHYi1ZkUuPes4TUp3GI6RDmBu1cnjv9i5K6PIfHWXtogAbMa2mcXd3U9Az3vDCefuyl3+lmlwNfi4xqjWSA==
+"koinos-sdk-as@https://github.com/koinos/koinos-sdk-as.git#testnet-4":
+  version "0.4.11"
+  resolved "https://github.com/koinos/koinos-sdk-as.git#63d539622091e8a659e80d6520df969d54b5df94"
   dependencies:
     as-bignum "^0.2.18"
     as-proto "^0.2.2"
     koinos-as-gen "0.4.8"
-    koinos-proto-as "0.4.0"
 
 levn@^0.4.1:
   version "0.4.1"

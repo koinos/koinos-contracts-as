@@ -4,7 +4,7 @@ import { governance as ProtoNamespace } from "./proto/governance";
 
 export function main(): i32 {
   const entryPoint = System.getEntryPoint();
-  const rdbuf = System.getContractArguments();
+  const rdbuf = System.getArguments();
   let retbuf = new Uint8Array(1024);
 
   const c = new ContractClass();
@@ -87,26 +87,24 @@ export function main(): i32 {
     }
 
     case 0x279b51fa: {
-      const args = Protobuf.decode<system_calls.require_system_authority_arguments>(
+      const args = Protobuf.decode<system_calls.check_system_authority_arguments>(
         rdbuf,
-        system_calls.require_system_authority_arguments.decode
+        system_calls.check_system_authority_arguments.decode
       );
       const res = c.require_system_authority(args)
       retbuf = Protobuf.encode(
         res,
-        system_calls.require_system_authority_result.encode
+        system_calls.check_system_authority_result.encode
       );
       break;
     }
 
     default:
-      System.exitContract(1);
+      System.exit(1);
       break;
   }
 
-  System.setContractResult(retbuf);
-
-  System.exitContract(0);
+  System.exit(0, retbuf);
   return 0;
 }
 
