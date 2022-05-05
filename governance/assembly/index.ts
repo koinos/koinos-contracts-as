@@ -85,12 +85,12 @@ export function main(): i32 {
       break;
     }
 
-    case 0x279b51fa: {
+    case 0xa88d06c9: {
       const args = Protobuf.decode<system_calls.check_system_authority_arguments>(
         contractArgs.args,
         system_calls.check_system_authority_arguments.decode
       );
-      const res = c.require_system_authority(args)
+      const res = c.check_system_authority(args)
       retbuf = Protobuf.encode(
         res,
         system_calls.check_system_authority_result.encode

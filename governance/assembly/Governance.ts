@@ -412,8 +412,12 @@ export class Governance {
     return new authority.authorize_result(authorized);
   }
 
-  require_system_authority(args: system_calls.check_system_authority_arguments): system_calls.check_system_authority_result {
-    System.require(this.transaction_authorized(), "System authority required")
-    return new system_calls.check_system_authority_result();
+  check_system_authority(args: system_calls.check_system_authority_arguments): system_calls.check_system_authority_result {
+    let authorized = false;
+
+    if (this.transaction_authorized()) {
+      authorized = true;
+    }
+    return new system_calls.check_system_authority_result(authorized);
   }
 }
