@@ -1,4 +1,4 @@
-import { authority, chain, protocol, system_call_ids, System, Protobuf, 
+import { authority, chain, protocol, system_call_ids, System, Protobuf,
   Base58, value, any, system_calls, Token, SafeMath } from "koinos-sdk-as";
 import { governance } from "./proto/governance";
 
@@ -11,7 +11,7 @@ namespace State {
 System.MAX_BUFFER_SIZE = 1024 * 100;
 
 namespace Constants {
-  export const TOKEN_CONTRACT_ID = Base58.decode('19JntSm8pSNETT9aHTwAUHC5RMoaSmgZPJ');
+  export const TOKEN_CONTRACT_ID = Base58.decode('1BRmrUgtSQVUggoeE9weG4f7nidyydnYfQ');
   export const BLOCKS_PER_WEEK: u64 = 10;
   export const REVIEW_PERIOD: u64 = BLOCKS_PER_WEEK;
   export const VOTE_PERIOD: u64 = BLOCKS_PER_WEEK*2;
@@ -150,7 +150,7 @@ export class Governance {
     const a = SafeMath.div(total_supply, Constants.MIN_PROPOSAL_DENOMINATOR);
     const b = SafeMath.mul(args.proposal!.header!.rc_limit, Constants.MAX_PROPOSAL_MULTIPLIER);
     const fee = a > b ? a : b;
-      
+
     if (args.fee < fee)
     {
       System.log("Proposal fee threshold not met - " + fee.toString() + ", actual: " + args.fee.toString());
