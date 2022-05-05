@@ -3,16 +3,15 @@ import { Governance as ContractClass } from "./Governance";
 import { governance as ProtoNamespace } from "./proto/governance";
 
 export function main(): i32 {
-  const entryPoint = System.getEntryPoint();
-  const rdbuf = System.getArguments();
+  const contractArgs = System.getArguments();
   let retbuf = new Uint8Array(1024);
 
   const c = new ContractClass();
 
-  switch (entryPoint) {
+  switch (contractArgs.entry_point) {
     case 0xe74b785c: {
       const args = Protobuf.decode<ProtoNamespace.submit_proposal_arguments>(
-        rdbuf,
+        contractArgs.args,
         ProtoNamespace.submit_proposal_arguments.decode
       );
       const res = c.submit_proposal(args);
@@ -25,7 +24,7 @@ export function main(): i32 {
 
     case 0xc66013ad: {
       const args = Protobuf.decode<ProtoNamespace.get_proposal_by_id_arguments>(
-        rdbuf,
+        contractArgs.args,
         ProtoNamespace.get_proposal_by_id_arguments.decode
       );
       const res = c.get_proposal_by_id(args);
@@ -39,7 +38,7 @@ export function main(): i32 {
     case 0x66206f76: {
       const args =
         Protobuf.decode<ProtoNamespace.get_proposals_by_status_arguments>(
-          rdbuf,
+          contractArgs.args,
           ProtoNamespace.get_proposals_by_status_arguments.decode
         );
       const res = c.get_proposals_by_status(args);
@@ -52,7 +51,7 @@ export function main(): i32 {
 
     case 0xd44caa11: {
       const args = Protobuf.decode<ProtoNamespace.get_proposals_arguments>(
-        rdbuf,
+        contractArgs.args,
         ProtoNamespace.get_proposals_arguments.decode
       );
       const res = c.get_proposals(args);
@@ -62,7 +61,7 @@ export function main(): i32 {
 
     case 0x531d5d4e: {
       const args = Protobuf.decode<ProtoNamespace.block_callback_arguments>(
-        rdbuf,
+        contractArgs.args,
         ProtoNamespace.block_callback_arguments.decode
       );
       const res = c.block_callback(args);
@@ -75,7 +74,7 @@ export function main(): i32 {
 
     case 0x4a2dbd90: {
       const args = Protobuf.decode<authority.authorize_arguments>(
-        rdbuf,
+        contractArgs.args,
         authority.authorize_arguments.decode
       );
       const res = c.authorize(args);
@@ -88,7 +87,7 @@ export function main(): i32 {
 
     case 0x279b51fa: {
       const args = Protobuf.decode<system_calls.check_system_authority_arguments>(
-        rdbuf,
+        contractArgs.args,
         system_calls.check_system_authority_arguments.decode
       );
       const res = c.require_system_authority(args)
