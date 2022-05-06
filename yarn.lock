@@ -1531,9 +1531,9 @@ koinos-mock-vm@^1.0.3:
   dependencies:
     as-proto "^0.2.2"
 
-"koinos-sdk-as@https://github.com/koinos/koinos-sdk-as.git#testnet-4":
+"koinos-sdk-as@https://github.com/koinos/koinos-sdk-as.git#return-bytes-array":
   version "0.4.11"
-  resolved "https://github.com/koinos/koinos-sdk-as.git#14498236cac4b798b220f8d26a6bc054e3a3c0b9"
+  resolved "https://github.com/koinos/koinos-sdk-as.git#87fc8aa4c92220b10252e3b182e6f6d3e19ce2ba"
   dependencies:
     as-bignum "^0.2.18"
     as-proto "^0.2.2"

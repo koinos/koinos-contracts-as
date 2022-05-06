@@ -58,7 +58,6 @@ export function main(): i32 {
       retbuf = Protobuf.encode(res, ProtoNamespace.get_proposals_result.encode);
       break;
     }
-
     case 0x531d5d4e: {
       const args = Protobuf.decode<ProtoNamespace.block_callback_arguments>(
         contractArgs.args,
@@ -71,7 +70,6 @@ export function main(): i32 {
       );
       break;
     }
-
     case 0x4a2dbd90: {
       const args = Protobuf.decode<authority.authorize_arguments>(
         contractArgs.args,
@@ -97,7 +95,6 @@ export function main(): i32 {
       );
       break;
     }
-
     default:
       System.exit(1);
       break;

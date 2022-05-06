@@ -110,6 +110,7 @@ export class Governance {
   submit_proposal(
     args: governance.submit_proposal_arguments
   ): governance.submit_proposal_result {
+    System.log('Submitting a proposal');
     const res = new governance.submit_proposal_result();
     res.value = false
 
