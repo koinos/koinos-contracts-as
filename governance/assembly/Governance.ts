@@ -1,5 +1,5 @@
-import { authority, chain, governance, protocol, system_call_ids, System, Protobuf,
-  Base58, value, any, system_calls, Token, SafeMath, Crypto } from "koinos-sdk-as";
+import { authority, chain, protocol, system_call_ids, System, Protobuf,
+  Base58, value, any, system_calls, Token, SafeMath, governance, Crypto } from "koinos-sdk-as";
 
 namespace State {
   export namespace Space {
@@ -10,7 +10,7 @@ namespace State {
 System.MAX_BUFFER_SIZE = 1024 * 1024; // 1 MB
 
 namespace Constants {
-  export const TOKEN_CONTRACT_ID = Base58.decode('19JntSm8pSNETT9aHTwAUHC5RMoaSmgZPJ');
+  export const TOKEN_CONTRACT_ID = Base58.decode('1BRmrUgtSQVUggoeE9weG4f7nidyydnYfQ');
   export const BLOCKS_PER_WEEK: u64 = 10;
   export const REVIEW_PERIOD: u64 = BLOCKS_PER_WEEK;
   export const VOTE_PERIOD: u64 = BLOCKS_PER_WEEK*2;
@@ -87,7 +87,7 @@ export class Governance {
 
         const syscalls = new Array<system_call_ids.system_call_id>();
         syscalls.push(system_call_ids.system_call_id.pre_block_callback);
-        syscalls.push(system_call_ids.system_call_id.require_system_authority);
+        syscalls.push(system_call_ids.system_call_id.check_system_authority);
         syscalls.push(system_call_ids.system_call_id.apply_set_system_call_operation);
         syscalls.push(system_call_ids.system_call_id.apply_set_system_contract_operation);
 
@@ -109,6 +109,7 @@ export class Governance {
   submit_proposal(
     args: governance.submit_proposal_arguments
   ): governance.submit_proposal_result {
+    System.log('Submitting a proposal');
     const res = new governance.submit_proposal_result();
     res.value = false
 
@@ -193,7 +194,7 @@ export class Governance {
     }
 
     System.log('Storing proposal');
-    let bytes = System.putObject(State.Space.PROPOSAL, args.operation_merkle_root!, prec, governance.proposal_record.encode);
+    System.putObject(State.Space.PROPOSAL, prec.operation_merkle_root!, prec, governance.proposal_record.encode);
     System.log('Stored proposal');
 
     let event = new governance.proposal_status_event();
@@ -370,7 +371,7 @@ export class Governance {
   ): system_calls.pre_block_callback_result {
     if (System.getCaller().caller_privilege != chain.privilege.kernel_mode) {
       System.log('Governance contract block callback must be called from kernel');
-      System.exitContract(1);
+      System.exit(1);
     }
 
     this.handle_votes();
@@ -379,7 +380,7 @@ export class Governance {
     const block_height_field = System.getBlockField('header.height');
     if (block_height_field == null) {
       System.log('The block height cannot be null');
-      System.exitContract(1);
+      System.exit(1);
       return new system_calls.pre_block_callback_result();
     }
     const height =  block_height_field.uint64_value as u64;
@@ -429,8 +430,12 @@ export class Governance {
     return new authority.authorize_result(authorized);
   }
 
-  require_system_authority(args: system_calls.require_system_authority_arguments): system_calls.require_system_authority_result {
-    System.require(this.transaction_authorized(), "System authority required")
-    return new system_calls.require_system_authority_result();
+  check_system_authority(args: system_calls.check_system_authority_arguments): system_calls.check_system_authority_result {
+    let authorized = false;
+
+    if (this.transaction_authorized()) {
+      authorized = true;
+    }
+    return new system_calls.check_system_authority_result(authorized);
   }
 }
