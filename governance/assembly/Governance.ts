@@ -1,5 +1,5 @@
 import { authority, chain, protocol, system_call_ids, System, Protobuf,
-  Base58, value, any, system_calls, Token, SafeMath, governance, Crypto } from "koinos-sdk-as";
+  Base58, value, any, system_calls, Token, SafeMath, governance, Crypto, Base64 } from "koinos-sdk-as";
 
 namespace State {
   export namespace Space {
@@ -136,18 +136,40 @@ export class Governance {
       return res;
     }
 
-    var hashes = new Array<Uint8Array>()
-    for (var i = 0; i < args.operations.length; i++)
+    System.log('Calculating ' + args.operations.length.toString() + ' operation hashes');
+    let hashes = new Array<Uint8Array>(args.operations.length);
+    for (let i = 0; i < args.operations.length; i++)
     {
-      const hash = System.hash(Crypto.multicodec.sha2_256, Protobuf.encode(args.operations[i], protocol.operation.encode))
+      if (args.operations[i] == null) {
+        System.log('Operation ' + i.toString() + ' is null');
+        return res;
+      }
+      else {
+        System.log('Operation is not null');
+      }
+
+      let opBytes = Protobuf.encode(args.operations[i], protocol.operation.encode);
+      System.log('Encoded operation has ' + opBytes.length.toString() + ' bytes');
+      System.log('Operation[' + i.toString() + ']: ' + Base64.encode(opBytes));
+
+      const hash = System.hash(Crypto.multicodec.sha2_256, opBytes)
       if (hash == null)
       {
         System.log('Unexpected error hashing operation');
         return res;
       }
-      hashes.push(hash)
+      else {
+        System.log("Hashed operation " + i.toString());
+      }
+
+      System.log('H(Operation[' + i.toString() + ']): ' + Base64.encode(hash));
+
+      hashes[i] = hash;
     }
 
+    System.log('Checking ' + hashes.length.toString() + ' hashes');
+
+    System.log('Verifying operation merkle root: ' + Base64.encode(args.operation_merkle_root!));
     if (!System.verifyMerkleRoot(args.operation_merkle_root!, hashes))
     {
       System.log('Operation Merkle Root does not match');
@@ -158,10 +180,7 @@ export class Governance {
     const token = new Token(Constants.TOKEN_CONTRACT_ID);
     const total_supply = token.totalSupply();
 
-    // TODO: use a safe max or w/e
-    const a = SafeMath.div(total_supply, Constants.MIN_PROPOSAL_DENOMINATOR);
-    const b = SafeMath.mul(args.fee, Constants.MAX_PROPOSAL_MULTIPLIER);
-    const fee = a > b ? a : b;
+    const fee = SafeMath.div(total_supply, Constants.MIN_PROPOSAL_DENOMINATOR);
 
     if (args.fee < fee)
     {
@@ -183,6 +202,7 @@ export class Governance {
     prec.vote_tally = 0;
     prec.shall_authorize = false;
     prec.status = governance.proposal_status.pending;
+    prec.fee = args.fee;
 
     if (this.proposal_updates_governance(args.operations)) {
       prec.updates_governance = true;
