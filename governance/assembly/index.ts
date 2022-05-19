@@ -1,4 +1,4 @@
-import { System, Protobuf, authority, system_calls, governance } from "koinos-sdk-as";
+import { System, Protobuf, authority, system_calls, governance, Base64 } from "koinos-sdk-as";
 import { Governance as ContractClass } from "./Governance";
 
 export function main(): i32 {

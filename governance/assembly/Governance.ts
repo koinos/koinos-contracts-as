@@ -130,7 +130,7 @@ export class Governance {
     const block_height =  block_height_field.uint64_value as u64;
 
     System.log('Checking prior proposal existence');
-    if (System.getBytes<Uint8Array>(State.Space.PROPOSAL, args.operation_merkle_root!))
+    if (System.getBytes<Uint8Array>(State.Space.PROPOSAL, args.operation_merkle_root))
     {
       System.log('Proposal exists and cannot be updated');
       return res;
@@ -146,6 +146,14 @@ export class Governance {
       }
       else {
         System.log('Operation is not null');
+      }
+
+      if (args.operations[i].set_system_call != null) {
+        System.log("Call ID: " + args.operations[i].set_system_call!.call_id.toString());
+        System.log("Thunk ID: " + args.operations[i].set_system_call!.target!.thunk_id.toString());
+        System.log("Contract ID length: " + args.operations[i].set_system_call!.target!.system_call_bundle!.contract_id.length.toString());
+        System.log("Contract ID: " + Base64.encode(args.operations[i].set_system_call!.target!.system_call_bundle!.contract_id));
+        System.log("Entry point: " + args.operations[i].set_system_call!.target!.system_call_bundle!.entry_point.toString());
       }
 
       let opBytes = Protobuf.encode(args.operations[i], protocol.operation.encode);
@@ -169,8 +177,8 @@ export class Governance {
 
     System.log('Checking ' + hashes.length.toString() + ' hashes');
 
-    System.log('Verifying operation merkle root: ' + Base64.encode(args.operation_merkle_root!));
-    if (!System.verifyMerkleRoot(args.operation_merkle_root!, hashes))
+    System.log('Verifying operation merkle root: ' + Base64.encode(args.operation_merkle_root));
+    if (!System.verifyMerkleRoot(args.operation_merkle_root, hashes))
     {
       System.log('Operation Merkle Root does not match');
       return res;
@@ -197,7 +205,7 @@ export class Governance {
     System.log('Creating proposal record');
     let prec = new governance.proposal_record();
     prec.operations = args.operations;
-    prec.operation_merkle_root = args.operation_merkle_root!;
+    prec.operation_merkle_root = args.operation_merkle_root;
     prec.vote_start_height = block_height + Constants.BLOCKS_PER_WEEK;
     prec.vote_tally = 0;
     prec.shall_authorize = false;
@@ -214,11 +222,11 @@ export class Governance {
     }
 
     System.log('Storing proposal');
-    System.putObject(State.Space.PROPOSAL, prec.operation_merkle_root!, prec, governance.proposal_record.encode);
+    System.putObject(State.Space.PROPOSAL, prec.operation_merkle_root, prec, governance.proposal_record.encode);
     System.log('Stored proposal');
 
     let event = new governance.proposal_status_event();
-    event.id = args.operation_merkle_root!;
+    event.id = args.operation_merkle_root;
     event.status = governance.proposal_status.pending;
 
     System.event('proposal.submission', Protobuf.encode(event, governance.proposal_status_event.encode), []);
@@ -231,7 +239,7 @@ export class Governance {
   ): governance.get_proposal_by_id_result {
     let res = new governance.get_proposal_by_id_result();
 
-    let obj = System.getObject<Uint8Array, governance.proposal_record>(State.Space.PROPOSAL, args.proposal_id!, governance.proposal_record.decode);
+    let obj = System.getObject<Uint8Array, governance.proposal_record>(State.Space.PROPOSAL, args.proposal_id, governance.proposal_record.decode);
 
     res.value = obj;
 
@@ -264,7 +272,7 @@ export class Governance {
 
     System.log('Handling pending proposal');
 
-    let id = prec.operation_merkle_root!;
+    let id = prec.operation_merkle_root;
 
     prec.status = governance.proposal_status.active;
     System.putObject(State.Space.PROPOSAL, id, prec, governance.proposal_record.encode);
@@ -283,7 +291,7 @@ export class Governance {
 
     System.log('Handling active proposal');
 
-    let id = prec.operation_merkle_root!;
+    let id = prec.operation_merkle_root;
 
     if (prec.vote_tally < prec.vote_threshold) {
       prec.status = governance.proposal_status.expired;
@@ -315,7 +323,7 @@ export class Governance {
 
     System.log('Handling approved proposal');
 
-    let id = prec.operation_merkle_root!;
+    let id = prec.operation_merkle_root;
 
     prec.shall_authorize = true;
     System.putObject(State.Space.PROPOSAL, id, prec, governance.proposal_record.encode);
@@ -352,7 +360,7 @@ export class Governance {
     System.log('Filling set');
     let proposal_set = new Set<Uint8Array>()
     for (let index = 0; index < votes.values.length; index++) {
-        const proposal = votes.values[index].bytes_value!;
+        const proposal = votes.values[index].bytes_value;
         proposal_set.add(proposal);
     }
 
@@ -429,7 +437,7 @@ export class Governance {
   }
 
   transaction_authorized(): bool {
-    let id: Uint8Array = System.getTransactionField('id')!.bytes_value!;
+    let id: Uint8Array = System.getTransactionField('id')!.bytes_value;
 
     let prec = System.getObject<Uint8Array, governance.proposal_record>(State.Space.PROPOSAL, id, governance.proposal_record.decode);
 

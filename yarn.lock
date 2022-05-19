@@ -1525,15 +1525,15 @@ koinos-mock-vm@^1.0.3:
     protobufjs "^6.11.2"
     somap "^0.5.14"
 
-"koinos-proto-as@https://github.com/koinos/koinos-proto-as.git#gov-updates":
+"koinos-proto-as@https://github.com/koinos/koinos-proto-as.git#gov-updates-new-proto":
   version "0.4.2"
-  resolved "https://github.com/koinos/koinos-proto-as.git#a37ebd34c42cc44fbfe9864870f2108b30986e75"
+  resolved "https://github.com/koinos/koinos-proto-as.git#ade4f73764f835aa0e3aba7433e886814fdc8a12"
   dependencies:
     as-proto "^0.2.2"
 
-"koinos-sdk-as@https://github.com/koinos/koinos-sdk-as.git#gov-updates":
+"koinos-sdk-as@https://github.com/koinos/koinos-sdk-as.git#gov-updates-new-proto":
   version "0.4.11"
-  resolved "https://github.com/koinos/koinos-sdk-as.git#f856e2da174a5982282667cb5b1a81a371ec26cf"
+  resolved "https://github.com/koinos/koinos-sdk-as.git#334bdd99fedce72c68271bc9c0508e0ef12b3a81"
   dependencies:
     as-bignum "^0.2.18"
     as-proto "^0.2.2"
