@@ -1,5 +1,5 @@
 import { authority, chain, protocol, system_call_ids, System, Protobuf,
-  Base58, value, any, system_calls, Token, SafeMath, governance, Crypto } from "koinos-sdk-as";
+  Base58, value, any, system_calls, Token, SafeMath, governance, Crypto, Base64 } from "koinos-sdk-as";
 
 namespace State {
   export namespace Space {
@@ -139,6 +139,19 @@ export class Governance {
     var hashes = new Array<Uint8Array>()
     for (var i = 0; i < args.operations.length; i++)
     {
+      if (args.operations[i].set_system_call != null) {
+        System.log("Call ID: " + args.operations[i].set_system_call!.call_id.toString());
+        System.log("Thunk ID: " + args.operations[i].set_system_call!.target!.thunk_id.toString());
+        if ( args.operations[i].set_system_call!.target!.system_call_bundle!.contract_id != null) {
+          System.log("Contract ID length: " + args.operations[i].set_system_call!.target!.system_call_bundle!.contract_id!.length.toString());
+          System.log("Contract ID: " + Base64.encode(args.operations[i].set_system_call!.target!.system_call_bundle!.contract_id!));
+        }
+        else
+        {
+          System.log("Contract ID is null");
+        }
+        System.log("Entry point: " + args.operations[i].set_system_call!.target!.system_call_bundle!.entry_point.toString());
+      }
       const hash = System.hash(Crypto.multicodec.sha2_256, Protobuf.encode(args.operations[i], protocol.operation.encode))
       if (hash == null)
       {
