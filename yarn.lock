@@ -1527,13 +1527,13 @@ koinos-mock-vm@^1.0.3:
 
 "koinos-proto-as@https://github.com/koinos/koinos-proto-as.git#gov-updates-new-proto":
   version "0.4.2"
-  resolved "https://github.com/koinos/koinos-proto-as.git#ade4f73764f835aa0e3aba7433e886814fdc8a12"
+  resolved "https://github.com/koinos/koinos-proto-as.git#397c0e57002dd1a2487c6f54d6e02bdf523f05d8"
   dependencies:
     as-proto "^0.2.2"
 
 "koinos-sdk-as@https://github.com/koinos/koinos-sdk-as.git#gov-updates-new-proto":
   version "0.4.11"
-  resolved "https://github.com/koinos/koinos-sdk-as.git#334bdd99fedce72c68271bc9c0508e0ef12b3a81"
+  resolved "https://github.com/koinos/koinos-sdk-as.git#0ea2ac049f9929147a0d043db4887f5dfb7045ba"
   dependencies:
     as-bignum "^0.2.18"
     as-proto "^0.2.2"
