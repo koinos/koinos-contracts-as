@@ -1,5 +1,5 @@
 import { authority, chain, protocol, system_call_ids, System, Protobuf,
-  Base58, value, error, system_calls, Token, SafeMath, governance, Crypto, Base64 } from "koinos-sdk-as";
+  Base58, value, error, system_calls, Token, SafeMath, governance, Crypto } from "koinos-sdk-as";
 
 namespace State {
   export namespace Space {
@@ -303,7 +303,7 @@ export class Governance {
 
     trx.header!.nonce = Protobuf.encode(nonce, value.value_type.encode);
 
-    trx.header!.rc_limit = 1000000000;
+    trx.header!.rc_limit = prec.fee / Constants.MAX_PROPOSAL_MULTIPLIER;
 
     let header_bytes = Protobuf.encode(trx.header!, protocol.transaction_header.encode);
     trx.id = System.hash(Crypto.multicodec.sha2_256, header_bytes);
@@ -380,21 +380,14 @@ export class Governance {
   block_callback(
     args: system_calls.pre_block_callback_arguments
   ): system_calls.pre_block_callback_result {
-    if (System.getCaller().caller_privilege != chain.privilege.kernel_mode) {
-      System.log('Governance contract block callback must be called from kernel');
-      System.exit(1);
-    }
+    System.require(System.getCaller().caller_privilege == chain.privilege.kernel_mode, 'governance contract block callback must be called from kernel')
 
     this.handle_votes();
     System.log('Executing governance block callback');
 
-    const block_height_field = System.getBlockField('header.height');
-    if (block_height_field == null) {
-      System.log('The block height cannot be null');
-      System.exit(1);
-      return new system_calls.pre_block_callback_result();
-    }
-    const height =  block_height_field.uint64_value as u64;
+    const blockHeightField = System.getBlockField('header.height');
+    System.require(blockHeightField != null, 'block height cannot be null');
+    const height = blockHeightField!.uint64_value as u64;
 
     let proposals = this.retrieve_proposals(0, new Uint8Array(0));
     System.log("Found " + proposals.length.toString() + " proposals")
