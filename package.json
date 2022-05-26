@@ -7,8 +7,8 @@
   "repository": "https://github.com/roaminroe/koinos-as-sdk-examples",
   "dependencies": {
     "commander": "^9.0.0",
-    "koinos-proto-as": "https://github.com/koinos/koinos-proto-as.git#gov-updates-new-proto",
-    "koinos-sdk-as": "https://github.com/koinos/koinos-sdk-as.git#gov-updates-new-proto"
+    "koinos-proto-as": "https://github.com/koinos/koinos-proto-as.git#testnet-4",
+    "koinos-sdk-as": "https://github.com/koinos/koinos-sdk-as.git#testnet-4"
   },
   "devDependencies": {
     "@as-covers/core": "^0.2.1",

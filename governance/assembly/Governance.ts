@@ -1,5 +1,5 @@
 import { authority, chain, protocol, system_call_ids, System, Protobuf,
-  Base58, value, any, system_calls, Token, SafeMath, governance, Crypto, Base64 } from "koinos-sdk-as";
+  Base58, value, error, system_calls, Token, SafeMath, governance, Crypto, Base64 } from "koinos-sdk-as";
 
 namespace State {
   export namespace Space {
@@ -113,87 +113,44 @@ export class Governance {
     const res = new governance.submit_proposal_result();
     res.value = false
 
-    System.log('Checking payer');
-    const payer_field = System.getTransactionField('header.payer');
-    if (payer_field == null) {
-      System.log('The payer field cannot be null');
-      return res;
-    }
-    const payer = payer_field.bytes_value as Uint8Array;
+    System.require(args.operation_merkle_root != null, 'operation merkle root cannot be null');
+    const operationMerkleRoot = args.operation_merkle_root!;
 
-    System.log('Checking header height');
-    const block_height_field = System.getBlockField('header.height');
-    if (block_height_field == null) {
-      System.log('The block height cannot be null');
-      return res;
-    }
-    const block_height =  block_height_field.uint64_value as u64;
+    const payerField = System.getTransactionField('header.payer');
+    System.require(payerField != null, 'payer field cannot be null');
+    const payer = payerField!.bytes_value as Uint8Array;
 
-    System.log('Checking prior proposal existence');
-    if (System.getBytes<Uint8Array>(State.Space.PROPOSAL, args.operation_merkle_root!))
-    {
-      System.log('Proposal exists and cannot be updated');
-      return res;
-    }
+    const blockHeightField = System.getBlockField('header.height');
+    System.require(blockHeightField != null, 'block height cannot be null');
+    const blockHeight =  blockHeightField!.uint64_value as u64;
 
-    System.log('Calculating ' + args.operations.length.toString() + ' operation hashes');
+    System.require(System.getBytes<Uint8Array>(State.Space.PROPOSAL, operationMerkleRoot) == null, 'proposal exists and cannot be updated');
+    System.require(args.operations.length > 0, 'proposal must have one or more operations');
+
     let hashes = new Array<Uint8Array>(args.operations.length);
     for (let i = 0; i < args.operations.length; i++)
     {
-      if (args.operations[i] == null) {
-        System.log('Operation ' + i.toString() + ' is null');
-        return res;
-      }
-      else {
-        System.log('Operation is not null');
-      }
-
-      if (args.operations[i].set_system_call != null) {
-        System.log("Call ID: " + args.operations[i].set_system_call!.call_id.toString());
-        System.log("Thunk ID: " + args.operations[i].set_system_call!.target!.thunk_id.toString());
-        if (args.operations[i].set_system_call!.target!.system_call_bundle!.contract_id != null) {
-          System.log("Contract ID length: " + args.operations[i].set_system_call!.target!.system_call_bundle!.contract_id!.length.toString());
-          System.log("Contract ID: " + Base64.encode(args.operations[i].set_system_call!.target!.system_call_bundle!.contract_id!));
-        }
-        else {
-          System.log("Contract ID is null");
-        }
-        System.log("Entry point: " + args.operations[i].set_system_call!.target!.system_call_bundle!.entry_point.toString());
-      }
+      System.require(args.operations[i] != null, 'proposal operation cannot be null');
 
       let opBytes = Protobuf.encode(args.operations[i], protocol.operation.encode);
-      System.log('Encoded operation has ' + opBytes.length.toString() + ' bytes');
-      System.log('Operation[' + i.toString() + ']: ' + Base64.encode(opBytes));
 
-      const hash = System.hash(Crypto.multicodec.sha2_256, opBytes)
-      if (hash == null)
-      {
-        System.log('Unexpected error hashing operation');
-        return res;
-      }
-      else {
-        System.log("Hashed operation " + i.toString());
-      }
+      const hash = System.hash(Crypto.multicodec.sha2_256, opBytes);
+      System.require(hash != null, 'operation hash cannot be null');
 
-      System.log('H(Operation[' + i.toString() + ']): ' + Base64.encode(hash));
-
-      hashes[i] = hash;
+      hashes[i] = hash!;
     }
 
-    System.log('Checking ' + hashes.length.toString() + ' hashes');
-
-    System.log('Verifying operation merkle root: ' + Base64.encode(args.operation_merkle_root!));
-    if (!System.verifyMerkleRoot(args.operation_merkle_root!, hashes))
+    if (!System.verifyMerkleRoot(operationMerkleRoot, hashes))
     {
-      System.log('Operation Merkle Root does not match');
+      System.log('Proposal operation merkle root does not match');
       return res;
     }
 
     System.log('Burning proposal fee');
     const token = new Token(Constants.TOKEN_CONTRACT_ID);
-    const total_supply = token.totalSupply();
+    const totalSupply = token.totalSupply();
 
-    const fee = SafeMath.div(total_supply, Constants.MIN_PROPOSAL_DENOMINATOR);
+    const fee = SafeMath.div(totalSupply, Constants.MIN_PROPOSAL_DENOMINATOR);
 
     if (args.fee < fee)
     {
@@ -211,7 +168,7 @@ export class Governance {
     let prec = new governance.proposal_record();
     prec.operations = args.operations;
     prec.operation_merkle_root = args.operation_merkle_root;
-    prec.vote_start_height = block_height + Constants.BLOCKS_PER_WEEK;
+    prec.vote_start_height = blockHeight + Constants.BLOCKS_PER_WEEK;
     prec.vote_tally = 0;
     prec.shall_authorize = false;
     prec.status = governance.proposal_status.pending;
@@ -345,25 +302,30 @@ export class Governance {
     nonce.uint64_value = nonce.uint64_value + 1;
 
     trx.header!.nonce = Protobuf.encode(nonce, value.value_type.encode);
-    trx.header!.rc_limit = 10000000;
+
+    trx.header!.rc_limit = 1000000000;
+
+    let header_bytes = Protobuf.encode(trx.header!, protocol.transaction_header.encode);
+    trx.id = System.hash(Crypto.multicodec.sha2_256, header_bytes);
 
     let code = System.applyTransaction(trx);
-    if (code) {
+
+    if (code != error.error_code.success) {
       System.log("There was a problem applying proposal, code: " + code.toString());
+      prec.status = governance.proposal_status.reverted;
     }
     else {
       System.log("Successfully applied proposal");
-
       prec.status = governance.proposal_status.applied;
-
-      System.removeObject(State.Space.PROPOSAL, id);
-
-      let event = new governance.proposal_status_event();
-      event.id = id;
-      event.status = prec.status;
-
-      System.event('proposal.status', Protobuf.encode(event, governance.proposal_status_event.encode), []);
     }
+
+    let event = new governance.proposal_status_event();
+    event.id = id;
+    event.status = prec.status;
+
+    System.event('proposal.status', Protobuf.encode(event, governance.proposal_status_event.encode), []);
+
+    System.removeObject(State.Space.PROPOSAL, id);
   }
 
   handle_votes(): void {
@@ -458,13 +420,15 @@ export class Governance {
   }
 
   transaction_authorized(): bool {
-    let id: Uint8Array = System.getTransactionField('id')!.bytes_value!;
+    let id: Uint8Array = System.getTransactionField('header.operation_merkle_root')!.bytes_value!;
 
     let prec = System.getObject<Uint8Array, governance.proposal_record>(State.Space.PROPOSAL, id, governance.proposal_record.decode);
 
-    if (prec != null)
-      if (prec.shall_authorize)
+    if (prec != null) {
+      if (prec.shall_authorize) {
         return true;
+      }
+    }
 
     return false;
   }
