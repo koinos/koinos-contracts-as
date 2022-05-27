@@ -258,25 +258,18 @@ export class Governance {
 
     if (prec.vote_tally < prec.vote_threshold) {
       prec.status = governance.proposal_status.expired;
-
-      let event = new governance.proposal_status_event();
-      event.id = id;
-      event.status = prec.status;
-
-      System.event('proposal.status', Protobuf.encode(event, governance.proposal_status_event.encode), []);
-
       System.removeObject(State.Space.PROPOSAL, id);
     }
     else {
       prec.status = governance.proposal_status.approved;
       System.putObject(State.Space.PROPOSAL, id, prec, governance.proposal_record.encode);
-
-      let event = new governance.proposal_status_event();
-      event.id = id;
-      event.status = prec.status;
-
-      System.event('proposal.status', Protobuf.encode(event, governance.proposal_status_event.encode), []);
     }
+
+    let event = new governance.proposal_status_event();
+    event.id = id;
+    event.status = prec.status;
+
+    System.event('proposal.status', Protobuf.encode(event, governance.proposal_status_event.encode), []);
   }
 
   handle_approved_proposal(prec: governance.proposal_record, height: u64): void {
