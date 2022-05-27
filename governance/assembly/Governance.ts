@@ -71,18 +71,15 @@ export class Governance {
   }
 
   proposal_updates_governance(operations: Array<protocol.operation>): bool {
-    System.log('Checking if proposal updates governance')
     for (let index = 0; index < operations.length; index++) {
       const op = operations[index];
 
       if (op.upload_contract) {
-        System.log('Does upload contract')
         const upload_operation = (op.upload_contract as protocol.upload_contract_operation);
         if (upload_operation.contract_id == System.getContractId())
           return true;
       }
       else if (op.set_system_call) {
-        System.log('Does set system call')
         const set_system_call_operation = (op.set_system_call as protocol.set_system_call_operation);
 
         const syscalls = new Array<system_call_ids.system_call_id>();
@@ -97,7 +94,6 @@ export class Governance {
         }
       }
       else if (op.set_system_contract) {
-        System.log('Does set system contract')
         const set_system_contract_operation = (op.set_system_contract as protocol.set_system_contract_operation);
         if (set_system_contract_operation.contract_id == System.getContractId())
           return true;
@@ -109,7 +105,7 @@ export class Governance {
   submit_proposal(
     args: governance.submit_proposal_arguments
   ): governance.submit_proposal_result {
-    System.log('Submitting a proposal');
+    System.log('Received governance proposal submission');
     const res = new governance.submit_proposal_result();
     res.value = false
 
@@ -146,7 +142,6 @@ export class Governance {
       return res;
     }
 
-    System.log('Burning proposal fee');
     const token = new Token(Constants.TOKEN_CONTRACT_ID);
     const totalSupply = token.totalSupply();
 
@@ -183,9 +178,7 @@ export class Governance {
       prec.vote_threshold = Constants.VOTE_PERIOD * Constants.STANDARD_THRESHOLD / 100;
     }
 
-    System.log('Storing proposal');
     System.putObject(State.Space.PROPOSAL, prec.operation_merkle_root!, prec, governance.proposal_record.encode);
-    System.log('Stored proposal');
 
     let event = new governance.proposal_status_event();
     event.id = args.operation_merkle_root;
@@ -227,8 +220,6 @@ export class Governance {
   }
 
   handle_pending_proposal(prec: governance.proposal_record, height: u64): void {
-    System.log('Vote start height: ' + prec.vote_start_height.toString());
-    System.log('Height: ' + height.toString());
     if (prec.vote_start_height != height) {
       return;
     }
@@ -331,10 +322,8 @@ export class Governance {
       return;
     }
 
-    System.log('Decoding list value');
     const votes = Protobuf.decode<value.list_type>(proposal_votes_bytes.message_value!.value!, value.list_type.decode);
 
-    System.log('Filling set');
     let proposal_set = new Set<Uint8Array>()
     for (let index = 0; index < votes.values.length; index++) {
         const proposal = votes.values[index].bytes_value;
@@ -343,7 +332,6 @@ export class Governance {
 
     let proposals = proposal_set.values();
 
-    System.log('Looping set');
     for (let index = 0; index < proposals.length; index++) {
       let id = proposals[index];
 
