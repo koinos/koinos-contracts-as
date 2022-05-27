@@ -193,6 +193,7 @@ export class Governance {
 
     System.event('proposal.submission', Protobuf.encode(event, governance.proposal_status_event.encode), []);
 
+    res.value = true;
     return res;
   }
 
