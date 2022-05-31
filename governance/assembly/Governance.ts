@@ -132,15 +132,15 @@ export class Governance {
       hashes[i] = hash!;
     }
 
-    System.require(System.verifyMerkleRoot(operationMerkleRoot, hashes), 'Proposal operation merkle root does not match');
+    System.require(System.verifyMerkleRoot(operationMerkleRoot, hashes), 'proposal operation merkle root does not match');
 
     const token = new Token(Constants.TOKEN_CONTRACT_ID);
     const totalSupply = token.totalSupply();
 
     const fee = SafeMath.div(totalSupply, Constants.MIN_PROPOSAL_DENOMINATOR);
 
-    System.require(args.fee >= fee, 'Proposal fee threshold not met - ' + fee.toString() + ', actual: ' + args.fee.toString());
-    System.require(token.burn(payer, args.fee), 'Could not burn KOIN for proposal submission');
+    System.require(args.fee >= fee, 'proposal fee threshold not met - ' + fee.toString() + ', actual: ' + args.fee.toString());
+    System.require(token.burn(payer, args.fee), 'could not burn KOIN for proposal submission');
 
     let prec = new governance.proposal_record();
     prec.operations = args.operations;
