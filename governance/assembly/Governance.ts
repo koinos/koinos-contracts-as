@@ -105,7 +105,6 @@ export class Governance {
   submit_proposal(
     args: governance.submit_proposal_arguments
   ): governance.submit_proposal_result {
-    System.log('Received governance proposal submission');
     const res = new governance.submit_proposal_result();
     res.value = false
 
@@ -159,7 +158,6 @@ export class Governance {
       return res;
     }
 
-    System.log('Creating proposal record');
     let prec = new governance.proposal_record();
     prec.operations = args.operations;
     prec.operation_merkle_root = args.operation_merkle_root;
@@ -223,9 +221,6 @@ export class Governance {
     if (prec.vote_start_height != height) {
       return;
     }
-
-    System.log('Handling pending proposal');
-
     let id = prec.operation_merkle_root!;
 
     prec.status = governance.proposal_status.active;
@@ -242,9 +237,6 @@ export class Governance {
     if (prec.vote_start_height + Constants.VOTE_PERIOD != height) {
       return;
     }
-
-    System.log('Handling active proposal');
-
     let id = prec.operation_merkle_root!;
 
     if (prec.vote_tally < prec.vote_threshold) {
@@ -267,8 +259,6 @@ export class Governance {
     if (prec.vote_start_height + Constants.VOTE_PERIOD + Constants.APPLICATION_DELAY != height) {
       return;
     }
-
-    System.log('Handling approved proposal');
 
     let id = prec.operation_merkle_root!;
 
@@ -296,11 +286,9 @@ export class Governance {
     let code = System.applyTransaction(trx);
 
     if (code != error.error_code.success) {
-      System.log("There was a problem applying proposal, code: " + code.toString());
       prec.status = governance.proposal_status.reverted;
     }
     else {
-      System.log("Successfully applied proposal");
       prec.status = governance.proposal_status.applied;
     }
 
@@ -314,11 +302,8 @@ export class Governance {
   }
 
   handle_votes(): void {
-    System.log('Handling votes');
-
     const proposal_votes_bytes = System.getBlockField('header.approved_proposals');
     if (proposal_votes_bytes == null || proposal_votes_bytes.message_value == null || proposal_votes_bytes.message_value!.value == null) {
-      System.log('No approved proposal message on block');
       return;
     }
 
@@ -365,14 +350,12 @@ export class Governance {
     System.require(System.getCaller().caller_privilege == chain.privilege.kernel_mode, 'governance contract block callback must be called from kernel')
 
     this.handle_votes();
-    System.log('Executing governance block callback');
 
     const blockHeightField = System.getBlockField('header.height');
     System.require(blockHeightField != null, 'block height cannot be null');
     const height = blockHeightField!.uint64_value as u64;
 
     let proposals = this.retrieve_proposals(0, new Uint8Array(0));
-    System.log("Found " + proposals.length.toString() + " proposals")
     for (let i = 0; i < proposals.length; i++) {
       let proposal = proposals[i];
       switch (proposal.status) {
