@@ -105,9 +105,6 @@ export class Governance {
   submit_proposal(
     args: governance.submit_proposal_arguments
   ): governance.submit_proposal_result {
-    const res = new governance.submit_proposal_result();
-    res.value = false
-
     System.require(args.operation_merkle_root != null, 'operation merkle root cannot be null');
     const operationMerkleRoot = args.operation_merkle_root!;
 
@@ -135,28 +132,15 @@ export class Governance {
       hashes[i] = hash!;
     }
 
-    if (!System.verifyMerkleRoot(operationMerkleRoot, hashes))
-    {
-      System.log('Proposal operation merkle root does not match');
-      return res;
-    }
+    System.require(System.verifyMerkleRoot(operationMerkleRoot, hashes), 'Proposal operation merkle root does not match');
 
     const token = new Token(Constants.TOKEN_CONTRACT_ID);
     const totalSupply = token.totalSupply();
 
     const fee = SafeMath.div(totalSupply, Constants.MIN_PROPOSAL_DENOMINATOR);
 
-    if (args.fee < fee)
-    {
-      System.log("Proposal fee threshold not met - " + fee.toString() + ", actual: " + args.fee.toString());
-      return res;
-    }
-
-    if (!token.burn(payer, args.fee))
-    {
-      System.log("Could not burn KOIN for proposal submission");
-      return res;
-    }
+    System.require(args.fee >= fee, 'Proposal fee threshold not met - ' + fee.toString() + ', actual: ' + args.fee.toString());
+    System.require(token.burn(payer, args.fee), 'Could not burn KOIN for proposal submission');
 
     let prec = new governance.proposal_record();
     prec.operations = args.operations;
@@ -184,8 +168,7 @@ export class Governance {
 
     System.event('proposal.submission', Protobuf.encode(event, governance.proposal_status_event.encode), []);
 
-    res.value = true;
-    return res;
+    return new governance.submit_proposal_result();
   }
 
   get_proposal_by_id(
