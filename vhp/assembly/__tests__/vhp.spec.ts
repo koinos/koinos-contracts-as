@@ -1,4 +1,4 @@
-import { Base58, chain, Arrays, MockVM, token, authority, Protobuf } from "koinos-sdk-as";
+import { Base58, MockVM, token, authority, Arrays, Protobuf, chain } from "koinos-sdk-as";
 import { Vhp } from "../Vhp";
 
 const CONTRACT_ID = Base58.decode("1DQzuCcTKacbs9GGScRTU1Hc8BsyARTPqe");
@@ -6,7 +6,7 @@ const CONTRACT_ID = Base58.decode("1DQzuCcTKacbs9GGScRTU1Hc8BsyARTPqe");
 const MOCK_ACCT1 = Base58.decode("1DQzuCcTKacbs9GGScRTU1Hc8BsyARTPqG");
 const MOCK_ACCT2 = Base58.decode("1DQzuCcTKacbs9GGScRTU1Hc8BsyARTPqK");
 
-describe("token", () => {
+describe("vhp", () => {
   beforeEach(() => {
     MockVM.reset();
     MockVM.setContractId(CONTRACT_ID);
@@ -42,6 +42,11 @@ describe("token", () => {
   it("should/not burn tokens", () => {
     const tkn = new Vhp();
 
+    let callerData = new chain.caller_data();
+    callerData.caller = CONTRACT_ID;
+    callerData.caller_privilege = chain.privilege.kernel_mode;
+    MockVM.setCaller(callerData);
+
     // set contract_call authority for CONTRACT_ID to true so that we can mint tokens
     let auth = new MockVM.MockAuthority(authority.authorization_type.contract_call, CONTRACT_ID, true);
     MockVM.setAuthorities([auth]);
@@ -56,6 +61,9 @@ describe("token", () => {
     const mintRes = tkn.mint(mintArgs);
 
     expect(mintRes.value).toBe(true);
+
+    totalSupplyRes = tkn.total_supply(totalSupplyArgs);
+    expect(totalSupplyRes.value).toBe(123);
 
     auth = new MockVM.MockAuthority(authority.authorization_type.contract_call, MOCK_ACCT1, true);
     MockVM.setAuthorities([auth]);

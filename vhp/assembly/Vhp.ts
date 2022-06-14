@@ -125,7 +125,12 @@ export class Vhp {
 
     System.require(args.to != null, "mint argument 'to' cannot be null");
     System.require(args.value != 0, "mint argument 'value' cannot be zero");
-    System.require(System.getCaller().caller_privilege == chain.privilege.kernel_mode, 'insufficient privileges to mint');
+    if (BUILD_FOR_TESTING) {
+      System.requireAuthority(authority.authorization_type.contract_call, Constants.CONTRACT_ID);
+    }
+    else {
+      System.require(System.getCaller().caller_privilege == chain.privilege.kernel_mode, 'insufficient privileges to mint');
+    }
 
     let supplyObject = System.getObject<Uint8Array, token.balance_object>(State.Space.SUPPLY, Constants.SUPPLY_KEY, token.balance_object.decode);
 
