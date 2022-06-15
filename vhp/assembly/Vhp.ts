@@ -72,9 +72,6 @@ export class Vhp {
   }
 
   transfer(args: token.transfer_arguments): token.transfer_result {
-    let result = new token.transfer_result();
-    result.value = false;
-
     System.require(args.to != null, 'to cannot be null');
     System.require(args.from != null, 'from cannot be null');
     System.require(args.to != args.from, 'cannot transfer to yourself');
@@ -115,14 +112,10 @@ export class Vhp {
 
     System.event('vhp.transfer', Protobuf.encode(event, token.transfer_event.encode), impacted);
 
-    result.value = true;
-    return result;
+    return new token.transfer_result();
   }
 
   mint(args: token.mint_arguments): token.mint_result {
-    let result = new token.mint_result();
-    result.value = false;
-
     System.require(args.to != null, "mint argument 'to' cannot be null");
     System.require(args.value != 0, "mint argument 'value' cannot be zero");
     if (BUILD_FOR_TESTING) {
@@ -163,14 +156,10 @@ export class Vhp {
 
     System.event('vhp.mint', Protobuf.encode(event, token.mint_event.encode), impacted);
 
-    result.value = true;
-    return result;
+    return new token.mint_result();;
   }
 
   burn(args: token.burn_arguments): token.burn_result {
-    let result = new token.burn_result();
-    result.value = false;
-
     System.require(args.from != null, "burn argument 'from' cannot be null");
 
     let callerData = System.getCaller();
@@ -209,7 +198,6 @@ export class Vhp {
 
     System.event('vhp.burn', Protobuf.encode(event, token.burn_event.encode), impacted);
 
-    result.value = true;
-    return result;
+    return new token.burn_result();
   }
 }
