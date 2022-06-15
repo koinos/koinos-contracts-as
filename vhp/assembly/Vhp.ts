@@ -15,8 +15,8 @@ namespace Constants {
 
 namespace State {
   export namespace Space {
-    export const SUPPLY = new chain.object_space(true, System.getContractId(), Constants.SUPPLY_ID);
-    export const BALANCE = new chain.object_space(true, System.getContractId(), Constants.BALANCE_ID);
+    export const SUPPLY = new chain.object_space(true, Constants.CONTRACT_ID, Constants.SUPPLY_ID);
+    export const BALANCE = new chain.object_space(true, Constants.CONTRACT_ID, Constants.BALANCE_ID);
   }
 }
 
