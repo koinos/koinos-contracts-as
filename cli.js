@@ -71,10 +71,11 @@ program.command('build')
   .description('Build index.ts file')
   .argument('<contractFolderPath>', 'Path to the contract folder')
   .argument('<buildMode>', 'Build mode debug or realease')
-  .action((contractFolderPath, buildMode) => {
+  .argument('[testing]', 'Build with testing flag (1/0)', 0)
+  .action((contractFolderPath, buildMode, testing) => {
     // compile index.ts
     console.log('Compiling index.ts...');
-    const cmd = `node ./node_modules/assemblyscript/bin/asc ${contractFolderPath}/assembly/index.ts --target ${buildMode} --use abort= --config ${contractFolderPath}/asconfig.json`;
+    const cmd = `node ./node_modules/assemblyscript/bin/asc ${contractFolderPath}/assembly/index.ts --target ${buildMode} --use abort= --use BUILD_FOR_TESTING=${testing} --config ${contractFolderPath}/asconfig.json`;
     console.log(cmd);
     execSync(cmd, { stdio: 'inherit' });
   });
@@ -88,7 +89,7 @@ program.command('generate-abi')
     // that's the only one for which we auto populate the contract path
     // the rest must have the full path to the proto files
     protoFileNames[0] = `${contractFolderPath}/assembly/proto/${protoFileNames[0]}`;
-    
+
     // compile proto file
     console.log('Generating ABI file...');
     const cmd = `yarn protoc --plugin=protoc-gen-abi=${koinoABIGenPath} --abi_out=${contractFolderPath}/abi/ ${protoFileNames.join(' ')}`;
