@@ -5,7 +5,7 @@ export function main(): i32 {
   const contractArgs = System.getArguments();
   let retbuf = new Uint8Array(1024);
 
-  const c = new ContractClass();
+  const c = new ContractClass(BUILD_FOR_TESTING);
 
   switch (contractArgs.entry_point) {
     case 0x82a3537f: {

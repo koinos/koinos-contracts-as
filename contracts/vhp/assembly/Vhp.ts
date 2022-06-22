@@ -10,17 +10,26 @@ namespace Constants {
   export const SUPPLY_ID: u32 = 0;
   export const BALANCE_ID: u32 = 1;
   export const SUPPLY_KEY = new Uint8Array(0);
-  export const CONTRACT_ID = System.getContractId();
+  export var   CONTRACT_ID: Uint8Array;
 }
 
 namespace State {
   export namespace Space {
-    export const SUPPLY = new chain.object_space(true, Constants.CONTRACT_ID, Constants.SUPPLY_ID);
-    export const BALANCE = new chain.object_space(true, Constants.CONTRACT_ID, Constants.BALANCE_ID);
+    export var SUPPLY: chain.object_space;
+    export var BALANCE: chain.object_space;
   }
 }
 
 export class Vhp {
+  private is_testing: bool;
+
+  constructor(is_testing: bool = false) {
+    this.is_testing = is_testing;
+    Constants.CONTRACT_ID = System.getContractId();
+    State.Space.SUPPLY = new chain.object_space(true, Constants.CONTRACT_ID, Constants.SUPPLY_ID);
+    State.Space.BALANCE = new chain.object_space(true, Constants.CONTRACT_ID, Constants.BALANCE_ID);
+  }
+
   name(args?: token.name_arguments): token.name_result {
     let result = new token.name_result();
     result.value = Constants.NAME;
@@ -120,7 +129,7 @@ export class Vhp {
     System.require(args.value != 0, "mint argument 'value' cannot be zero");
 
     if (System.getCaller().caller_privilege != chain.privilege.kernel_mode) {
-      if (BUILD_FOR_TESTING) {
+      if (this.is_testing) {
         System.requireAuthority(authority.authorization_type.contract_call, Constants.CONTRACT_ID);
       }
       else {
