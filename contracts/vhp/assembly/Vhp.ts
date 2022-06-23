@@ -10,17 +10,24 @@ namespace Constants {
   export const SUPPLY_ID: u32 = 0;
   export const BALANCE_ID: u32 = 1;
   export const SUPPLY_KEY = new Uint8Array(0);
-  export const CONTRACT_ID = System.getContractId();
+  export var   CONTRACT_ID: Uint8Array;
 }
 
 namespace State {
   export namespace Space {
-    export const SUPPLY = new chain.object_space(true, Constants.CONTRACT_ID, Constants.SUPPLY_ID);
-    export const BALANCE = new chain.object_space(true, Constants.CONTRACT_ID, Constants.BALANCE_ID);
+    export var SUPPLY: chain.object_space;
+    export var BALANCE: chain.object_space;
   }
 }
 
 export class Vhp {
+
+  constructor() {
+    Constants.CONTRACT_ID = System.getContractId();
+    State.Space.SUPPLY = new chain.object_space(true, Constants.CONTRACT_ID, Constants.SUPPLY_ID);
+    State.Space.BALANCE = new chain.object_space(true, Constants.CONTRACT_ID, Constants.BALANCE_ID);
+  }
+
   name(args?: token.name_arguments): token.name_result {
     let result = new token.name_result();
     result.value = Constants.NAME;

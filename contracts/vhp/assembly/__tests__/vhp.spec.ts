@@ -10,6 +10,7 @@ describe("vhp", () => {
   beforeEach(() => {
     MockVM.reset();
     MockVM.setContractId(CONTRACT_ID);
+    MockVM.setCaller(new chain.caller_data(new Uint8Array(0), chain.privilege.user_mode));
   });
 
   it("should get the name", () => {
@@ -58,21 +59,20 @@ describe("vhp", () => {
 
     // mint tokens
     const mintArgs = new token.mint_arguments(MOCK_ACCT1, 123);
-    const mintRes = tkn.mint(mintArgs);
-
-    expect(mintRes.value).toBe(true);
+    tkn.mint(mintArgs);
 
     totalSupplyRes = tkn.total_supply(totalSupplyArgs);
     expect(totalSupplyRes.value).toBe(123);
+
+    let balanceArgs = new token.balance_of_arguments(MOCK_ACCT1);
+    let balanceRes = tkn.balance_of(balanceArgs);
+    expect(balanceRes.value).toBe(123);
 
     auth = new MockVM.MockAuthority(authority.authorization_type.contract_call, MOCK_ACCT1, true);
     MockVM.setAuthorities([auth]);
 
     // burn tokens
-    let burnArgs = new token.burn_arguments(MOCK_ACCT1, 10);
-    let burnRes = tkn.burn(burnArgs);
-
-    expect(burnRes.value).toBe(true);
+    tkn.burn(new token.burn_arguments(MOCK_ACCT1, 10));
 
     // check events
     const events = MockVM.getEvents();
@@ -89,8 +89,8 @@ describe("vhp", () => {
     expect(burnEvent.value).toBe(10);
 
     // check balance
-    let balanceArgs = new token.balance_of_arguments(MOCK_ACCT1);
-    let balanceRes = tkn.balance_of(balanceArgs);
+    balanceArgs = new token.balance_of_arguments(MOCK_ACCT1);
+    balanceRes = tkn.balance_of(balanceArgs);
     expect(balanceRes.value).toBe(113);
 
     // check total supply
@@ -98,10 +98,11 @@ describe("vhp", () => {
     expect(totalSupplyRes.value).toBe(113);
 
     // does not burn tokens
-    burnArgs = new token.burn_arguments(MOCK_ACCT1, 200);
-    burnRes = tkn.burn(burnArgs);
-
-    expect(burnRes.value).toBe(false);
+    expect(() => {
+      const tkn = new Vhp();
+      const burnArgs = new token.burn_arguments(MOCK_ACCT1, 200);
+      tkn.burn(burnArgs);
+    }).toThrow();
 
     // check logs
     const logs = MockVM.getLogs();
@@ -144,9 +145,7 @@ describe("vhp", () => {
 
     // mint tokens
     const mintArgs = new token.mint_arguments(MOCK_ACCT1, 123);
-    const mintRes = tkn.mint(mintArgs);
-
-    expect(mintRes.value).toBe(true);
+    tkn.mint(mintArgs);
 
     // check events
     const events = MockVM.getEvents();
@@ -213,17 +212,18 @@ describe("vhp", () => {
     MockVM.setAuthorities([auth]);
 
     let mintArgs = new token.mint_arguments(MOCK_ACCT2, 123);
-    let mintRes = tkn.mint(mintArgs);
-    expect(mintRes.value).toBe(true);
+    tkn.mint(mintArgs);
 
     // check total supply
     const totalSupplyArgs = new token.total_supply_arguments();
     let totalSupplyRes = tkn.total_supply(totalSupplyArgs);
     expect(totalSupplyRes.value).toBe(123);
 
-    mintArgs = new token.mint_arguments(MOCK_ACCT2, u64.MAX_VALUE);
-    mintRes = tkn.mint(mintArgs);
-    expect(mintRes.value).toBe(false);
+    expect(() => {
+      const tkn = new Vhp();
+      const mintArgs = new token.mint_arguments(MOCK_ACCT2, u64.MAX_VALUE);
+      tkn.mint(mintArgs)
+    }).toThrow();
 
     // check total supply
     totalSupplyRes = tkn.total_supply(totalSupplyArgs);
@@ -247,15 +247,11 @@ describe("vhp", () => {
 
     // mint tokens
     const mintArgs = new token.mint_arguments(MOCK_ACCT1, 123);
-    const mintRes = tkn.mint(mintArgs);
-
-    expect(mintRes.value).toBe(true);
+    tkn.mint(mintArgs);
 
     // transfer tokens
     const transferArgs = new token.transfer_arguments(MOCK_ACCT1, MOCK_ACCT2, 10);
-    const transferRes = tkn.transfer(transferArgs);
-
-    expect(transferRes.value).toBe(true);
+    tkn.transfer(transferArgs);
 
     // check balances
     let balanceArgs = new token.balance_of_arguments(MOCK_ACCT1);
@@ -291,9 +287,7 @@ describe("vhp", () => {
 
     // mint tokens
     const mintArgs = new token.mint_arguments(MOCK_ACCT1, 123);
-    const mintRes = tkn.mint(mintArgs);
-
-    expect(mintRes.value).toBe(true);
+    tkn.mint(mintArgs);
 
     // save the MockVM state because the transfer is going to revert the transaction
     MockVM.commitTransaction();
@@ -327,15 +321,14 @@ describe("vhp", () => {
 
     // mint tokens
     const mintArgs = new token.mint_arguments(MOCK_ACCT1, 123);
-    const mintRes = tkn.mint(mintArgs);
-
-    expect(mintRes.value).toBe(true);
+    tkn.mint(mintArgs);
 
     // try to transfer tokens
-    const transferArgs = new token.transfer_arguments(MOCK_ACCT1, MOCK_ACCT1, 10);
-    const transferRes = tkn.transfer(transferArgs);
-
-    expect(transferRes.value).toBe(false);
+    expect(() => {
+      const tkn = new Vhp();
+      const transferArgs = new token.transfer_arguments(MOCK_ACCT1, MOCK_ACCT1, 10);
+      tkn.transfer(transferArgs)
+    }).toThrow();
 
     // check balances
     let balanceArgs = new token.balance_of_arguments(MOCK_ACCT1);
@@ -348,7 +341,7 @@ describe("vhp", () => {
     expect(logs[0]).toBe('Cannot transfer to self');
   });
 
-  it("should not transfer if unsufficient balance", () => {
+  it("should not transfer if insufficient balance", () => {
     const tkn = new Vhp();
 
     // set contract_call authority for CONTRACT_ID to true so that we can mint tokens
@@ -360,15 +353,14 @@ describe("vhp", () => {
 
     // mint tokens
     const mintArgs = new token.mint_arguments(MOCK_ACCT1, 123);
-    const mintRes = tkn.mint(mintArgs);
-
-    expect(mintRes.value).toBe(true);
+    tkn.mint(mintArgs);
 
     // try to transfer tokens
-    const transferArgs = new token.transfer_arguments(MOCK_ACCT1, MOCK_ACCT2, 456);
-    const transferRes = tkn.transfer(transferArgs);
-
-    expect(transferRes.value).toBe(false);
+    expect(() => {
+      const tkn = new Vhp();
+      const transferArgs = new token.transfer_arguments(MOCK_ACCT1, MOCK_ACCT2, 456);
+      tkn.transfer(transferArgs)
+    }).toThrow();
 
     // check balances
     let balanceArgs = new token.balance_of_arguments(MOCK_ACCT1);
