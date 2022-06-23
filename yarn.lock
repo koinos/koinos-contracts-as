@@ -1534,7 +1534,7 @@ koinos-proto-as@0.4.6:
 
 "koinos-sdk-as@https://github.com/koinos/koinos-sdk-as#testnet-4":
   version "0.4.11"
-  resolved "https://github.com/koinos/koinos-sdk-as#5183a6aa00c16187ed6177794bf1ae1bd93d0bb3"
+  resolved "https://github.com/koinos/koinos-sdk-as#73e87799c91f9a2da7af1fdaf61db2c9a7f8a401"
   dependencies:
     as-bignum "^0.2.18"
     as-proto "^0.2.2"
