@@ -3129,10 +3129,9 @@ koinos-proto-js@^0.0.3:
   resolved "https://registry.yarnpkg.com/koinos-proto-js/-/koinos-proto-js-0.0.3.tgz#16862189022c1ccafa6ad4825c2565c3acbdae16"
   integrity sha512-gx5ZPuH3PFEoFeL3o+9rrBt2E5BnJ0997U4l1HVyZavlTtTWe2Uj1+XEcgsS9oBmXDoTC/ELH3N22+r+bgnvng==
 
-koinos-sdk-as-cli@^0.1.16:
+"koinos-sdk-as-cli@https://github.com/koinos/koinos-sdk-as-cli#build-for-testing":
   version "0.1.16"
-  resolved "https://registry.yarnpkg.com/koinos-sdk-as-cli/-/koinos-sdk-as-cli-0.1.16.tgz#453a2cd4484682701ace16c0184141a6fd6dbfd6"
-  integrity sha512-esWnjS/t/APHHHRu4ggSVBLfx1QHov5r1ji0WmexjfbeK43Ze0JnALLAQ0wKXvCNlIBiunrRzLXhYKzxTHb8tQ==
+  resolved "https://github.com/koinos/koinos-sdk-as-cli#63cfb5a1f8b9e48d3acc4ba36d3a1de75e7d0882"
   dependencies:
     chalk "4.1.2"
     commander "^9.0.0"
