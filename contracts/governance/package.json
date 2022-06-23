@@ -20,6 +20,7 @@
     "koinos-abi-proto-gen": "^0.1.11",
     "koinos-as-gen": "^0.4.8",
     "koinos-mock-vm": "https://github.com/koinos/koinos-mock-vm#testnet-4",
+    "koinos-proto-as": "0.4.8",
     "koinos-sdk-as": "https://github.com/koinos/koinos-sdk-as#testnet-4",
     "koinos-sdk-as-cli": "^0.1.16",
     "ts-jest": "^28.0.2",

@@ -68,73 +68,69 @@ describe("vhp", () => {
     let balanceRes = tkn.balance_of(balanceArgs);
     expect(balanceRes.value).toBe(123);
 
-    balanceArgs = new token.balance_of_arguments(MOCK_ACCT1);
-    balanceRes = tkn.balance_of(balanceArgs);
-    expect(balanceRes.value).toBe(123);
-
-    //auth = new MockVM.MockAuthority(authority.authorization_type.contract_call, MOCK_ACCT1, true);
-    //MockVM.setAuthorities([auth]);
+    auth = new MockVM.MockAuthority(authority.authorization_type.contract_call, MOCK_ACCT1, true);
+    MockVM.setAuthorities([auth]);
 
     // burn tokens
-    //tkn.burn(new token.burn_arguments(MOCK_ACCT1, 10));
-//
-//    // check events
-//    const events = MockVM.getEvents();
-//    expect(events.length).toBe(2);
-//    expect(events[0].name).toBe('token.mint');
-//    expect(events[0].impacted.length).toBe(1);
-//    expect(Arrays.equal(events[0].impacted[0], MOCK_ACCT1)).toBe(true);
-//    expect(events[1].name).toBe('token.burn');
-//    expect(events[1].impacted.length).toBe(1);
-//    expect(Arrays.equal(events[1].impacted[0], MOCK_ACCT1)).toBe(true);
-//
-//    const burnEvent = Protobuf.decode<token.burn_event>(events[1].data!, token.burn_event.decode);
-//    expect(Arrays.equal(burnEvent.from, MOCK_ACCT1)).toBe(true);
-//    expect(burnEvent.value).toBe(10);
-//
-//    // check balance
-//    let balanceArgs = new token.balance_of_arguments(MOCK_ACCT1);
-//    let balanceRes = tkn.balance_of(balanceArgs);
-//    expect(balanceRes.value).toBe(113);
-//
-//    // check total supply
-//    totalSupplyRes = tkn.total_supply(totalSupplyArgs);
-//    expect(totalSupplyRes.value).toBe(113);
-//
-//    // does not burn tokens
-//    expect(() => {
-//      const tkn = new Vhp();
-//      const burnArgs = new token.burn_arguments(MOCK_ACCT1, 200);
-//      tkn.burn(burnArgs);
-//    }).toThrow();
-//
-//    // check logs
-//    const logs = MockVM.getLogs();
-//    expect(logs.length).toBe(1);
-//    expect(logs[0]).toBe("'from' has insufficient balance");
-//
-//    MockVM.setAuthorities([]);
-//
-//    // save the MockVM state because the burn is going to revert the transaction
-//    MockVM.commitTransaction();
-//
-//    expect(() => {
-//      // try to burn tokens
-//      const tkn = new Vhp();
-//      const burnArgs = new token.burn_arguments(MOCK_ACCT1, 123);
-//      tkn.burn(burnArgs);
-//    }).toThrow();
-//
-//    // check balance
-//    balanceArgs = new token.balance_of_arguments(MOCK_ACCT1);
-//    balanceRes = tkn.balance_of(balanceArgs);
-//    expect(balanceRes.value).toBe(113);
-//
-//    // check total supply
-//    totalSupplyRes = tkn.total_supply(totalSupplyArgs);
-//    expect(totalSupplyRes.value).toBe(113);
+    tkn.burn(new token.burn_arguments(MOCK_ACCT1, 10));
+
+    // check events
+    const events = MockVM.getEvents();
+    expect(events.length).toBe(2);
+    expect(events[0].name).toBe('token.mint');
+    expect(events[0].impacted.length).toBe(1);
+    expect(Arrays.equal(events[0].impacted[0], MOCK_ACCT1)).toBe(true);
+    expect(events[1].name).toBe('token.burn');
+    expect(events[1].impacted.length).toBe(1);
+    expect(Arrays.equal(events[1].impacted[0], MOCK_ACCT1)).toBe(true);
+
+    const burnEvent = Protobuf.decode<token.burn_event>(events[1].data!, token.burn_event.decode);
+    expect(Arrays.equal(burnEvent.from, MOCK_ACCT1)).toBe(true);
+    expect(burnEvent.value).toBe(10);
+
+    // check balance
+    balanceArgs = new token.balance_of_arguments(MOCK_ACCT1);
+    balanceRes = tkn.balance_of(balanceArgs);
+    expect(balanceRes.value).toBe(113);
+
+    // check total supply
+    totalSupplyRes = tkn.total_supply(totalSupplyArgs);
+    expect(totalSupplyRes.value).toBe(113);
+
+    // does not burn tokens
+    expect(() => {
+      const tkn = new Vhp();
+      const burnArgs = new token.burn_arguments(MOCK_ACCT1, 200);
+      tkn.burn(burnArgs);
+    }).toThrow();
+
+    // check logs
+    const logs = MockVM.getLogs();
+    expect(logs.length).toBe(1);
+    expect(logs[0]).toBe("'from' has insufficient balance");
+
+    MockVM.setAuthorities([]);
+
+    // save the MockVM state because the burn is going to revert the transaction
+    MockVM.commitTransaction();
+
+    expect(() => {
+      // try to burn tokens
+      const tkn = new Vhp();
+      const burnArgs = new token.burn_arguments(MOCK_ACCT1, 123);
+      tkn.burn(burnArgs);
+    }).toThrow();
+
+    // check balance
+    balanceArgs = new token.balance_of_arguments(MOCK_ACCT1);
+    balanceRes = tkn.balance_of(balanceArgs);
+    expect(balanceRes.value).toBe(113);
+
+    // check total supply
+    totalSupplyRes = tkn.total_supply(totalSupplyArgs);
+    expect(totalSupplyRes.value).toBe(113);
   });
-/*
+
   it("should mint tokens", () => {
     const tkn = new Vhp();
 
@@ -376,5 +372,4 @@ describe("vhp", () => {
     expect(logs.length).toBe(1);
     expect(logs[0]).toBe("'from' has insufficient balance");
   });
-*/
 });
