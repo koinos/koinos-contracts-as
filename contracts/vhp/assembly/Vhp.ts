@@ -21,10 +21,8 @@ namespace State {
 }
 
 export class Vhp {
-  private is_testing: bool;
 
-  constructor(is_testing: bool = false) {
-    this.is_testing = is_testing;
+  constructor() {
     Constants.CONTRACT_ID = System.getContractId();
     State.Space.SUPPLY = new chain.object_space(true, Constants.CONTRACT_ID, Constants.SUPPLY_ID);
     State.Space.BALANCE = new chain.object_space(true, Constants.CONTRACT_ID, Constants.BALANCE_ID);
@@ -129,7 +127,7 @@ export class Vhp {
     System.require(args.value != 0, "mint argument 'value' cannot be zero");
 
     if (System.getCaller().caller_privilege != chain.privilege.kernel_mode) {
-      if (this.is_testing) {
+      if (BUILD_FOR_TESTING) {
         System.requireAuthority(authority.authorization_type.contract_call, Constants.CONTRACT_ID);
       }
       else {
