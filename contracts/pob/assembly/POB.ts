@@ -48,7 +48,7 @@ export class POB {
   burn(args: pob.burn_arguments): pob.burn_result {
     const token = new Token(Constants.TOKEN_CONTRACT_ID);
     const vhp = new Token(Constants.VHP_CONTRACT_ID);
-    
+
     // Ensure burn address has enough token
     const balance = token.balanceOf(args.burn_address);
     System.require(balance >= args.amount, "insufficient balance");
@@ -71,7 +71,7 @@ export class POB {
     const vhp = new Token(Constants.VHP_CONTRACT_ID);
 
     const metadata = this.fetch_metadata();
-    
+
     // Check block quanta
     System.require(args.header!.timestamp! % Constants.BLOCK_TIME_QUANTA);
 
@@ -121,7 +121,7 @@ export class POB {
 
   fetch_metadata(): pob.metadata {
     const data = System.getObject<Uint8Array, pob.metadata>(State.Space.METADATA, Constants.METADATA_KEY, pob.metadata.decode);
-    
+
     if (data) {
       return data;
     }
