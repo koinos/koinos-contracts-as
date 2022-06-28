@@ -1,4 +1,4 @@
-import { BigInt, Bytes } from '@graphprotocol/graph-ts'
+import { BigInt, Bytes } from 'graph-ts'
 import { authority, chain, protocol, system_call_ids, System, Protobuf, 
     Base58, value, any, system_calls, Token, SafeMath } from "koinos-sdk-as";
 
@@ -7,7 +7,7 @@ namespace State {
     export const REGISTRATION = new chain.object_space(true, System.getContractId(), 0);
     export const METADATA = new chain.object_space(true, System.getContractId(), 1);
 }
-  
+
 System.MAX_BUFFER_SIZE = 1024 * 100;
 
 namespace Constants {
@@ -16,7 +16,7 @@ namespace Constants {
   export const METADATA_KEY: Uint8Array = new Uint8Array(0);
   export const INITIAL_DIFFICULTY_BITS:u32 = 32;
   export const TARGET_BLOCK_INTERVAL_S:u32 = 10;
-  export const BLOCK_QUANTA :u32 = 10;
+  export const BLOCK_TIME_QUANTA :u32 = 10;
 
   export const VHP_DEDUCTION:u64 =  95000000
   export const BLOCK_REWARD:u64  = 100000000
@@ -24,7 +24,7 @@ namespace Constants {
 
 export class POB {
   register_public_key(args: pob.register_public_key_arguments): pob.register_public_key_result {
-    const db = System.getObject<Uint8Array, pob.address_record>(State.Space.REGISTRATION, args.public_key!, pob.address_record.decode);
+    const db = System.getObject<Uint8Array, pob.public_key_record>(State.Space.REGISTRATION, args.public_key!, pob.public_key_record.decode);
     
     if (db) {
       System.log("Public key: '" + args.public_key + "' already registered. Overwriting.");
@@ -35,12 +35,12 @@ export class POB {
     const sender = tx.bytes_value as Uint8Array;
 
     // Create and store the record
-    const record = new pob.address_record(sender);
-    System.putObject(State.Space.REGISTRATION, args.public_key!, record, pob.public_key_record.encode);
-
+    const record = new pob.public_key_record(args.public_key!);
+    System.putObject(State.Space.REGISTRATION, sender, record, pob.public_key_record.encode);
+?
     // Emit an event
     const event = new pob.register_public_key_event(sender, args.public_key);
-    System.event('pob.register_public_key', Protobuf.encode(event, pob.address_record.encode), [sender]);
+    System.event('pob.register_public_key', Protobuf.encode(event, pob.public_key_record.encode), [sender]);
 
     return new pob.register_public_key_result();
   }
@@ -64,6 +64,8 @@ export class POB {
     const sig_data_bytes = args.signature!;
     const signature = Protobuf.decode<pob.signature_data>(sig_data_bytes, pob.signature_data.decode);
     const signer = args.header!.signer!;
+    const timestamp = args.header!.timestamp!;
+    const head_block_time = System.getHeadInfo().head_block_time;
 
     const token = new Token(Constants.TOKEN_CONTRACT_ID);
     const vhp = new Token(Constants.VHP_CONTRACT_ID);
@@ -71,13 +73,15 @@ export class POB {
     const metadata = this.fetch_metadata();
     
     // Check block quanta
-    System.require
+    System.require(args.header!.timestamp! % Constants.BLOCK_TIME_QUANTA);
 
     // Check vrf proof against seed and block time
-    //System.verifyVRFProof(publicKey: Uint8Array, proof: Uint8Array, hash: Uint8Array, message: Uint8Array, type: chain.dsa = chain.dsa.ecdsa_secp256k1): bool {
-      const registration = System.getObject<Uint8Array, pob.public_key_record>(State.Space.REGISTRATION, signer, pob.public_key_record.decode);
-      System.require(registration, "signer address has no public key record");
-    System.verifyVRFProof()
+    const registration = System.getObject<Uint8Array, pob.public_key_record>(State.Space.REGISTRATION, signer, pob.public_key_record.decode);
+    System.require(registration, "signer address has no public key record");
+
+    const payload = pob.vrf_payload(metadata.seed, timestamp);
+    System.require(System.verifyVRFProof(registration.public_key, signature.vrf_proof, signature.vrf_hash, payload), "proof failed vrf validation");
+
     // Ensure vrf hash divided by producer's vhp is below difficulty
     const difficulty = BigInt.fromUnsignedBytes(Bytes.fromUint8Array(metadata.metadata!.difficulty!));
     const hash = BigInt.fromUnsignedBytes(Bytes.fromUint8Array(signature.vrf_hash!));
@@ -89,7 +93,7 @@ export class POB {
     System.require(vhp.burn(signer, Constants.VHP_DEDUCTION), "could not burn vhp");
     System.require(token.mint(signer, Constants.BLOCK_REWARD), "could not mint token");
 
-    this.update_difficulty();
+    this.update_difficulty(difficulty, metadata.seed, head_block_time);
 
     return new system_calls.process_block_signature_result();
   }
@@ -99,8 +103,20 @@ export class POB {
     return new pob.get_metadata_result(metadata);
   }
 
-  update_difficulty() {
+  update_difficulty(difficulty:BigInt, metadata:pob.metadata, current_block_time:u64) {
+    // Calulate new difficulty
+    // const new_difficulty = difficulty + difficulty / 2048 * std::max(1 - int64_t((current_block_time - diff_meta.last_block_time()) / 7000), -99ll);
 
+    // Update seed
+    const new_seed = metadata.seed!;
+
+    var new_data = new pob.metadata();
+    new_data.difficulty = difficulty.toBytes();
+    new_data.seed = new_seed;
+    new_data.last_block_time = current_block_time;
+    new_data.target_block_interval = Constants.TARGET_BLOCK_INTERVAL_S;
+
+    System.putObject(State.Space.METADATA, Constants.METADATA_KEY, new_data, pob.metadata.encode);
   }
 
   fetch_metadata(): pob.metadata {
@@ -113,9 +129,8 @@ export class POB {
     // Initialize new metadata
     var new_data = new pob.metadata();
     
-    var difficulty = new u256();
-    var seed = new u256();
-    var a = 
+    var difficulty = new BigInt();
+    var seed = new BigInt();
 
     new_data.difficulty = difficulty.toBytes();
     new_data.seed = seed.toBytes();
