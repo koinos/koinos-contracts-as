@@ -1,5 +1,5 @@
 import { BigInt, Bytes } from '@graphprotocol/graph-ts'
-import { authority, chain, protocol, system_call_ids, System, Protobuf, 
+import { authority, chain, protocol, system_call_ids, System, Protobuf,
     Base58, value, any, system_calls, Token, SafeMath } from "koinos-sdk-as";
 
 namespace State {
@@ -7,7 +7,7 @@ namespace State {
     export const REGISTRATION = new chain.object_space(true, System.getContractId(), 0);
     export const METADATA = new chain.object_space(true, System.getContractId(), 1);
 }
-  
+
 System.MAX_BUFFER_SIZE = 1024 * 100;
 
 namespace Constants {
@@ -25,7 +25,7 @@ namespace Constants {
 export class POB {
   register_public_key(args: pob.register_public_key_arguments): pob.register_public_key_result {
     const db = System.getObject<Uint8Array, pob.address_record>(State.Space.REGISTRATION, args.public_key!, pob.address_record.decode);
-    
+
     if (db) {
       System.log("Public key: '" + args.public_key + "' already registered. Overwriting.");
     }
@@ -48,7 +48,7 @@ export class POB {
   burn(args: pob.burn_arguments): pob.burn_result {
     const token = new Token(Constants.TOKEN_CONTRACT_ID);
     const vhp = new Token(Constants.VHP_CONTRACT_ID);
-    
+
     // Ensure burn address has enough token
     const balance = token.balanceOf(args.burn_address);
     System.require(balance >= args.amount, "insufficient balance");
@@ -69,7 +69,7 @@ export class POB {
     const vhp = new Token(Constants.VHP_CONTRACT_ID);
 
     const metadata = this.fetch_metadata();
-    
+
     // Check block quanta
     System.require
 
@@ -105,17 +105,17 @@ export class POB {
 
   fetch_metadata(): pob.metadata {
     const data = System.getObject<Uint8Array, pob.metadata>(State.Space.METADATA, Constants.METADATA_KEY, pob.metadata.decode);
-    
+
     if (data) {
       return data;
     }
 
     // Initialize new metadata
     var new_data = new pob.metadata();
-    
+
     var difficulty = new u256();
     var seed = new u256();
-    var a = 
+    var a =
 
     new_data.difficulty = difficulty.toBytes();
     new_data.seed = seed.toBytes();
