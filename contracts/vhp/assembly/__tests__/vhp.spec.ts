@@ -77,10 +77,10 @@ describe("vhp", () => {
     // check events
     const events = MockVM.getEvents();
     expect(events.length).toBe(2);
-    expect(events[0].name).toBe('token.mint');
+    expect(events[0].name).toBe('vhp.mint');
     expect(events[0].impacted.length).toBe(1);
     expect(Arrays.equal(events[0].impacted[0], MOCK_ACCT1)).toBe(true);
-    expect(events[1].name).toBe('token.burn');
+    expect(events[1].name).toBe('vhp.burn');
     expect(events[1].impacted.length).toBe(1);
     expect(Arrays.equal(events[1].impacted[0], MOCK_ACCT1)).toBe(true);
 
@@ -97,6 +97,9 @@ describe("vhp", () => {
     totalSupplyRes = tkn.total_supply(totalSupplyArgs);
     expect(totalSupplyRes.value).toBe(113);
 
+    // save the MockVM state because the burn is going to revert the transaction
+    MockVM.commitTransaction();
+
     // does not burn tokens
     expect(() => {
       const tkn = new Vhp();
@@ -104,10 +107,8 @@ describe("vhp", () => {
       tkn.burn(burnArgs);
     }).toThrow();
 
-    // check logs
-    const logs = MockVM.getLogs();
-    expect(logs.length).toBe(1);
-    expect(logs[0]).toBe("'from' has insufficient balance");
+    // check error message
+    expect(MockVM.getErrorMessage()).toBe("account 'from' has insufficient balance");
 
     MockVM.setAuthorities([]);
 
@@ -121,6 +122,9 @@ describe("vhp", () => {
       tkn.burn(burnArgs);
     }).toThrow();
 
+    // check error message
+    expect(MockVM.getErrorMessage()).toBe("from has not authorized burn");
+
     // check balance
     balanceArgs = new token.balance_of_arguments(MOCK_ACCT1);
     balanceRes = tkn.balance_of(balanceArgs);
@@ -133,6 +137,9 @@ describe("vhp", () => {
 
   it("should mint tokens", () => {
     const tkn = new Vhp();
+
+    // set kernel mode
+    MockVM.setCaller(new chain.caller_data(new Uint8Array(0), chain.privilege.kernel_mode));
 
     // set contract_call authority for CONTRACT_ID to true so that we can mint tokens
     const auth = new MockVM.MockAuthority(authority.authorization_type.contract_call, CONTRACT_ID, true);
@@ -207,6 +214,9 @@ describe("vhp", () => {
   it("should not mint tokens if new total supply overflows", () => {
     const tkn = new Vhp();
 
+    // set kernel mode
+    MockVM.setCaller(new chain.caller_data(new Uint8Array(0), chain.privilege.kernel_mode));
+
     // set contract_call authority for CONTRACT_ID to true so that we can mint tokens
     const auth = new MockVM.MockAuthority(authority.authorization_type.contract_call, CONTRACT_ID, true);
     MockVM.setAuthorities([auth]);
@@ -219,6 +229,9 @@ describe("vhp", () => {
     let totalSupplyRes = tkn.total_supply(totalSupplyArgs);
     expect(totalSupplyRes.value).toBe(123);
 
+    // save the MockVM state because the mint is going to revert the transaction
+    MockVM.commitTransaction();
+
     expect(() => {
       const tkn = new Vhp();
       const mintArgs = new token.mint_arguments(MOCK_ACCT2, u64.MAX_VALUE);
@@ -229,14 +242,15 @@ describe("vhp", () => {
     totalSupplyRes = tkn.total_supply(totalSupplyArgs);
     expect(totalSupplyRes.value).toBe(123);
 
-    // check logs
-    const logs = MockVM.getLogs();
-    expect(logs.length).toBe(1);
-    expect(logs[0]).toBe("Mint would overflow supply");
+    // check error message
+    expect(MockVM.getErrorMessage()).toBe("mint would overflow supply");
   });
 
   it("should transfer tokens", () => {
     const tkn = new Vhp();
+
+    // set kernel mode
+    MockVM.setCaller(new chain.caller_data(new Uint8Array(0), chain.privilege.kernel_mode));
 
     // set contract_call authority for CONTRACT_ID to true so that we can mint tokens
     const authContractId = new MockVM.MockAuthority(authority.authorization_type.contract_call, CONTRACT_ID, true);
@@ -266,7 +280,7 @@ describe("vhp", () => {
     const events = MockVM.getEvents();
     // 2 events, 1st one is the mint event, the second one is the transfer event
     expect(events.length).toBe(2);
-    expect(events[1].name).toBe('token.transfer');
+    expect(events[1].name).toBe('vhp.transfer');
     expect(events[1].impacted.length).toBe(2);
     expect(Arrays.equal(events[1].impacted[0], MOCK_ACCT2)).toBe(true);
     expect(Arrays.equal(events[1].impacted[1], MOCK_ACCT1)).toBe(true);
@@ -279,6 +293,9 @@ describe("vhp", () => {
 
   it("should not transfer tokens without the proper authorizations", () => {
     const tkn = new Vhp();
+
+    // set kernel mode
+    MockVM.setCaller(new chain.caller_data(new Uint8Array(0), chain.privilege.kernel_mode));
 
     // set contract_call authority for CONTRACT_ID to true so that we can mint tokens
     const authContractId = new MockVM.MockAuthority(authority.authorization_type.contract_call, CONTRACT_ID, true);
@@ -312,6 +329,9 @@ describe("vhp", () => {
   it("should not transfer tokens to self", () => {
     const tkn = new Vhp();
 
+    // set kernel mode
+    MockVM.setCaller(new chain.caller_data(new Uint8Array(0), chain.privilege.kernel_mode));
+
     // set contract_call authority for CONTRACT_ID to true so that we can mint tokens
     const authContractId = new MockVM.MockAuthority(authority.authorization_type.contract_call, CONTRACT_ID, true);
 
@@ -322,6 +342,9 @@ describe("vhp", () => {
     // mint tokens
     const mintArgs = new token.mint_arguments(MOCK_ACCT1, 123);
     tkn.mint(mintArgs);
+
+    // save the MockVM state because the transfer is going to revert the transaction
+    MockVM.commitTransaction();
 
     // try to transfer tokens
     expect(() => {
@@ -335,14 +358,15 @@ describe("vhp", () => {
     let balanceRes = tkn.balance_of(balanceArgs);
     expect(balanceRes.value).toBe(123);
 
-    // check logs
-    const logs = MockVM.getLogs();
-    expect(logs.length).toBe(1);
-    expect(logs[0]).toBe('Cannot transfer to self');
+    // check error message
+    expect(MockVM.getErrorMessage()).toBe('cannot transfer to yourself');
   });
 
   it("should not transfer if insufficient balance", () => {
     const tkn = new Vhp();
+
+    // set kernel mode
+    MockVM.setCaller(new chain.caller_data(new Uint8Array(0), chain.privilege.kernel_mode));
 
     // set contract_call authority for CONTRACT_ID to true so that we can mint tokens
     const authContractId = new MockVM.MockAuthority(authority.authorization_type.contract_call, CONTRACT_ID, true);
@@ -354,6 +378,9 @@ describe("vhp", () => {
     // mint tokens
     const mintArgs = new token.mint_arguments(MOCK_ACCT1, 123);
     tkn.mint(mintArgs);
+
+    // save the MockVM state because the transfer is going to revert the transaction
+    MockVM.commitTransaction();
 
     // try to transfer tokens
     expect(() => {
@@ -367,9 +394,7 @@ describe("vhp", () => {
     let balanceRes = tkn.balance_of(balanceArgs);
     expect(balanceRes.value).toBe(123);
 
-    // check logs
-    const logs = MockVM.getLogs();
-    expect(logs.length).toBe(1);
-    expect(logs[0]).toBe("'from' has insufficient balance");
+    // check error message
+    expect(MockVM.getErrorMessage()).toBe("account 'from' has insufficient balance");
   });
 });
