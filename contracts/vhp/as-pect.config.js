@@ -41,7 +41,7 @@ module.exports = {
       }
     };
     instance = instantiateSync(binary, createImports(myImports));
-    instance.exports.memory.grow(512);
+    instance.exports.memory.grow(8184);
     mockVM.setInstance(instance);
     return instance;
   },
