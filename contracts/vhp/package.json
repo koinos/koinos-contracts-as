@@ -22,7 +22,7 @@
     "koinos-mock-vm": "https://github.com/koinos/koinos-mock-vm#testnet-4",
     "koinos-proto-as": "0.4.8",
     "koinos-sdk-as": "https://github.com/koinos/koinos-sdk-as#testnet-4",
-    "koinos-sdk-as-cli": "https://github.com/koinos/koinos-sdk-as-cli#build-for-testing",
+    "koinos-sdk-as-cli": "https://github.com/koinos/koinos-sdk-as-cli#master",
     "ts-jest": "^28.0.2",
     "ts-node": "^10.4.0",
     "typescript": "^4.6.4",

@@ -84,7 +84,11 @@ export class Vhp {
     System.require(args.to != args.from, 'cannot transfer to yourself');
 
     let callerData = System.getCaller();
-    System.require(callerData.caller == args.from || System.checkAuthority(authority.authorization_type.contract_call, args.from!), 'from has not authorized transfer');
+    System.require(
+      callerData.caller == args.from || System.checkAuthority(authority.authorization_type.contract_call, args.from!),
+      'from has not authorized transfer',
+      error.error_code.authorization_failure
+    );
 
     let fromBalanceObj = System.getObject<Uint8Array, token.balance_object>(State.Space.BALANCE, args.from!, token.balance_object.decode);
 
@@ -93,7 +97,7 @@ export class Vhp {
       fromBalanceObj.value = 0;
     }
 
-    System.require(fromBalanceObj.value >= args.value, "account 'from' has insufficient balance");
+    System.require(fromBalanceObj.value >= args.value, "account 'from' has insufficient balance", error.error_code.failure);
 
     let toBalanceObj = System.getObject<Uint8Array, token.balance_object>(State.Space.BALANCE, args.to!, token.balance_object.decode);
 
@@ -131,7 +135,7 @@ export class Vhp {
         System.requireAuthority(authority.authorization_type.contract_call, Constants.CONTRACT_ID);
       }
       else {
-        System.revert('insufficient privileges to mint');
+        System.fail('insufficient privileges to mint', error.error_code.authorization_failure);
       }
     }
 
@@ -142,7 +146,7 @@ export class Vhp {
       supplyObject.value = 0;
     }
 
-    System.require(supplyObject.value <= u64.MAX_VALUE - args.value, 'mint would overflow supply');
+    System.require(supplyObject.value <= u64.MAX_VALUE - args.value, 'mint would overflow supply', error.error_code.failure);
 
     let balanceObject = System.getObject<Uint8Array, token.balance_object>(State.Space.BALANCE, args.to!, token.balance_object.decode);
 
@@ -173,7 +177,11 @@ export class Vhp {
     System.require(args.from != null, "burn argument 'from' cannot be null");
 
     let callerData = System.getCaller();
-    System.require(callerData.caller == args.from || System.checkAuthority(authority.authorization_type.contract_call, args.from!), 'from has not authorized burn');
+    System.require(
+      callerData.caller == args.from || System.checkAuthority(authority.authorization_type.contract_call, args.from!),
+      'from has not authorized burn',
+      error.error_code.authorization_failure
+    );
 
     let fromBalanceObject = System.getObject<Uint8Array, token.balance_object>(State.Space.BALANCE, args.from!, token.balance_object.decode);
 
@@ -182,7 +190,7 @@ export class Vhp {
       fromBalanceObject.value = 0;
     }
 
-    System.require(fromBalanceObject.value >= args.value, "account 'from' has insufficient balance");
+    System.require(fromBalanceObject.value >= args.value, "account 'from' has insufficient balance", error.error_code.failure);
 
     let supplyObject = System.getObject<Uint8Array, token.balance_object>(State.Space.SUPPLY, Constants.SUPPLY_KEY, token.balance_object.decode);
 
@@ -191,7 +199,7 @@ export class Vhp {
       supplyObject.value = 0;
     }
 
-    System.require(supplyObject.value >= args.value, 'burn would underflow supply');
+    System.require(supplyObject.value >= args.value, 'burn would underflow supply', error.error_code.failure);
 
     supplyObject.value -= args.value;
     fromBalanceObject.value -= args.value;
