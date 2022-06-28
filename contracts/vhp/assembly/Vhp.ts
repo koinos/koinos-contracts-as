@@ -184,7 +184,7 @@ export class Vhp {
       fromBalanceObject.value = 0;
     }
 
-    System.require(fromBalanceObject.value >= args.value, "account 'from' has insufficent balance");
+    System.require(fromBalanceObject.value >= args.value, "account 'from' has insufficient balance");
 
     let supplyObject = System.getObject<Uint8Array, token.balance_object>(State.Space.SUPPLY, Constants.SUPPLY_KEY, token.balance_object.decode);
 
