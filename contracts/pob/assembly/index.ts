@@ -54,7 +54,7 @@ export function main(): i32 {
         system_calls.process_block_signature_arguments.decode
       );
       const res = c.process_block_signature(args);
-      retbuf = Protobuf.encode(res, system_calls.process_block_signature_arguments.encode);
+      retbuf = Protobuf.encode(res, system_calls.process_block_signature_result.encode);
       break;
     }
 

@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "license": "MIT",
   "dependencies": {
+    "graph-ts": "https://github.com/graphprotocol/graph-ts",
     "koinos-proto-js": "^0.0.3",
     "local-koinos": "^0.0.5"
   },
