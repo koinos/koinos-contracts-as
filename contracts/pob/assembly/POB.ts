@@ -113,7 +113,10 @@ export class POB {
 
   update_difficulty(difficulty:BigInt, metadata:pob.metadata, current_block_time:u64): void {
     // Calulate new difficulty
-    // const new_difficulty = difficulty + difficulty / 2048 * std::max(1 - int64_t((current_block_time - diff_meta.last_block_time()) / 7000), -99ll);
+    let new_difficulty = difficulty.div(BigInt.fromI32(2048)).plus(difficulty);
+    let multiplier:u64 = 1 - (current_block_time - metadata.last_block_time) / 7000;
+    multiplier = multiplier > -99 ? multiplier : -99;
+    new_difficulty = new_difficulty.times(BigInt.fromU64(multiplier));
 
     // Update seed
     const new_seed = metadata.seed!;
