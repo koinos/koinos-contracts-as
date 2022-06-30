@@ -12,8 +12,8 @@ namespace State {
 System.MAX_BUFFER_SIZE = 1024 * 100;
 
 namespace Constants {
-  export const TOKEN_CONTRACT_ID = Base58.decode('1BRmrUgtSQVUggoeE9weG4f7nidyydnYfQ');
-  export const VHP_CONTRACT_ID = Base58.decode('1JZqj7dDrK5LzvdJgufYBJNUFo88xBoWC8');
+  export const TOKEN_CONTRACT_ID = BUILD_FOR_TESTING ? Base58.decode('19JntSm8pSNETT9aHTwAUHC5RMoaSmgZPJ') : Base58.decode('1BRmrUgtSQVUggoeE9weG4f7nidyydnYfQ');
+  export const VHP_CONTRACT_ID = BUILD_FOR_TESTING ? Base58.decode('1JZqj7dDrK5LzvdJgufYBJNUFo88xBoWC8') : Base58.decode('1JZqj7dDrK5LzvdJgufYBJNUFo88xBoWC8');
   export const METADATA_KEY: Uint8Array = new Uint8Array(0);
   export const INITIAL_DIFFICULTY_BITS:u8 = 32;
   export const TARGET_BLOCK_INTERVAL_S:u32 = 10;
@@ -26,7 +26,7 @@ namespace Constants {
 export class POB {
   register_public_key(args: pob.register_public_key_arguments): pob.register_public_key_result {
     const db = System.getObject<Uint8Array, pob.public_key_record>(State.Space.REGISTRATION, args.public_key!, pob.public_key_record.decode);
-    
+
     if (db) {
       System.log("Public key already registered. Overwriting.");
     }
@@ -136,7 +136,7 @@ export class POB {
 
     // Initialize new metadata
     var new_data = new pob.metadata();
-    
+
     var difficulty = BigInt.fromI32(1);
     difficulty = difficulty.leftShift(Constants.INITIAL_DIFFICULTY_BITS);
     var seed = BigInt.fromI32(0);
