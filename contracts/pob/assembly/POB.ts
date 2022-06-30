@@ -37,7 +37,7 @@ function BytesFromBigInt(num: BigInt): Uint8Array {
   let bytes = new Uint8Array(32)
 
   for (let i = 0; i < 8; i++ ) {
-    let word = num.bitwiseOr(0xFFFFFFFF).toUInt32()
+    let word = num.bitwiseAnd(0xFFFFFFFF).toUInt32()
     bytes[ 31 - (4 * i) ]     =  0x000000FF & word;
     bytes[ 31 - (4 * i) - 1 ] = (0x0000FF00 & word) >> 8;
     bytes[ 31 - (4 * i) - 2 ] = (0x00FF0000 & word) >> 16;
@@ -163,17 +163,13 @@ export class POB {
     // Initialize new metadata
     var new_data = new pob.metadata();
 
-    var difficulty = BigInt.fromUInt32(1);
-    difficulty = difficulty.leftShift(Constants.INITIAL_DIFFICULTY_BITS);
-    var seed = BigInt.fromUInt32(0);
+    var difficulty = BigInt.fromString("115792089237316195423570985008687907853269984665640564039457584007913129639935");
+    difficulty = difficulty.rightShift(Constants.INITIAL_DIFFICULTY_BITS);
 
     new_data.difficulty = BytesFromBigInt(difficulty);
-    new_data.seed = BytesFromBigInt(seed);
+    new_data.seed = System.getChainId();
     new_data.last_block_time = System.getHeadInfo().head_block_time;
     new_data.target_block_interval = Constants.TARGET_BLOCK_INTERVAL_S;
-
-    // Store it
-    System.putObject(State.Space.METADATA, Constants.METADATA_KEY, new_data, pob.metadata.encode);
 
     return new_data;
   }
