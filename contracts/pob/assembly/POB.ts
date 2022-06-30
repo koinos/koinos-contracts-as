@@ -1,4 +1,4 @@
-import { BigInt, Bytes } from 'graph-ts'
+import { BigInt, Bytes } from '@graphprotocol/graph-ts'
 import { chain, System, Protobuf, 
     Base58, value, system_calls, Token, Crypto, pob } from "koinos-sdk-as";
 
@@ -117,9 +117,6 @@ export class POB {
     let multiplier:u64 = 1 - (current_block_time - metadata.last_block_time) / 7000;
     multiplier = multiplier > -99 ? multiplier : -99;
     new_difficulty = new_difficulty.times(BigInt.fromU64(multiplier));
-
-    // Update seed
-    const new_seed = metadata.seed!;
 
     var new_data = new pob.metadata();
     new_data.difficulty = difficulty;
