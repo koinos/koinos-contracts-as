@@ -1,6 +1,6 @@
 import { BigInt, Bytes } from 'graph-ts'
-import { authority, chain, protocol, system_call_ids, System, Protobuf, 
-    Base58, value, any, system_calls, Token, SafeMath, pob } from "koinos-sdk-as";
+import { chain, System, Protobuf, 
+    Base58, value, system_calls, Token, Crypto, pob } from "koinos-sdk-as";
 
 namespace State {
   export namespace Space {
@@ -101,7 +101,7 @@ export class POB {
     System.require(vhp.burn(signer, Constants.VHP_DEDUCTION), "could not burn vhp");
     System.require(token.mint(signer, Constants.BLOCK_REWARD), "could not mint token");
 
-    this.update_difficulty(difficulty, metadata, head_block_time);
+    this.update_difficulty(difficulty, metadata, head_block_time, signature.vrf_hash!);
 
     return new system_calls.process_block_signature_result();
   }
@@ -111,7 +111,7 @@ export class POB {
     return new pob.get_metadata_result(metadata);
   }
 
-  update_difficulty(difficulty:BigInt, metadata:pob.metadata, current_block_time:u64): void {
+  update_difficulty(difficulty:BigInt, metadata:pob.metadata, current_block_time:u64, vrf_hash:Uint8Array): void {
     // Calulate new difficulty
     let new_difficulty = difficulty.div(BigInt.fromI32(2048)).plus(difficulty);
     let multiplier:u64 = 1 - (current_block_time - metadata.last_block_time) / 7000;
@@ -123,7 +123,7 @@ export class POB {
 
     var new_data = new pob.metadata();
     new_data.difficulty = difficulty;
-    new_data.seed = new_seed;
+    new_data.seed = System.hash(Crypto.multicodec.sha2_256, vrf_hash);
     new_data.last_block_time = current_block_time;
     new_data.target_block_interval = Constants.TARGET_BLOCK_INTERVAL_S;
 
