@@ -1,5 +1,5 @@
-import { BigInt, Bytes } from '@graphprotocol/graph-ts'
-import { chain, System, Protobuf, 
+import { BigInt } from 'as-bigint';
+import { chain, System, Protobuf,
     Base58, value, system_calls, Token, Crypto, pob } from "koinos-sdk-as";
 
 namespace State {
@@ -12,7 +12,7 @@ namespace State {
 System.MAX_BUFFER_SIZE = 1024 * 100;
 
 namespace Constants {
-  export const TOKEN_CONTRACT_ID = BUILD_FOR_TESTING ? Base58.decode('19JntSm8pSNETT9aHTwAUHC5RMoaSmgZPJ') : Base58.decode('1BRmrUgtSQVUggoeE9weG4f7nidyydnYfQ');
+  export const TOKEN_CONTRACT_ID = BUILD_FOR_TESTING ? Base58.decode('1BRmrUgtSQVUggoeE9weG4f7nidyydnYfQ') : Base58.decode('19JntSm8pSNETT9aHTwAUHC5RMoaSmgZPJ');
   export const VHP_CONTRACT_ID = BUILD_FOR_TESTING ? Base58.decode('1JZqj7dDrK5LzvdJgufYBJNUFo88xBoWC8') : Base58.decode('1JZqj7dDrK5LzvdJgufYBJNUFo88xBoWC8');
   export const METADATA_KEY: Uint8Array = new Uint8Array(0);
   export const INITIAL_DIFFICULTY_BITS:u8 = 32;
@@ -21,6 +21,32 @@ namespace Constants {
 
   export const VHP_DEDUCTION:u64 =  95000000
   export const BLOCK_REWARD:u64  = 100000000
+}
+
+function BigIntFromBytes(bytes: Uint8Array): BigInt {
+  let num = BigInt.ZERO
+
+  for (let i = 0; i < bytes.length; i++){
+    num.leftShift(8).bitwiseOr(bytes[i])
+  }
+
+  return num;
+}
+
+function BytesFromBigInt(num: BigInt): Uint8Array {
+  let bytes = new Uint8Array(32)
+
+  for (let i = 0; i < 8; i++ ) {
+    let word = num.bitwiseOr(0xFFFFFFFF).toUInt32()
+    bytes[ 31 - (4 * i) ]     =  0x000000FF & word;
+    bytes[ 31 - (4 * i) - 1 ] = (0x0000FF00 & word) >> 8;
+    bytes[ 31 - (4 * i) - 2 ] = (0x00FF0000 & word) >> 16;
+    bytes[ 31 - (4 * i) - 3 ] = (0xFF000000 & word) >> 24;
+
+    num = num.rightShift(32);
+  }
+
+  return bytes;
 }
 
 export class POB {
@@ -52,8 +78,8 @@ export class POB {
     const amount = args.token_amount;
 
     // Ensure burn address has enough token
-    const balance = token.balanceOf(args.burn_address!);
-    System.require(balance >= amount, "insufficient balance");
+    //const balance = token.balanceOf(args.burn_address!);
+    //System.require(balance >= amount, "insufficient balance");
 
     // Burn the token
     System.require(token.burn(args.burn_address!, amount), "could not burn KOIN");
@@ -90,9 +116,9 @@ export class POB {
     System.require(System.verifyVRFProof(registration!.public_key!, signature.vrf_proof!, signature.vrf_hash!, payload_bytes), "proof failed vrf validation");
 
     // Ensure vrf hash divided by producer's vhp is below difficulty
-    const difficulty = BigInt.fromUnsignedBytes(Bytes.fromUint8Array(metadata.difficulty!));
-    const hash = BigInt.fromUnsignedBytes(Bytes.fromUint8Array(signature.vrf_hash!));
-    const vhp_balance = BigInt.fromU64(vhp.balanceOf(signer));
+    const difficulty = BigIntFromBytes(metadata.difficulty!);
+    const hash = BigIntFromBytes(signature.vrf_hash!);
+    const vhp_balance = BigInt.from(vhp.balanceOf(signer));
 
     const mark = hash.div(vhp_balance);
     System.require(mark < difficulty, "provided hash is not sufficient");
@@ -113,13 +139,13 @@ export class POB {
 
   update_difficulty(difficulty:BigInt, metadata:pob.metadata, current_block_time:u64, vrf_hash:Uint8Array): void {
     // Calulate new difficulty
-    let new_difficulty = difficulty.div(BigInt.fromI32(2048)).plus(difficulty);
+    let new_difficulty = difficulty.div(BigInt.fromUInt32(2048)).add(difficulty);
     let multiplier:u64 = 1 - (current_block_time - metadata.last_block_time) / 7000;
     multiplier = multiplier > -99 ? multiplier : -99;
-    new_difficulty = new_difficulty.times(BigInt.fromU64(multiplier));
+    new_difficulty = new_difficulty.mul(BigInt.fromUInt64(multiplier));
 
     var new_data = new pob.metadata();
-    new_data.difficulty = difficulty;
+    new_data.difficulty = BytesFromBigInt(difficulty);
     new_data.seed = System.hash(Crypto.multicodec.sha2_256, vrf_hash);
     new_data.last_block_time = current_block_time;
     new_data.target_block_interval = Constants.TARGET_BLOCK_INTERVAL_S;
@@ -137,12 +163,12 @@ export class POB {
     // Initialize new metadata
     var new_data = new pob.metadata();
 
-    var difficulty = BigInt.fromI32(1);
+    var difficulty = BigInt.fromUInt32(1);
     difficulty = difficulty.leftShift(Constants.INITIAL_DIFFICULTY_BITS);
-    var seed = BigInt.fromI32(0);
+    var seed = BigInt.fromUInt32(0);
 
-    new_data.difficulty = difficulty;
-    new_data.seed = seed;
+    new_data.difficulty = BytesFromBigInt(difficulty);
+    new_data.seed = BytesFromBigInt(seed);
     new_data.last_block_time = System.getHeadInfo().head_block_time;
     new_data.target_block_interval = Constants.TARGET_BLOCK_INTERVAL_S;
 

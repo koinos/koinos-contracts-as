@@ -10,7 +10,7 @@ namespace State {
 System.MAX_BUFFER_SIZE = 1024 * 1024; // 1 MB
 
 namespace Constants {
-  export const TOKEN_CONTRACT_ID = BUILD_FOR_TESTING ? Base58.decode('19JntSm8pSNETT9aHTwAUHC5RMoaSmgZPJ') : Base58.decode('1BRmrUgtSQVUggoeE9weG4f7nidyydnYfQ');
+  export const TOKEN_CONTRACT_ID = BUILD_FOR_TESTING ? Base58.decode('1BRmrUgtSQVUggoeE9weG4f7nidyydnYfQ') : Base58.decode('19JntSm8pSNETT9aHTwAUHC5RMoaSmgZPJ');
   export const BLOCKS_PER_WEEK: u64 = 10;
   export const REVIEW_PERIOD: u64 = BLOCKS_PER_WEEK;
   export const VOTE_PERIOD: u64 = BLOCKS_PER_WEEK*2;
