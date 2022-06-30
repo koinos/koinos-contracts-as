@@ -142,13 +142,13 @@ export class POB {
 
   update_difficulty(difficulty:BigInt, metadata:pob.metadata, current_block_time:u64, vrf_hash:Uint8Array): void {
     // Calulate new difficulty
-    let new_difficulty = difficulty.div(BigInt.fromUInt32(2048)).add(difficulty);
-    let multiplier:u64 = 1 - (current_block_time - metadata.last_block_time) / 7000;
+    let new_difficulty = difficulty.div(BigInt.fromUInt32(2048));
+    let multiplier:i64 = 1 - i64(current_block_time - metadata.last_block_time) / 7000;
     multiplier = multiplier > -99 ? multiplier : -99;
-    new_difficulty = new_difficulty.mul(BigInt.fromUInt64(multiplier));
+    new_difficulty = new_difficulty.mul(BigInt.fromUInt64(multiplier)).add(difficulty);
 
     var new_data = new pob.metadata();
-    new_data.difficulty = BytesFromBigInt(difficulty);
+    new_data.difficulty = BytesFromBigInt(new_difficulty);
     new_data.seed = System.hash(Crypto.multicodec.sha2_256, vrf_hash);
     new_data.last_block_time = current_block_time;
     new_data.target_block_interval = Constants.TARGET_BLOCK_INTERVAL_S;
