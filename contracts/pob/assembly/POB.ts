@@ -13,7 +13,7 @@ System.MAX_BUFFER_SIZE = 1024 * 100;
 
 namespace Constants {
   export const TOKEN_CONTRACT_ID = Base58.decode('1BRmrUgtSQVUggoeE9weG4f7nidyydnYfQ');
-  export const VHP_CONTRACT_ID = Base58.decode('198RuEouhgiiaQm7uGfaXS6jqZr6g6nyoR');
+  export const VHP_CONTRACT_ID = Base58.decode('1JZqj7dDrK5LzvdJgufYBJNUFo88xBoWC8');
   export const METADATA_KEY: Uint8Array = new Uint8Array(0);
   export const INITIAL_DIFFICULTY_BITS:u8 = 32;
   export const TARGET_BLOCK_INTERVAL_S:u32 = 10;
