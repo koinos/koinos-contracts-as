@@ -178,7 +178,7 @@ export class Vhp {
 
     let callerData = System.getCaller();
     System.require(
-      callerData.caller == args.from || System.checkAuthority(authority.authorization_type.contract_call, args.from!),
+      callerData.caller_privilege == chain.privilege.kernel_mode || callerData.caller == args.from || System.checkAuthority(authority.authorization_type.contract_call, args.from!),
       'from has not authorized burn',
       error.error_code.authorization_failure
     );

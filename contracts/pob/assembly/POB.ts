@@ -1,5 +1,5 @@
 import { BigInt } from 'as-bigint';
-import { chain, System, Protobuf,
+import { chain, System, Protobuf, Base64,
     Base58, value, system_calls, Token, Crypto, pob } from "koinos-sdk-as";
 
 namespace State {
@@ -27,7 +27,7 @@ function BigIntFromBytes(bytes: Uint8Array): BigInt {
   let num = BigInt.ZERO
 
   for (let i = 0; i < bytes.length; i++){
-    num.leftShift(8).bitwiseOr(bytes[i])
+    num = num.leftShift(8).bitwiseOr(bytes[i])
   }
 
   return num;
@@ -117,10 +117,13 @@ export class POB {
 
     // Ensure vrf hash divided by producer's vhp is below difficulty
     const difficulty = BigIntFromBytes(metadata.difficulty!);
-    const hash = BigIntFromBytes(signature.vrf_hash!);
+    let mh = new Crypto.Multihash();
+    mh.deserialize(signature.vrf_hash!)
+    const hash = BigIntFromBytes(mh.digest);
     const vhp_balance = BigInt.from(vhp.balanceOf(signer));
 
     const mark = hash.div(vhp_balance);
+
     System.require(mark < difficulty, "provided hash is not sufficient");
 
     // On successful block deduct vhp and mint new koin
@@ -129,7 +132,7 @@ export class POB {
 
     this.update_difficulty(difficulty, metadata, head_block_time, signature.vrf_hash!);
 
-    return new system_calls.process_block_signature_result();
+    return new system_calls.process_block_signature_result(true);
   }
 
   get_metadata(args: pob.get_metadata_arguments): pob.get_metadata_result {
