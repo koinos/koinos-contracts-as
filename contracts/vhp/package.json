@@ -9,6 +9,7 @@
   "devDependencies": {
     "@as-covers/core": "^0.2.1",
     "@as-pect/cli": "^6.2.4",
+    "@roaminroe/as-proto": "^0.2.3",
     "@roaminroe/as-proto-gen": "^0.4.2",
     "@roaminroe/protoc": "^2.4.0",
     "@types/jest": "^27.5.1",
@@ -18,9 +19,6 @@
     "eslint": "^8.7.0",
     "jest": "^28.1.0",
     "koinos-abi-proto-gen": "^0.1.11",
-    "koinos-as-gen": "^0.4.8",
-    "koinos-mock-vm": "https://github.com/koinos/koinos-mock-vm#testnet-4",
-    "koinos-proto-as": "0.4.8",
     "koinos-sdk-as": "https://github.com/koinos/koinos-sdk-as#testnet-4",
     "koinos-sdk-as-cli": "https://github.com/koinos/koinos-sdk-as-cli#master",
     "ts-jest": "^28.0.2",

@@ -112,6 +112,9 @@ describe("vhp", () => {
 
     MockVM.setAuthorities([]);
 
+    callerData.caller_privilege = chain.privilege.user_mode;
+    MockVM.setCaller(callerData);
+
     // save the MockVM state because the burn is going to revert the transaction
     MockVM.commitTransaction();
 

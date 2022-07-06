@@ -21,6 +21,19 @@ export function main(): i32 {
       break;
     }
 
+    case 0x5fd7ac0f: {
+      const args = Protobuf.decode<pob.get_consensus_parameters_arguments>(
+        contractArgs.args,
+        pob.get_consensus_parameters_arguments.decode
+      );
+      const res = c.get_consensus_parameters(args);
+      retbuf = Protobuf.encode(
+        res,
+        pob.get_consensus_parameters_result.encode
+      );
+      break;
+    }
+
     case 0xfcf7a68f: {
       const args = Protobuf.decode<pob.get_metadata_arguments>(
         contractArgs.args,

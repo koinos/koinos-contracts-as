@@ -29,10 +29,11 @@ namespace Constants {
   export const VHP_CONTRACT_ID = BUILD_FOR_TESTING ? Base58.decode('1JZqj7dDrK5LzvdJgufYBJNUFo88xBoWC8') : Base58.decode('1JZqj7dDrK5LzvdJgufYBJNUFo88xBoWC8');
   export const METADATA_KEY: Uint8Array = new Uint8Array(0);
   export const CONSENSUS_PARAMS_KEY: Uint8Array = new Uint8Array(1);
-  export const INITIAL_DIFFICULTY_BITS:u8 = 32;
+  export const INITIAL_DIFFICULTY_BITS:u8 = 42;
   export const BLOCK_TIME_QUANTA :u32 = 10;
   export const FIXED_POINT_PRECISION :u32 = 1000;
   export const MILLISECONDS_PER_YEAR = 31536000000;
+  export const U256_MAX = BigInt.fromString("115792089237316195423570985008687907853269984665640564039457584007913129639935");
 }
 
 function BigIntFromBytes(bytes: Uint8Array): BigInt {
@@ -129,6 +130,7 @@ export class POB {
 
     // Ensure vrf hash divided by producer's vhp is below difficulty
     const difficulty = BigIntFromBytes(metadata.difficulty!);
+    const target = Constants.U256_MAX.div(difficulty);
     let mh = new Crypto.Multihash();
     mh.deserialize(signature.vrf_hash!)
     const hash = BigIntFromBytes(mh.digest);
@@ -136,7 +138,7 @@ export class POB {
 
     const mark = hash.div(vhp_balance);
 
-    System.require(mark < difficulty, "provided hash is not sufficient");
+    System.require(mark < target, "provided hash is not sufficient");
 
     const params = this.fetch_consensus_parameters();
 
@@ -170,7 +172,7 @@ export class POB {
     let new_difficulty = difficulty.div(BigInt.fromUInt32(2048));
     let multiplier:i64 = 1 - i64(current_block_time - metadata.last_block_time) / block_time_denom;
     multiplier = multiplier > -99 ? multiplier : -99;
-    new_difficulty = new_difficulty.mul(BigInt.fromUInt64(multiplier)).add(difficulty);
+    new_difficulty = new_difficulty.mul(BigInt.fromInt64(multiplier)).add(difficulty);
 
     var new_data = new pob.metadata();
     new_data.difficulty = BytesFromBigInt(new_difficulty);
@@ -190,9 +192,7 @@ export class POB {
     // Initialize new metadata
     var new_data = new pob.metadata();
 
-    // 2^256 - 1
-    var difficulty = BigInt.fromString("115792089237316195423570985008687907853269984665640564039457584007913129639935");
-    difficulty = difficulty.rightShift(Constants.INITIAL_DIFFICULTY_BITS);
+    var difficulty = BigInt.ONE.leftShift(Constants.INITIAL_DIFFICULTY_BITS - 1);
 
     new_data.difficulty = BytesFromBigInt(difficulty);
     new_data.seed = System.getChainId();
