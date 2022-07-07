@@ -25,12 +25,12 @@ namespace Constants {
   export const DEFAULT_ANNUAL_INFLATION_RATE: u32 = 198; // 2%
   export const DEFAULT_TARGET_BURN_PERCENT: u32 = 50100; // 50.1%
   export const DEFAULT_TARGET_BLOCK_INTERVAL_MS: u32 = 3000; // 3s
+  export const DEFAULT_QUANTUM_LENGTH_MS: u32 = 10;
   export const KOIN_CONTRACT_ID = BUILD_FOR_TESTING ? Base58.decode('1BRmrUgtSQVUggoeE9weG4f7nidyydnYfQ') : Base58.decode('19JntSm8pSNETT9aHTwAUHC5RMoaSmgZPJ');
   export const VHP_CONTRACT_ID = BUILD_FOR_TESTING ? Base58.decode('1CZvRyRuNxghMUUNGqsKsT5x55r6wugd1C') : Base58.decode('1JZqj7dDrK5LzvdJgufYBJNUFo88xBoWC8');
   export const METADATA_KEY: Uint8Array = new Uint8Array(0);
   export const CONSENSUS_PARAMS_KEY: Uint8Array = new Uint8Array(1);
   export const INITIAL_DIFFICULTY_BITS:u8 = 48;
-  export const BLOCK_TIME_QUANTA :u32 = 10;
   export const FIXED_POINT_PRECISION :u32 = 1000;
   export const MILLISECONDS_PER_YEAR = 31536000000;
   export const U256_MAX = BigInt.fromString("115792089237316195423570985008687907853269984665640564039457584007913129639935");
@@ -114,9 +114,10 @@ export class POB {
     const vhp = new Token(Constants.VHP_CONTRACT_ID);
 
     const metadata = this.fetch_metadata();
+    const params = this.fetch_consensus_parameters();
 
     // Check block quanta
-    System.require(args.header!.timestamp % Constants.BLOCK_TIME_QUANTA == 0, "time stamp does not match time quanta");
+    System.require(args.header!.timestamp % params.quantum_length == 0, "time stamp does not match time quanta");
 
     // Get signer's public key
     const registration = System.getObject<Uint8Array, pob.public_key_record>(State.Space.REGISTRATION, signer, pob.public_key_record.decode);
@@ -139,8 +140,6 @@ export class POB {
     const mark = hash.div(vhp_balance);
 
     System.require(mark < target, "provided hash is not sufficient");
-
-    const params = this.fetch_consensus_parameters();
 
     const virtual_supply = koin.totalSupply() + vhp.totalSupply();
     const yearly_inflation = virtual_supply * params.target_annual_inflation_rate / Constants.FIXED_POINT_PRECISION;
@@ -218,6 +217,7 @@ export class POB {
     new_data.target_annual_inflation_rate = Constants.DEFAULT_ANNUAL_INFLATION_RATE;
     new_data.target_burn_percent = Constants.DEFAULT_TARGET_BURN_PERCENT;
     new_data.target_block_interval = Constants.DEFAULT_TARGET_BLOCK_INTERVAL_MS;
+    new_data.quantum_length = Constants.DEFAULT_QUANTUM_LENGTH_MS;
 
     return new_data;
   }
