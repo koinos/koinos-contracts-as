@@ -62,7 +62,7 @@ function BytesFromBigInt(num: BigInt): Uint8Array {
   return bytes;
 }
 
-export class POB {
+export class Pob {
   register_public_key(args: pob.register_public_key_arguments): pob.register_public_key_result {
     const db = System.getObject<Uint8Array, pob.public_key_record>(State.Space.REGISTRATION, args.public_key!, pob.public_key_record.decode);
 

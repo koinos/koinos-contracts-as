@@ -1,5 +1,5 @@
 import { System, Protobuf, authority, system_calls, pob } from "koinos-sdk-as";
-import { POB as ContractClass } from "./POB";
+import { Pob as ContractClass } from "./Pob";
 
 export function main(): i32 {
   const contractArgs = System.getArguments();
