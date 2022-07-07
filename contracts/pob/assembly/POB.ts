@@ -26,10 +26,10 @@ namespace Constants {
   export const DEFAULT_TARGET_BURN_PERCENT: u32 = 50100; // 50.1%
   export const DEFAULT_TARGET_BLOCK_INTERVAL_MS: u32 = 3000; // 3s
   export const KOIN_CONTRACT_ID = BUILD_FOR_TESTING ? Base58.decode('1BRmrUgtSQVUggoeE9weG4f7nidyydnYfQ') : Base58.decode('19JntSm8pSNETT9aHTwAUHC5RMoaSmgZPJ');
-  export const VHP_CONTRACT_ID = BUILD_FOR_TESTING ? Base58.decode('1JZqj7dDrK5LzvdJgufYBJNUFo88xBoWC8') : Base58.decode('1JZqj7dDrK5LzvdJgufYBJNUFo88xBoWC8');
+  export const VHP_CONTRACT_ID = BUILD_FOR_TESTING ? Base58.decode('1CZvRyRuNxghMUUNGqsKsT5x55r6wugd1C') : Base58.decode('1JZqj7dDrK5LzvdJgufYBJNUFo88xBoWC8');
   export const METADATA_KEY: Uint8Array = new Uint8Array(0);
   export const CONSENSUS_PARAMS_KEY: Uint8Array = new Uint8Array(1);
-  export const INITIAL_DIFFICULTY_BITS:u8 = 42;
+  export const INITIAL_DIFFICULTY_BITS:u8 = 48;
   export const BLOCK_TIME_QUANTA :u32 = 10;
   export const FIXED_POINT_PRECISION :u32 = 1000;
   export const MILLISECONDS_PER_YEAR = 31536000000;
