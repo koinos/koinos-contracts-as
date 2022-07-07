@@ -1,5 +1,5 @@
 import { BigInt } from 'as-bigint';
-import { chain, System, Protobuf, Base64,
+import { chain, System, Protobuf, Base64, authority,
     Base58, value, system_calls, Token, Crypto, pob } from "koinos-sdk-as";
 
 namespace State {
@@ -64,23 +64,21 @@ function BytesFromBigInt(num: BigInt): Uint8Array {
 
 export class Pob {
   register_public_key(args: pob.register_public_key_arguments): pob.register_public_key_result {
-    const db = System.getObject<Uint8Array, pob.public_key_record>(State.Space.REGISTRATION, args.public_key!, pob.public_key_record.decode);
+    System.require(args.producer != null, 'producer cannot be null');
 
-    if (db) {
-      System.log("Public key already registered. Overwriting.");
-    }
-
-    // Get the payer address
-    const tx = System.getTransactionField('header.payer') as value.value_type;
-    const sender = tx.bytes_value as Uint8Array;
+    System.requireAuthority(authority.authorization_type.contract_call, args.producer!);
 
     // Create and store the record
-    const record = new pob.public_key_record(args.public_key!);
-    System.putObject(State.Space.REGISTRATION, sender, record, pob.public_key_record.encode);
+    if(args.public_key == null ) {
+      System.removeObject(State.Space.REGISTRATION, args.producer!)
+    } else {
+      const record = new pob.public_key_record(args.public_key!);
+      System.putObject(State.Space.REGISTRATION, args.producer!, record, pob.public_key_record.encode);
+    }
 
     // Emit an event
-    const event = new pob.register_public_key_event(sender, args.public_key);
-    System.event('pob.register_public_key', Protobuf.encode(event, pob.register_public_key_event.encode), [sender]);
+    const event = new pob.register_public_key_event(args.producer!, args.public_key);
+    System.event('pob.register_public_key', Protobuf.encode(event, pob.register_public_key_event.encode), [args.producer!]);
 
     return new pob.register_public_key_result();
   }
