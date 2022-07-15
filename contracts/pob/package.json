@@ -1,8 +1,9 @@
 {
-  "name": "vhp",
+  "name": "pob",
   "version": "0.1.0",
   "license": "MIT",
   "dependencies": {
+    "as-bigint": "^0.5.3",
     "koinos-proto-js": "^0.0.3",
     "local-koinos": "^0.0.5"
   },

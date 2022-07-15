@@ -1,5 +1,5 @@
 import { System, Protobuf, authority, system_calls, token } from "koinos-sdk-as";
-import { Vhp as ContractClass } from "./Vhp";
+import { Vhp as ContractClass } from "../../vhp/assembly/Vhp";
 
 export function main(): i32 {
   const contractArgs = System.getArguments();

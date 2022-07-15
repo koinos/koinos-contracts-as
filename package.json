@@ -33,9 +33,13 @@
   },
   "scripts": {
     "lint": "eslint --max-warnings 0 --ext ts \"*/assembly/**/*.ts\"",
-    "buildGovernance": "cd governance && yarn install && koinos-sdk-as-cli build release && koinos-sdk-as-cli run-tests",
-    "buildGovernance:ubuntu": "cd governance && yarn install && koinos-sdk-as-cli build release && koinos-sdk-as-cli run-tests && yarn integration-tests",
-    "buildAll": "yarn lint && yarn buildGovernance",
-    "buildAll:ubuntu": "yarn lint && yarn buildGovernance"
+    "buildGovernance": "cd contracts/governance && yarn install && yarn build:release && yarn test",
+    "buildGovernance:ubuntu": "cd contracts/governance && yarn install && yarn build:release && yarn test && yarn integration-tests",
+    "buildVHP": "cd contracts/vhp && yarn install && yarn build:release && yarn test",
+    "buildVHP:ubuntu": "cd contracts/vhp && yarn install && yarn build:release && yarn test && yarn integration-tests",
+    "buildPOB": "cd contracts/pob && yarn install && yarn build:release && yarn test",
+    "buildPOB:ubuntu": "cd contracts/pob && yarn install && yarn build:release && yarn test && yarn integration-tests",
+    "buildAll": "yarn buildGovernance && yarn buildVHP && yarn buildPOB",
+    "buildAll:ubuntu": "yarn buildGovernance:ubuntu && yarn buildVHP:ubuntu && yarn buildPOB:ubuntu"
   }
 }
