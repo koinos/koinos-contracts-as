@@ -15,23 +15,26 @@ namespace Constants {
 
 export class Claim {
   claim(args: claim.claim_arguments): claim.claim_result {
+    const eth_address = args.eth_address!;
+    const koin_address = args.koin_address!;
+
     // Ensure the claim exists and is still unclaimed
-    let koin_claim = System.getObject<Uint8Array, claim.claim_status>(State.Space.CLAIMS, args.eth_address, claim.claim_status.decode);
-    System.require(koin_claim, "no KOIN claim with that address exists");
-    System.require(!koin_claim.claimed, "KOIN has already been claimed for this address");
+    let koin_claim = System.getObject<Uint8Array, claim.claim_status>(State.Space.CLAIMS, eth_address, claim.claim_status.decode);
+    System.require(koin_claim != null, "no KOIN claim with that address exists");
+    System.require(!koin_claim!.claimed, "KOIN has already been claimed for this address");
 
     // Verify the signature in the second slot against the given address
     const txn = System.getTransaction();
     const digest = Protobuf.encode(txn.header, protocol.transaction_header.encode);
-    System.require(System.verifySignature(args.eth_address, txn.signatures[1], digest));
+    System.require(System.verifySignature(eth_address, txn.signatures[1], digest));
     
     // Mint the koin
     const koin = new Token(Constants.KOIN_CONTRACT_ID);
-    System.require(koin.mint(args.koin_address, koin_claim.token_amount), "could not mint koin");
+    System.require(koin.mint(koin_address, koin_claim!.token_amount), "could not mint koin");
     
     // Update the record to signify that the claim has been made
-    koin_claim.claimed = true;
-    System.putObject(State.Space.CLAIMS, Constants.METADATA_KEY, args.eth_address, claim.claim_status.encode);
+    koin_claim!.claimed = true;
+    System.putObject(State.Space.CLAIMS, Constants.METADATA_KEY, koin_claim!, claim.claim_status.encode);
 
     return new claim.claim_result();
   }
