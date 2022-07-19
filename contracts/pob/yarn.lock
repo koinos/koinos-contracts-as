@@ -3078,9 +3078,9 @@ koinos-proto-js@^0.0.3:
     chalk "4.1.2"
     commander "^9.0.0"
 
-"koinos-sdk-as@https://github.com/koinos/koinos-sdk-as#testnet-4":
+"koinos-sdk-as@https://github.com/koinos/koinos-sdk-as#one-buffer":
   version "0.4.11"
-  resolved "https://github.com/koinos/koinos-sdk-as#d0e371efe94527714b07912124d976665ecbbfbb"
+  resolved "https://github.com/koinos/koinos-sdk-as#5a961163d855d0192971de0f2943aa6075cac608"
   dependencies:
     as-bignum "^0.2.18"
     koinos-as-gen "0.4.8"

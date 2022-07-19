@@ -1,15 +1,6 @@
 import { BigInt } from 'as-bigint';
 import { chain, System, Protobuf, Base64, authority,
-    Base58, value, system_calls, Token, Crypto, pob } from "koinos-sdk-as";
-
-namespace State {
-  export namespace Space {
-    export const REGISTRATION = new chain.object_space(true, System.getContractId(), 0);
-    export const METADATA = new chain.object_space(true, System.getContractId(), 1);
-  }
-}
-
-System.MAX_BUFFER_SIZE = 1024 * 100;
+    Base58, value, system_calls, Token, Crypto, pob, Arrays } from "koinos-sdk-as";
 
 namespace Constants {
   /**
@@ -26,14 +17,83 @@ namespace Constants {
   export const DEFAULT_TARGET_BURN_PERCENT: u32 = 50100; // 50.1%
   export const DEFAULT_TARGET_BLOCK_INTERVAL_MS: u32 = 3000; // 3s
   export const DEFAULT_QUANTUM_LENGTH_MS: u32 = 10;
-  export const KOIN_CONTRACT_ID = BUILD_FOR_TESTING ? Base58.decode('1BRmrUgtSQVUggoeE9weG4f7nidyydnYfQ') : Base58.decode('19JntSm8pSNETT9aHTwAUHC5RMoaSmgZPJ');
-  export const VHP_CONTRACT_ID = BUILD_FOR_TESTING ? Base58.decode('1CZvRyRuNxghMUUNGqsKsT5x55r6wugd1C') : Base58.decode('1JZqj7dDrK5LzvdJgufYBJNUFo88xBoWC8');
   export const METADATA_KEY: Uint8Array = new Uint8Array(0);
   export const CONSENSUS_PARAMS_KEY: Uint8Array = new Uint8Array(1);
   export const INITIAL_DIFFICULTY_BITS:u8 = 48;
   export const FIXED_POINT_PRECISION :u32 = 1000;
   export const MILLISECONDS_PER_YEAR = 31536000000;
-  export const U256_MAX = BigInt.fromString("115792089237316195423570985008687907853269984665640564039457584007913129639935");
+
+  let contractId: Uint8Array | null = null;
+  let koinContractId: Uint8Array | null = null;
+  let vhpContractId: Uint8Array | null = null;
+  let u256Max: BigInt | null = null;
+
+  export function ContractId() : Uint8Array {
+    if (contractId === null) {
+      contractId = System.getContractId()
+    }
+
+    return contractId!;
+  }
+
+  export function KoinContractId() : Uint8Array {
+    if (koinContractId === null) {
+      if (BUILD_FOR_TESTING) {
+        // Address: BRmrUgtSQVUggoeE9weG4f7nidyydnYfQ
+        koinContractId = Arrays.fromHexString("007260aeafadc70431ea9c3fbef135b9a415c10f5195e8d557");
+      } else {
+        // Address: 19JntSm8pSNETT9aHTwAUHC5RMoaSmgZPJ
+        koinContractId = Arrays.fromHexString("005b1e61d37259b9c2d99bf417f592e0b77725165d2488be45");
+      }
+    }
+
+    return koinContractId!;
+  }
+
+  export function VhpContractId(): Uint8Array {
+    if (vhpContractId === null ) {
+      if (BUILD_FOR_TESTING) {
+        // Address: 1CZvRyRuNxghMUUNGqsKsT5x55r6wugd1C
+        vhpContractId = Arrays.fromHexString("007ee34bc608c04cd537347cf7302815774fcf750c6a8775f3");
+      } else {
+        // Address: 1JZqj7dDrK5LzvdJgufYBJNUFo88xBoWC8
+        vhpContractId = Arrays.fromHexString("00c0b01fa4bbcd9f061e0df292670ca0dbfaa6526adb88ae09");
+      }
+    }
+
+    return vhpContractId!;
+  }
+
+  export function U256Max(): BigInt {
+    if (u256Max === null) {
+      u256Max = BigInt.ONE.leftShift(256).sub(1);
+    }
+
+    return u256Max!;
+  }
+}
+
+namespace State {
+  export namespace Space {
+    let registration : chain.object_space | null = null;
+    let metadata : chain.object_space | null = null;
+
+    export function Registration() : chain.object_space {
+      if (registration === null) {
+        registration = new chain.object_space(true, Constants.ContractId(), 0);
+      }
+
+      return registration!;
+    }
+
+    export function Metadata() : chain.object_space {
+      if (metadata === null) {
+        metadata = new chain.object_space(true, System.getContractId(), 1);
+      }
+
+      return metadata!;
+    }
+  }
 }
 
 function BigIntFromBytes(bytes: Uint8Array): BigInt {
@@ -42,6 +102,15 @@ function BigIntFromBytes(bytes: Uint8Array): BigInt {
   for (let i = 0; i < bytes.length; i++){
     num = num.leftShift(8).bitwiseOr(bytes[i])
   }
+
+//  for (let i = 0; i < 8; i++ ) {
+//    let word = bytes[ 31 - ( 4 * i ) ]
+//          | ( bytes[ 31 - ( 4 * i ) - 1 ] << 8 )
+//          | ( bytes[ 31 - ( 4 * i ) - 2 ] << 16 )
+//          | ( bytes[ 31 - ( 4 * i ) - 3 ] << 24 );
+//
+//    num = num.leftShift(32).bitwiseOr(word);
+//  }
 
   return num;
 }
@@ -70,10 +139,10 @@ export class Pob {
 
     // Create and store the record
     if(args.public_key == null ) {
-      System.removeObject(State.Space.REGISTRATION, args.producer!)
+      System.removeObject(State.Space.Registration(), args.producer!)
     } else {
       const record = new pob.public_key_record(args.public_key!);
-      System.putObject(State.Space.REGISTRATION, args.producer!, record, pob.public_key_record.encode);
+      System.putObject(State.Space.Registration(), args.producer!, record, pob.public_key_record.encode);
     }
 
     // Emit an event
@@ -84,13 +153,9 @@ export class Pob {
   }
 
   burn(args: pob.burn_arguments): pob.burn_result {
-    const koin = new Token(Constants.KOIN_CONTRACT_ID);
-    const vhp = new Token(Constants.VHP_CONTRACT_ID);
+    const koin = new Token(Constants.KoinContractId());
+    const vhp = new Token(Constants.VhpContractId());
     const amount = args.token_amount;
-
-    // Ensure burn address has enough token
-    //const balance = token.balanceOf(args.burn_address!);
-    //System.require(balance >= amount, "insufficient balance");
 
     // Burn the token
     System.require(koin.burn(args.burn_address!, amount), "could not burn KOIN");
@@ -108,8 +173,8 @@ export class Pob {
     const timestamp = args.header!.timestamp;
     const head_block_time = System.getHeadInfo().head_block_time;
 
-    const koin = new Token(Constants.KOIN_CONTRACT_ID);
-    const vhp = new Token(Constants.VHP_CONTRACT_ID);
+    const koin = new Token(Constants.KoinContractId());
+    const vhp = new Token(Constants.VhpContractId());
 
     const metadata = this.fetch_metadata();
     const params = this.fetch_consensus_parameters();
@@ -118,7 +183,7 @@ export class Pob {
     System.require(args.header!.timestamp % params.quantum_length == 0, "time stamp does not match time quanta");
 
     // Get signer's public key
-    const registration = System.getObject<Uint8Array, pob.public_key_record>(State.Space.REGISTRATION, signer, pob.public_key_record.decode);
+    const registration = System.getObject<Uint8Array, pob.public_key_record>(State.Space.Registration(), signer, pob.public_key_record.decode);
     System.require(registration != null, "signer address has no public key record");
 
     // Create vrf payload and serialize it
@@ -129,7 +194,7 @@ export class Pob {
 
     // Ensure vrf hash divided by producer's vhp is below difficulty
     const difficulty = BigIntFromBytes(metadata.difficulty!);
-    const target = Constants.U256_MAX.div(difficulty);
+    const target = Constants.U256Max().div(difficulty);
     let mh = new Crypto.Multihash();
     mh.deserialize(signature.vrf_hash!)
     const hash = BigIntFromBytes(mh.digest);
@@ -176,11 +241,11 @@ export class Pob {
     new_data.seed = System.hash(Crypto.multicodec.sha2_256, vrf_hash);
     new_data.last_block_time = current_block_time;
 
-    System.putObject(State.Space.METADATA, Constants.METADATA_KEY, new_data, pob.metadata.encode);
+    System.putObject(State.Space.Metadata(), Constants.METADATA_KEY, new_data, pob.metadata.encode);
   }
 
   fetch_metadata(): pob.metadata {
-    const data = System.getObject<Uint8Array, pob.metadata>(State.Space.METADATA, Constants.METADATA_KEY, pob.metadata.decode);
+    const data = System.getObject<Uint8Array, pob.metadata>(State.Space.Metadata(), Constants.METADATA_KEY, pob.metadata.decode);
 
     if (data) {
       return data;
@@ -203,7 +268,7 @@ export class Pob {
   }
 
   fetch_consensus_parameters(): pob.consensus_parameters {
-    const data = System.getObject<Uint8Array, pob.consensus_parameters>(State.Space.METADATA, Constants.CONSENSUS_PARAMS_KEY, pob.consensus_parameters.decode);
+    const data = System.getObject<Uint8Array, pob.consensus_parameters>(State.Space.Metadata(), Constants.CONSENSUS_PARAMS_KEY, pob.consensus_parameters.decode);
 
     if (data) {
       return data;

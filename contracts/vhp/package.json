@@ -19,7 +19,7 @@
     "eslint": "^8.7.0",
     "jest": "^28.1.0",
     "koinos-abi-proto-gen": "^0.1.11",
-    "koinos-sdk-as": "https://github.com/koinos/koinos-sdk-as#testnet-4",
+    "koinos-sdk-as": "https://github.com/koinos/koinos-sdk-as#one-buffer",
     "koinos-sdk-as-cli": "https://github.com/koinos/koinos-sdk-as-cli#master",
     "ts-jest": "^28.0.2",
     "ts-node": "^10.4.0",
