@@ -37,14 +37,25 @@ namespace Constants {
     return contractId!;
   }
 
+  function arrayToUint8Array(a: Array<u8>): Uint8Array {
+    let uArray = new Uint8Array(a.length);
+
+    for (let i = 0; i < a.length; i++)
+      uArray[i] = a[i];
+
+    return uArray;
+  }
+
   export function KoinContractId() : Uint8Array {
     if (koinContractId === null) {
       if (BUILD_FOR_TESTING) {
         // Address: BRmrUgtSQVUggoeE9weG4f7nidyydnYfQ
-        koinContractId = Arrays.fromHexString("007260aeafadc70431ea9c3fbef135b9a415c10f5195e8d557");
+        //koinContractId = Arrays.fromHexString("007260aeafadc70431ea9c3fbef135b9a415c10f5195e8d557");
+        koinContractId = arrayToUint8Array([0x00, 0x72, 0x60, 0xae, 0xaf, 0xad, 0xc7, 0x04, 0x31, 0xea, 0x9c, 0x3f, 0xbe, 0xf1, 0x35, 0xb9, 0xa4, 0x15, 0xc1, 0x0f, 0x51, 0x95, 0xe8, 0xd5, 0x57]);
       } else {
         // Address: 19JntSm8pSNETT9aHTwAUHC5RMoaSmgZPJ
-        koinContractId = Arrays.fromHexString("005b1e61d37259b9c2d99bf417f592e0b77725165d2488be45");
+        //koinContractId = Arrays.fromHexString("005b1e61d37259b9c2d99bf417f592e0b77725165d2488be45");
+        koinContractId = arrayToUint8Array([0x00, 0x5b, 0x1e, 0x61, 0xd3, 0x72, 0x59, 0xb9, 0xc2, 0xd9, 0x9b, 0xf4, 0x17, 0xf5, 0x92, 0xe0, 0xb7, 0x77, 0x25, 0x16, 0x5d, 0x24, 0x88, 0xbe, 0x45]);
       }
     }
 
@@ -55,10 +66,12 @@ namespace Constants {
     if (vhpContractId === null ) {
       if (BUILD_FOR_TESTING) {
         // Address: 1CZvRyRuNxghMUUNGqsKsT5x55r6wugd1C
-        vhpContractId = Arrays.fromHexString("007ee34bc608c04cd537347cf7302815774fcf750c6a8775f3");
+        //vhpContractId = Arrays.fromHexString("007ee34bc608c04cd537347cf7302815774fcf750c6a8775f3");
+        vhpContractId = arrayToUint8Array([0x00, 0x7e, 0xe3, 0x4b, 0xc6, 0x08, 0xc0, 0x4c, 0xd5, 0x37, 0x34, 0x7c, 0xf7, 0x30, 0x28, 0x15, 0x77, 0x4f, 0xcf, 0x75, 0x0c, 0x6a, 0x87, 0x75, 0xf3]);
       } else {
         // Address: 1JZqj7dDrK5LzvdJgufYBJNUFo88xBoWC8
-        vhpContractId = Arrays.fromHexString("00c0b01fa4bbcd9f061e0df292670ca0dbfaa6526adb88ae09");
+        // vhpContractId = Arrays.fromHexString("00c0b01fa4bbcd9f061e0df292670ca0dbfaa6526adb88ae09");
+        vhpContractId = arrayToUint8Array([0x00, 0xc0, 0xb0, 0x1f, 0xa4, 0xbb, 0xcd, 0x9f, 0x06, 0x1e, 0x0d, 0xf2, 0x92, 0x67, 0x0c, 0xa0, 0xdb, 0xfa, 0xa6, 0x52, 0x6a, 0xdb, 0x88, 0xae, 0x09]);
       }
     }
 
@@ -96,43 +109,6 @@ namespace State {
     }
   }
 }
-
-/*
-function BigIntFromBytes(bytes: Uint8Array): BigInt {
-  let num = BigInt.ZERO
-
-  for (let i = 0; i < bytes.length; i++){
-    num = num.leftShift(8).bitwiseOr(bytes[i])
-  }
-
-//  for (let i = 0; i < 8; i++ ) {
-//    let word = bytes[ 31 - ( 4 * i ) ]
-//          | ( bytes[ 31 - ( 4 * i ) - 1 ] << 8 )
-//          | ( bytes[ 31 - ( 4 * i ) - 2 ] << 16 )
-//          | ( bytes[ 31 - ( 4 * i ) - 3 ] << 24 );
-//
-//    num = num.leftShift(32).bitwiseOr(word);
-//  }
-
-  return num;
-}
-
-function BytesFromBigInt(num: BigInt): Uint8Array {
-  let bytes = new Uint8Array(32)
-
-  for (let i = 0; i < 8; i++ ) {
-    let word = num.bitwiseAnd(0xFFFFFFFF).toUInt32()
-    bytes[ 31 - (4 * i) ]     =  0x000000FF & word;
-    bytes[ 31 - (4 * i) - 1 ] = (0x0000FF00 & word) >> 8;
-    bytes[ 31 - (4 * i) - 2 ] = (0x00FF0000 & word) >> 16;
-    bytes[ 31 - (4 * i) - 3 ] = (0xFF000000 & word) >> 24;
-
-    num = num.rightShift(32);
-  }
-
-  return bytes;
-}
-*/
 
 export class Pob {
   register_public_key(args: pob.register_public_key_arguments): pob.register_public_key_result {
