@@ -34,7 +34,7 @@ export class Claim {
     
     // Update the record to signify that the claim has been made
     koin_claim!.claimed = true;
-    System.putObject(State.Space.CLAIMS, Constants.METADATA_KEY, koin_claim!, claim.claim_status.encode);
+    System.putObject(State.Space.CLAIMS, eth_address, koin_claim!, claim.claim_status.encode);
 
     return new claim.claim_result();
   }
