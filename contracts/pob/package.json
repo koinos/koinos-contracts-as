@@ -5,7 +5,8 @@
   "dependencies": {
     "as-bigint": "^0.5.3",
     "koinos-proto-js": "^0.0.3",
-    "local-koinos": "^0.0.5"
+    "local-koinos": "^0.0.5",
+    "uint256": "^1.0.8"
   },
   "devDependencies": {
     "@as-covers/core": "^0.2.1",

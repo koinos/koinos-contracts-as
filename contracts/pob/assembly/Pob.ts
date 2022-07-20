@@ -1,4 +1,5 @@
 import { BigInt } from 'as-bigint';
+import { UInt256 as u256 } from './UInt256';
 import { chain, System, Protobuf, Base64, authority,
     Base58, value, system_calls, Token, Crypto, pob, Arrays } from "koinos-sdk-as";
 
@@ -26,7 +27,7 @@ namespace Constants {
   let contractId: Uint8Array | null = null;
   let koinContractId: Uint8Array | null = null;
   let vhpContractId: Uint8Array | null = null;
-  let u256Max: BigInt | null = null;
+  let u256Max: u256 | null = null;
 
   export function ContractId() : Uint8Array {
     if (contractId === null) {
@@ -64,9 +65,9 @@ namespace Constants {
     return vhpContractId!;
   }
 
-  export function U256Max(): BigInt {
+  export function U256Max(): u256 {
     if (u256Max === null) {
-      u256Max = BigInt.ONE.leftShift(256).sub(1);
+      u256Max = new u256().negate();
     }
 
     return u256Max!;
@@ -88,7 +89,7 @@ namespace State {
 
     export function Metadata() : chain.object_space {
       if (metadata === null) {
-        metadata = new chain.object_space(true, System.getContractId(), 1);
+        metadata = new chain.object_space(true, Constants.ContractId(), 1);
       }
 
       return metadata!;
@@ -96,6 +97,7 @@ namespace State {
   }
 }
 
+/*
 function BigIntFromBytes(bytes: Uint8Array): BigInt {
   let num = BigInt.ZERO
 
@@ -130,6 +132,7 @@ function BytesFromBigInt(num: BigInt): Uint8Array {
 
   return bytes;
 }
+*/
 
 export class Pob {
   register_public_key(args: pob.register_public_key_arguments): pob.register_public_key_result {
@@ -193,16 +196,16 @@ export class Pob {
     System.require(System.verifyVRFProof(registration!.public_key!, signature.vrf_proof!, signature.vrf_hash!, payload_bytes), "proof failed vrf validation");
 
     // Ensure vrf hash divided by producer's vhp is below difficulty
-    const difficulty = BigIntFromBytes(metadata.difficulty!);
-    const target = Constants.U256Max().div(difficulty);
+    const difficulty = u256.deserialize(metadata.difficulty!);
+    const target = Constants.U256Max().div(difficulty, true);
     let mh = new Crypto.Multihash();
     mh.deserialize(signature.vrf_hash!)
-    const hash = BigIntFromBytes(mh.digest);
-    const vhp_balance = BigInt.from(vhp.balanceOf(signer));
+    const hash = u256.deserialize(mh.digest);
+    const vhp_balance = u256.fromNumber(vhp.balanceOf(signer));
 
-    const mark = hash.div(vhp_balance);
+    hash.div(vhp_balance, true );
 
-    System.require(mark < target, "provided hash is not sufficient");
+    System.require(hash.lt(target), "provided hash is not sufficient");
 
     const virtual_supply = koin.totalSupply() + vhp.totalSupply();
     const yearly_inflation = virtual_supply * params.target_annual_inflation_rate / Constants.FIXED_POINT_PRECISION;
@@ -226,18 +229,23 @@ export class Pob {
     return new pob.get_metadata_result(metadata);
   }
 
-  update_difficulty(difficulty:BigInt, metadata:pob.metadata, params:pob.consensus_parameters, current_block_time:u64, vrf_hash:Uint8Array): void {
+  update_difficulty(difficulty:u256, metadata:pob.metadata, params:pob.consensus_parameters, current_block_time:u64, vrf_hash:Uint8Array): void {
     // This is a generalization of Ethereum's Homestead difficulty adjustment algorithm
     let block_time_denom = (10000 * params.target_block_interval) / 14000;
 
     // Calulate new difficulty
-    let new_difficulty = difficulty.div(BigInt.fromUInt32(2048));
+    let new_difficulty = difficulty.div(u256.fromNumber(2048));
     let multiplier:i64 = 1 - i64(current_block_time - metadata.last_block_time) / block_time_denom;
     multiplier = multiplier > -99 ? multiplier : -99;
-    new_difficulty = new_difficulty.mul(BigInt.fromInt64(multiplier)).add(difficulty);
+    if (multiplier >= 0)
+      new_difficulty.mul(u256.fromNumber(u64(multiplier)), true)
+    else
+      new_difficulty.mul(u256.fromNumber(u64(-multiplier)), true)
 
-    var new_data = new pob.metadata();
-    new_data.difficulty = BytesFromBigInt(new_difficulty);
+    new_difficulty.add(difficulty, true);
+
+    let new_data = new pob.metadata();
+    new_data.difficulty = new_difficulty.serialize();
     new_data.seed = System.hash(Crypto.multicodec.sha2_256, vrf_hash);
     new_data.last_block_time = current_block_time;
 
@@ -252,11 +260,9 @@ export class Pob {
     }
 
     // Initialize new metadata
-    var new_data = new pob.metadata();
+    let new_data = new pob.metadata();
 
-    var difficulty = BigInt.ONE.leftShift(Constants.INITIAL_DIFFICULTY_BITS - 1);
-
-    new_data.difficulty = BytesFromBigInt(difficulty);
+    new_data.difficulty = u256.fromNumber(1).shl(Constants.INITIAL_DIFFICULTY_BITS - 1).serialize();
     new_data.seed = System.getChainId();
     new_data.last_block_time = System.getHeadInfo().head_block_time;
 
@@ -275,7 +281,7 @@ export class Pob {
     }
 
     // Initialize new consensus_parameters
-    var new_data = new pob.consensus_parameters();
+    let new_data = new pob.consensus_parameters();
 
     new_data.target_annual_inflation_rate = Constants.DEFAULT_ANNUAL_INFLATION_RATE;
     new_data.target_burn_percent = Constants.DEFAULT_TARGET_BURN_PERCENT;
