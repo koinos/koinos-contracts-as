@@ -47,6 +47,19 @@ export function main(): i32 {
       break;
     }
 
+    case 0x96634f68: {
+      const args = Protobuf.decode<pob.get_public_key_arguments>(
+        contractArgs.args,
+        pob.get_public_key_arguments.decode
+      );
+      const res = c.get_public_key(args);
+      retbuf = Protobuf.encode(
+        res,
+        pob.get_public_key_result.encode
+      );
+      break;
+    }
+
     case 0x53192be1: {
       const args =
         Protobuf.decode<pob.register_public_key_arguments>(
