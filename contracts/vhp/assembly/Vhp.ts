@@ -35,7 +35,7 @@ namespace State {
 
     export function Balance() : chain.object_space {
       if (balance === null) {
-        balance = new chain.object_space(true, System.getContractId(), 1);
+        balance = new chain.object_space(true, Constants.ContractId(), 1);
       }
 
       return balance!;

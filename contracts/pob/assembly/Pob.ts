@@ -221,7 +221,8 @@ export class Pob {
     new_difficulty.add(difficulty, true);
 
     let new_data = new pob.metadata();
-    new_data.difficulty = new_difficulty.serialize();
+    //new_data.difficulty = new_difficulty.serialize();
+    new_data.difficulty = difficulty.serialize();
     new_data.seed = System.hash(Crypto.multicodec.sha2_256, vrf_hash);
     new_data.last_block_time = current_block_time;
 
