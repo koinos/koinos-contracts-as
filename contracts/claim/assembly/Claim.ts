@@ -4,13 +4,13 @@ import { chain, System, Protobuf, protocol, Base64, authority,
 namespace State {
   export namespace Space {
     export const CLAIMS = new chain.object_space(true, System.getContractId(), 0);
+    export const METADATA = new chain.object_space(true, System.getContractId(), 1);
   }
 }
 
 namespace Constants {
-  export const FUND_ADDRESS: Uint8Array = Base58.decode('1BRmrUgtSQVUggoeE9weG4f7nidyydnYfQ');
   export const KOIN_CONTRACT_ID = BUILD_FOR_TESTING ? Base58.decode('1BRmrUgtSQVUggoeE9weG4f7nidyydnYfQ') : Base58.decode('19JntSm8pSNETT9aHTwAUHC5RMoaSmgZPJ');
-  export const METADATA_KEY: Uint8Array = new Uint8Array(0);
+  export const INFO_KEY: Uint8Array = new Uint8Array(0);
 }
 
 export class Claim {
@@ -36,6 +36,21 @@ export class Claim {
     koin_claim!.claimed = true;
     System.putObject(State.Space.CLAIMS, eth_address, koin_claim!, claim.claim_status.encode);
 
+    // Update the info object
+    let info = System.getObject<Uint8Array, claim.claim_info>(State.Space.METADATA, Constants.INFO_KEY, claim.claim_info.decode);
+    System.require(info != null, "claim info object not found");
+
+    info!.koin_claimed += koin_claim!.token_amount;
+    info!.eth_accounts_claimed += 1;
+    System.putObject(State.Space.METADATA, Constants.INFO_KEY, info!, claim.claim_info.encode);
+
     return new claim.claim_result();
+  }
+
+  get_info(args: claim.get_info_arguments): claim.get_info_result {
+    const info = System.getObject<Uint8Array, claim.claim_info>(State.Space.METADATA, Constants.INFO_KEY, claim.claim_info.decode);
+    System.require(info != null, "claim info object not found");
+
+    return new claim.get_info_result(info);
   }
 }

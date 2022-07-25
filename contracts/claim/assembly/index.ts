@@ -20,6 +20,19 @@ export function main(): i32 {
       );
       break;
     }
+           
+    case 0xbd7f6850: {
+      const args = Protobuf.decode<claim.get_info_arguments>(
+        contractArgs.args,
+        claim.get_info_arguments.decode
+      );
+      const res = c.get_info(args);
+      retbuf = Protobuf.encode(
+        res,
+        claim.get_info_result.encode
+      );
+      break;
+    }
 
     default:
       System.exit(1);
