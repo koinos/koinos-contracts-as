@@ -1,5 +1,6 @@
-import { BigInt } from 'as-bigint';
-import { UInt256 as u256 } from './UInt256';
+//import { BigInt } from 'as-bigint';
+//import { UInt256 as u256 } from './UInt256';
+import {u128} from 'as-bignum';
 import { chain, System, Protobuf, Base64, authority,
     Base58, value, system_calls, Token, Crypto, pob, Arrays } from "koinos-sdk-as";
 
@@ -27,7 +28,6 @@ namespace Constants {
   let contractId: Uint8Array | null = null;
   let koinContractId: Uint8Array | null = null;
   let vhpContractId: Uint8Array | null = null;
-  let u256Max: u256 | null = null;
 
   export function ContractId() : Uint8Array {
     if (contractId === null) {
@@ -76,14 +76,6 @@ namespace Constants {
     }
 
     return vhpContractId!;
-  }
-
-  export function U256Max(): u256 {
-    if (u256Max === null) {
-      u256Max = new u256().negate();
-    }
-
-    return u256Max!;
   }
 }
 
@@ -172,16 +164,17 @@ export class Pob {
     System.require(System.verifyVRFProof(registration!.public_key!, signature.vrf_proof!, signature.vrf_hash!, payload_bytes), "proof failed vrf validation");
 
     // Ensure vrf hash divided by producer's vhp is below difficulty
-    const difficulty = u256.deserialize(metadata.difficulty!);
-    const target = Constants.U256Max().div(difficulty, true);
+    const difficulty = u128.fromBytes(metadata.difficulty!, true);
+    const target = u128.Max / difficulty;
     let mh = new Crypto.Multihash();
     mh.deserialize(signature.vrf_hash!)
-    const hash = u256.deserialize(mh.digest);
-    const vhp_balance = u256.fromNumber(vhp.balanceOf(signer));
+    // This purposefully only gets the upper 128 bits. That's all we need
+    let hash = u128.fromBytes(mh.digest, true);
+    const vhp_balance = u128.fromU64(vhp.balanceOf(signer));
 
-    hash.div(vhp_balance, true );
+    hash = hash / vhp_balance;
 
-    System.require(hash.lt(target), "provided hash is not sufficient");
+    System.require(hash < target, "provided hash is not sufficient");
 
     const virtual_supply = koin.totalSupply() + vhp.totalSupply();
     const yearly_inflation = virtual_supply * params.target_annual_inflation_rate / Constants.FIXED_POINT_PRECISION;
@@ -205,24 +198,22 @@ export class Pob {
     return new pob.get_metadata_result(metadata);
   }
 
-  update_difficulty(difficulty:u256, metadata:pob.metadata, params:pob.consensus_parameters, current_block_time:u64, vrf_hash:Uint8Array): void {
+  update_difficulty(difficulty:u128, metadata:pob.metadata, params:pob.consensus_parameters, current_block_time:u64, vrf_hash:Uint8Array): void {
     // This is a generalization of Ethereum's Homestead difficulty adjustment algorithm
     let block_time_denom = (10000 * params.target_block_interval) / 14000;
 
     // Calulate new difficulty
-    let new_difficulty = difficulty.div(u256.fromNumber(2048));
+    let new_difficulty: u128 = difficulty / u128.fromU64(2048);
     let multiplier:i64 = 1 - i64(current_block_time - metadata.last_block_time) / block_time_denom;
     multiplier = multiplier > -99 ? multiplier : -99;
-    if (multiplier >= 0)
-      new_difficulty.mul(u256.fromNumber(u64(multiplier)), true)
-    else
-      new_difficulty.mul(u256.fromNumber(u64(-multiplier)), true)
-
-    new_difficulty.add(difficulty, true);
+    if (multiplier >= 0) {
+      new_difficulty = difficulty + new_difficulty * u128.fromU64(u64(multiplier));
+    } else {
+      new_difficulty = difficulty - new_difficulty * u128.fromU64(u64(-multiplier));
+    }
 
     let new_data = new pob.metadata();
-    //new_data.difficulty = new_difficulty.serialize();
-    new_data.difficulty = difficulty.serialize();
+    new_data.difficulty = new_difficulty.toUint8Array(true);
     new_data.seed = System.hash(Crypto.multicodec.sha2_256, vrf_hash);
     new_data.last_block_time = current_block_time;
 
@@ -239,7 +230,7 @@ export class Pob {
     // Initialize new metadata
     let new_data = new pob.metadata();
 
-    new_data.difficulty = u256.fromNumber(1).shl(Constants.INITIAL_DIFFICULTY_BITS - 1).serialize();
+    new_data.difficulty = (u128.One << (Constants.INITIAL_DIFFICULTY_BITS - 1)).toUint8Array(true);
     new_data.seed = System.getChainId();
     new_data.last_block_time = System.getHeadInfo().head_block_time;
 

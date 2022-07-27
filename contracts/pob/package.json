@@ -4,6 +4,7 @@
   "license": "MIT",
   "dependencies": {
     "as-bigint": "^0.5.3",
+    "as-bignum": "^0.2.21",
     "koinos-proto-js": "^0.0.3",
     "local-koinos": "^0.0.5",
     "uint256": "^1.0.8"

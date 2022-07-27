@@ -1333,6 +1333,11 @@ as-bignum@^0.2.18:
   resolved "https://registry.yarnpkg.com/as-bignum/-/as-bignum-0.2.18.tgz#61ed4dd07d4a62107bde227fdb4370190217bf0b"
   integrity sha512-5LODrOr7wvS643oh7PHfyRtbBO9vCcU69vNNvrqh5yovrApM9nRHDeT5XcqnaSI8TqK9ZhN12qhZnq4rdIGcwQ==
 
+as-bignum@^0.2.21:
+  version "0.2.21"
+  resolved "https://registry.yarnpkg.com/as-bignum/-/as-bignum-0.2.21.tgz#393d5568749fb89625ebcd2a06518b82f9db9a51"
+  integrity sha512-VvjDsGYjLnmBnumBdgiIZ+bck48AzkvXPkbsFZdcSaBKNyMjHqrRlCwNZGf1Fj9WUd2QdmVOBURiEYnE7Ee/8w==
+
 asap@^2.0.0:
   version "2.0.6"
   resolved "https://registry.yarnpkg.com/asap/-/asap-2.0.6.tgz#e50347611d7e690943208bbdafebcbc2fb866d46"
@@ -3073,7 +3078,7 @@ koinos-proto-js@^0.0.3:
 
 "koinos-sdk-as-cli@https://github.com/koinos/koinos-sdk-as-cli#master":
   version "0.1.16"
-  resolved "https://github.com/koinos/koinos-sdk-as-cli#89a71575f4064206a4f796e43c22d41d51756c21"
+  resolved "https://github.com/koinos/koinos-sdk-as-cli#c81d726f1bb4f345ae39e7777f5703efd5bafd62"
   dependencies:
     chalk "4.1.2"
     commander "^9.0.0"

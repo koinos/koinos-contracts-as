@@ -3068,7 +3068,7 @@ koinos-proto-js@^0.0.3:
 
 "koinos-sdk-as-cli@https://github.com/koinos/koinos-sdk-as-cli#master":
   version "0.1.16"
-  resolved "https://github.com/koinos/koinos-sdk-as-cli#89a71575f4064206a4f796e43c22d41d51756c21"
+  resolved "https://github.com/koinos/koinos-sdk-as-cli#c81d726f1bb4f345ae39e7777f5703efd5bafd62"
   dependencies:
     chalk "4.1.2"
     commander "^9.0.0"
