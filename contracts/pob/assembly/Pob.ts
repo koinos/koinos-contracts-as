@@ -15,7 +15,7 @@ namespace Constants {
    *
    *  x = blocks_per_year * ( ( 1 + desired_inflation_rate ) ^ ( 1 / blocks_per_year ) - 1 )
    */
-  export const DEFAULT_ANNUAL_INFLATION_RATE: u32 = 1980; // 2%
+  export const DEFAULT_ANNUAL_INFLATION_RATE: u32 = 19802; // 2%
   export const DEFAULT_TARGET_BURN_PERCENT: u32 = 501000; // 50.1%
   export const DEFAULT_TARGET_BLOCK_INTERVAL_MS: u32 = 3000; // 3s
   export const DEFAULT_QUANTUM_LENGTH_MS: u32 = 10;

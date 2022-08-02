@@ -71,7 +71,7 @@ export class Governance {
 
     let obj = System.getNextObject<Uint8Array, governance.proposal_record>(State.Space.Proposal(), proposalsStart, governance.proposal_record.decode);
 
-    let numProposals = 0 as u64;
+    let numProposals: u64 = 0;
     while (obj != null) {
 
       proposals.push(obj.value);
@@ -112,7 +112,7 @@ export class Governance {
   }
 
   proposal_updates_governance(operations: Array<protocol.operation>): bool {
-    for (let index = 0; index < operations.length; index++) {
+    for (let index: u64 = 0; index < operations.length; index++) {
       const op = operations[index];
 
       if (op.upload_contract) {
