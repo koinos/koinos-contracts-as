@@ -112,7 +112,7 @@ export class Governance {
   }
 
   proposal_updates_governance(operations: Array<protocol.operation>): bool {
-    for (let index: u64 = 0; index < operations.length; index++) {
+    for (let index: i32 = 0; index < operations.length; index++) {
       const op = operations[index];
 
       if (op.upload_contract) {

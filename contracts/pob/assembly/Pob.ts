@@ -256,7 +256,7 @@ export class Pob {
   }
 
   get_public_key(args: pob.get_public_key_arguments): pob.get_public_key_result {
-    const registration = System.getObject<Uint8Array, pob.public_key_record>(State.Space.REGISTRATION, args.producer!, pob.public_key_record.decode);
+    const registration = System.getObject<Uint8Array, pob.public_key_record>(State.Space.Registration(), args.producer!, pob.public_key_record.decode);
     System.require(registration != null, "given address has no public key record");
 
     return new pob.get_public_key_result(registration!.public_key);
