@@ -1,8 +1,5 @@
-//import { BigInt } from 'as-bigint';
-//import { UInt256 as u256 } from './UInt256';
 import {u128} from 'as-bignum';
-import { chain, System, Protobuf, Base64, authority,
-    Base58, value, system_calls, Token, Crypto, pob, Arrays } from "koinos-sdk-as";
+import { chain, System, Protobuf, authority, system_calls, Token, Crypto, pob } from "koinos-sdk-as";
 
 namespace Constants {
   /**

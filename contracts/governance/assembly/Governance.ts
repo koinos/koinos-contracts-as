@@ -50,8 +50,6 @@ namespace State {
   export namespace Space {
     let proposal : chain.object_space | null = null;
 
-    export const PROPOSAL = new chain.object_space(true, Constants.ContractId(), 0);
-
     export function Proposal() : chain.object_space {
       if (proposal === null) {
         proposal = new chain.object_space(true, Constants.ContractId(), 0);
