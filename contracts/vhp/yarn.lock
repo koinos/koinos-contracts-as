@@ -922,19 +922,14 @@
   resolved "https://registry.yarnpkg.com/@protobufjs/utf8/-/utf8-1.1.0.tgz#a777360b5b39a1a2e5106f8e858f2fd2d060c570"
   integrity sha512-Vvn3zZrhQZkkBE8LSuW3em98c0FwgO4nxzv6OdSxPKJIEKY2bGbHn+mhGIPerzI4twdxaP8/0+06HBpwf345Lw==
 
-"@roaminroe/as-proto-gen@^0.4.2":
-  version "0.4.2"
-  resolved "https://registry.yarnpkg.com/@roaminroe/as-proto-gen/-/as-proto-gen-0.4.2.tgz#d665cd0e37c420eed29e933ace4f7ceec9a5eb0d"
-  integrity sha512-Q5XcyzZOtr7aaIadnGk9s+XiTWUUJ31VLEu09cybgabGeQVqkT1mHdtMDamERdIU2d9o6fZApC1mvIfz89esvA==
+"@roaminroe/as-proto-gen@^0.3.3":
+  version "0.3.3"
+  resolved "https://registry.yarnpkg.com/@roaminroe/as-proto-gen/-/as-proto-gen-0.3.3.tgz#5d9b2d3d63c06109277443d9cb526a2b28eb441c"
+  integrity sha512-++Y+/ap1db31Yenka750cV2xWA0u9JeY0pP0mutNNwWqQYZmKJtrigSvUE6ixUJU2K2jBpE9UGsJzGJo+R1l0w==
   dependencies:
     google-protobuf "^3.19.2"
     prettier "^2.5.0"
     ts-poet "^4.9.0"
-
-"@roaminroe/as-proto@^0.2.3", "as-proto@npm:@roaminroe/as-proto":
-  version "0.2.3"
-  resolved "https://registry.yarnpkg.com/@roaminroe/as-proto/-/as-proto-0.2.3.tgz#931ff8f805d1ba4726037465d46fb0d9ac5a4f04"
-  integrity sha512-x+fDDY5fvfd1VHqJnD6ITh88m913uDuKQPCTnwi6TFwbCRIqmC9lfIst/pmPFx96rNVlNp8UBLXFKgZg9l6rYA==
 
 "@roaminroe/protoc@^2.4.0":
   version "2.4.0"
@@ -1327,6 +1322,11 @@ as-bignum@^0.2.18:
   version "0.2.18"
   resolved "https://registry.yarnpkg.com/as-bignum/-/as-bignum-0.2.18.tgz#61ed4dd07d4a62107bde227fdb4370190217bf0b"
   integrity sha512-5LODrOr7wvS643oh7PHfyRtbBO9vCcU69vNNvrqh5yovrApM9nRHDeT5XcqnaSI8TqK9ZhN12qhZnq4rdIGcwQ==
+
+"as-proto@npm:@roaminroe/as-proto":
+  version "0.2.3"
+  resolved "https://registry.yarnpkg.com/@roaminroe/as-proto/-/as-proto-0.2.3.tgz#931ff8f805d1ba4726037465d46fb0d9ac5a4f04"
+  integrity sha512-x+fDDY5fvfd1VHqJnD6ITh88m913uDuKQPCTnwi6TFwbCRIqmC9lfIst/pmPFx96rNVlNp8UBLXFKgZg9l6rYA==
 
 asap@^2.0.0:
   version "2.0.6"
@@ -3022,7 +3022,7 @@ koilib@^3.1.1:
     multibase "^4.0.6"
     protobufjs "^6.11.2"
 
-koinos-abi-proto-gen@^0.1.11:
+koinos-abi-proto-gen@^0.1.5:
   version "0.1.11"
   resolved "https://registry.yarnpkg.com/koinos-abi-proto-gen/-/koinos-abi-proto-gen-0.1.11.tgz#ba7518e95afad603e2e7b9669b9ff72c902c78cf"
   integrity sha512-5hbAhgm3x1JlDPII1EAMaNCSJ+q71WyJK+ndMkh1RM8nptWRUmkJxyAw7kmX2/n9I1cOFF+YdGYgA5CgO1N6Fg==
@@ -3037,50 +3037,57 @@ koinos-as-gen@0.4.8:
   dependencies:
     google-protobuf "^3.19.4"
 
-"koinos-mock-vm@https://github.com/koinos/koinos-mock-vm#testnet-4":
-  version "1.1.1"
-  resolved "https://github.com/koinos/koinos-mock-vm#a8224fc3a6b362515c3aa305019dfe91000b30a5"
+"koinos-mock-vm@https://github.com/koinos/koinos-mock-vm#a7ad22f285b4d2b8b4e4bbf6f4695696db733661":
+  version "1.1.3"
+  resolved "https://github.com/koinos/koinos-mock-vm#a7ad22f285b4d2b8b4e4bbf6f4695696db733661"
   dependencies:
     "@noble/hashes" "^1.0.0"
     "@noble/secp256k1" "^1.5.5"
     chalk "4.1.2"
-    koinos-proto-js "^0.0.10"
+    koinos-proto-js "^0.0.25"
     multibase "^4.0.6"
     protobufjs "^6.11.2"
     somap "^0.5.14"
 
-koinos-proto-as@^0.4.15:
-  version "0.4.15"
-  resolved "https://registry.yarnpkg.com/koinos-proto-as/-/koinos-proto-as-0.4.15.tgz#e7209906d026be176785f7793cb8f19d2a75bc1d"
-  integrity sha512-hvGjmazMIy7jlmctgjxmvYpAoS5xmIeeH8Y+9b5Q4lKnpTFWD/v/TJPZky2l/z1tYSEqKDftO2y60pBbMJ7sQA==
+koinos-proto-as@^0.4.25:
+  version "0.4.25"
+  resolved "https://registry.yarnpkg.com/koinos-proto-as/-/koinos-proto-as-0.4.25.tgz#1f57f598131b081dadb1ded17dfc76acc2da24a4"
+  integrity sha512-NW+JU5u34iD2/1Kf8emgBy1Jt9x+XxUHGzLlm+U52hSX+gvyosR8gP5Ex/D7/IGFeeGtYLgC+Bk0tHUThaR3Fw==
   dependencies:
     as-proto "npm:@roaminroe/as-proto"
 
-koinos-proto-js@^0.0.10:
-  version "0.0.10"
-  resolved "https://registry.yarnpkg.com/koinos-proto-js/-/koinos-proto-js-0.0.10.tgz#50027cfb263494bd04fa363b96156f28e60160f4"
-  integrity sha512-IXxW3r+EvZOwcDDqUWUDe7NPnGJd8WnibOsNQnEHTtNY4ki/M/DR06U8+kuxYTj0jluY0sVJw6td3eJ3IbbN8g==
+koinos-proto-js@^0.0.25:
+  version "0.0.25"
+  resolved "https://registry.yarnpkg.com/koinos-proto-js/-/koinos-proto-js-0.0.25.tgz#bd2f12922790b24670557464c1ed199aad549ae7"
+  integrity sha512-H0+MzUrf6JpdPUzM+TNL3DNmgMoyqZUWMp7TuT6Okz2hLiBM11Sl4to9s3Sjx6uBQKG8m1GjdW5XYJYbkIilpQ==
 
 koinos-proto-js@^0.0.3:
   version "0.0.3"
   resolved "https://registry.yarnpkg.com/koinos-proto-js/-/koinos-proto-js-0.0.3.tgz#16862189022c1ccafa6ad4825c2565c3acbdae16"
   integrity sha512-gx5ZPuH3PFEoFeL3o+9rrBt2E5BnJ0997U4l1HVyZavlTtTWe2Uj1+XEcgsS9oBmXDoTC/ELH3N22+r+bgnvng==
 
-"koinos-sdk-as-cli@https://github.com/koinos/koinos-sdk-as-cli#master":
+"koinos-sdk-as-cli@https://github.com/koinos/koinos-sdk-as-cli#c81d726f1bb4f345ae39e7777f5703efd5bafd62":
   version "0.1.16"
-  resolved "https://github.com/koinos/koinos-sdk-as-cli#89a71575f4064206a4f796e43c22d41d51756c21"
+  resolved "https://github.com/koinos/koinos-sdk-as-cli#c81d726f1bb4f345ae39e7777f5703efd5bafd62"
   dependencies:
     chalk "4.1.2"
     commander "^9.0.0"
 
 "koinos-sdk-as@https://github.com/koinos/koinos-sdk-as#testnet-4":
   version "0.4.11"
-  resolved "https://github.com/koinos/koinos-sdk-as#13436a04a0748c815a8702d3935dfaf94592f77d"
+  resolved "https://github.com/koinos/koinos-sdk-as#9a4a919ad21dc75df388c01a441dacbbd41f2405"
   dependencies:
+    "@as-covers/core" "^0.2.1"
+    "@as-pect/cli" "^6.2.4"
+    "@roaminroe/as-proto-gen" "^0.3.3"
+    "@roaminroe/protoc" "^2.4.0"
     as-bignum "^0.2.18"
+    assemblyscript "^0.19.22"
+    koinos-abi-proto-gen "^0.1.5"
     koinos-as-gen "0.4.8"
-    koinos-mock-vm "https://github.com/koinos/koinos-mock-vm#testnet-4"
-    koinos-proto-as "^0.4.15"
+    koinos-mock-vm "https://github.com/koinos/koinos-mock-vm#a7ad22f285b4d2b8b4e4bbf6f4695696db733661"
+    koinos-proto-as "^0.4.25"
+    koinos-sdk-as-cli "https://github.com/koinos/koinos-sdk-as-cli#c81d726f1bb4f345ae39e7777f5703efd5bafd62"
 
 leven@^3.1.0:
   version "3.1.0"
