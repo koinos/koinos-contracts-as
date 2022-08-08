@@ -36,9 +36,18 @@ export class Claim {
     const ethAddr    = Arrays.toHexString(eth_address);
     const koinosAddr = Base58.encode(koin_address);
     const message    = `claim koins ${ethAddr}:${koinosAddr}`;
-    const digest     = System.hash(Crypto.multicodec.keccak_256, StringBytes.stringToBytes(message));
-    const pubKey     = System.recoverPublicKey(signature, digest!);
-    System.require(pubKey!.subarray(-20) === eth_address, "ethereum address mismatch");
+
+    let multihashBytes = System.hash(Crypto.multicodec.keccak_256, StringBytes.stringToBytes(message));
+    const pubKey       = System.recoverPublicKey(signature, multihashBytes!);
+
+
+    multihashBytes = System.hash(Crypto.multicodec.keccak_256, pubKey!);
+    let mh = new Crypto.Multihash();
+    mh.deserialize(multihashBytes!);
+
+    System.log(Arrays.toHexString(mh.digest));
+    System.log(Arrays.toHexString(eth_address));
+    System.require(mh.digest.subarray(-20) === eth_address, "ethereum address mismatch");
 
     // Mint the koin
     const koin = new Token(Constants.KOIN_CONTRACT_ID);
