@@ -33,11 +33,12 @@ export class Claim {
     System.require(!koin_claim!.claimed, "KOIN has already been claimed for this address");
 
     // Verify the signature in the second slot against the given address
-    const ethAddr = Arrays.toHexString(eth_address, true);
+    const ethAddr    = Arrays.toHexString(eth_address);
     const koinosAddr = Base58.encode(koin_address);
-    const message = `claim koins ${ethAddr}:${koinosAddr}`;
-    const digest = System.hash(Crypto.multicodec.keccak_256, StringBytes.stringToBytes(message));
-    System.require(System.verifySignature(eth_address, signature, digest!));
+    const message    = `claim koins ${ethAddr}:${koinosAddr}`;
+    const digest     = System.hash(Crypto.multicodec.keccak_256, StringBytes.stringToBytes(message));
+    const pubKey     = System.recoverPublicKey(signature, digest!);
+    System.require(pubKey!.subarray(-20) === eth_address, "ethereum address mismatch");
 
     // Mint the koin
     const koin = new Token(Constants.KOIN_CONTRACT_ID);
