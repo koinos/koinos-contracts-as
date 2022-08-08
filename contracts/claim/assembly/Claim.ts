@@ -11,8 +11,8 @@ function arrayToUint8Array(a: Array<u8>): Uint8Array {
 
 namespace State {
   export namespace Space {
-    export const CLAIMS = new chain.object_space(true, arrayToUint8Array([0x01]), 0);
-    export const METADATA = new chain.object_space(true, arrayToUint8Array([0x01]), 1);
+    export const CLAIMS = new chain.object_space(true, arrayToUint8Array([0x01]), 1);
+    export const METADATA = new chain.object_space(true, arrayToUint8Array([0x01]), 0);
   }
 }
 
