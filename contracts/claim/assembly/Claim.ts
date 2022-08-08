@@ -1,4 +1,4 @@
-import { chain, System, Base64, Base58, Token, claim, Arrays, StringBytes } from "koinos-sdk-as";
+import { chain, System, Base64, Base58, Token, Crypto, claim, Arrays, StringBytes } from "koinos-sdk-as";
 
 namespace State {
   export namespace Space {
@@ -27,7 +27,7 @@ export class Claim {
     const ethAddr = Arrays.toHexString(eth_address, true);
     const koinosAddr = Base58.encode(koin_address);
     const message = `claim koins ${ethAddr}:${koinosAddr}`;
-    const digest = System.hash(0x1b /* keccak_256 */, StringBytes.stringToBytes(message));
+    const digest = System.hash(Crypto.multicodec.keccak_256, StringBytes.stringToBytes(message));
     System.require(System.verifySignature(eth_address, signature, digest!));
 
     // Mint the koin
