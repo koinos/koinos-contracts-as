@@ -1,5 +1,4 @@
-import { chain, System, Protobuf, protocol, Base64, authority,
-    Base58, value, system_calls, Token, Crypto, claim } from "koinos-sdk-as";
+import { chain, System, Base64, Base58, Token, claim, Arrays, StringBytes } from "koinos-sdk-as";
 
 namespace State {
   export namespace Space {
@@ -17,6 +16,7 @@ export class Claim {
   claim(args: claim.claim_arguments): claim.claim_result {
     const eth_address = args.eth_address!;
     const koin_address = args.koin_address!;
+    const signature = args.signature!;
 
     // Ensure the claim exists and is still unclaimed
     let koin_claim = System.getObject<Uint8Array, claim.claim_status>(State.Space.CLAIMS, eth_address, claim.claim_status.decode);
@@ -24,15 +24,16 @@ export class Claim {
     System.require(!koin_claim!.claimed, "KOIN has already been claimed for this address");
 
     // Verify the signature in the second slot against the given address
-    const txn = System.getTransaction();
-    const header_bytes = Protobuf.encode(txn.header, protocol.transaction_header.encode);
-    const digest = System.hash(Crypto.multicodec.keccak_256, header_bytes)
-    System.require(System.verifySignature(eth_address, txn.signatures[1], digest!));
-    
+    const ethAddr = Arrays.toHexString(eth_address, true);
+    const koinosAddr = Base58.encode(koin_address);
+    const message = `claim koins ${ethAddr}:${koinosAddr}`;
+    const digest = System.hash(0x1b /* keccak_256 */, StringBytes.stringToBytes(message));
+    System.require(System.verifySignature(eth_address, signature, digest!));
+
     // Mint the koin
     const koin = new Token(Constants.KOIN_CONTRACT_ID);
     System.require(koin.mint(koin_address, koin_claim!.token_amount), "could not mint koin");
-    
+
     // Update the record to signify that the claim has been made
     koin_claim!.claimed = true;
     System.putObject(State.Space.CLAIMS, eth_address, koin_claim!, claim.claim_status.encode);
