@@ -10,7 +10,7 @@ namespace State {
 
 namespace Constants {
   export const KOIN_CONTRACT_ID = BUILD_FOR_TESTING ? Base58.decode('1BRmrUgtSQVUggoeE9weG4f7nidyydnYfQ') : Base58.decode('19JntSm8pSNETT9aHTwAUHC5RMoaSmgZPJ');
-  export const INFO_KEY: Uint8Array = new Uint8Array(0);
+  export const INFO_KEY: Uint8Array = Base64.decode("EiA4c5Il0hdkaHX/LbRV8eIR3XKEzYZG05OFHrvxsbG6mQ==");
 }
 
 export class Claim {
@@ -25,8 +25,9 @@ export class Claim {
 
     // Verify the signature in the second slot against the given address
     const txn = System.getTransaction();
-    const digest = Protobuf.encode(txn.header, protocol.transaction_header.encode);
-    System.require(System.verifySignature(eth_address, txn.signatures[1], digest));
+    const header_bytes = Protobuf.encode(txn.header, protocol.transaction_header.encode);
+    const digest = System.hash(Crypto.multicodec.keccak_256, header_bytes)
+    System.require(System.verifySignature(eth_address, txn.signatures[1], digest!));
     
     // Mint the koin
     const koin = new Token(Constants.KOIN_CONTRACT_ID);
