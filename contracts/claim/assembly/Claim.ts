@@ -1,9 +1,18 @@
 import { chain, System, Base64, Base58, Token, Crypto, claim, Arrays, StringBytes } from "koinos-sdk-as";
 
+function arrayToUint8Array(a: Array<u8>): Uint8Array {
+  let uArray = new Uint8Array(a.length);
+
+  for (let i = 0; i < a.length; i++)
+    uArray[i] = a[i];
+
+  return uArray;
+}
+
 namespace State {
   export namespace Space {
-    export const CLAIMS = new chain.object_space(true, System.getContractId(), 0);
-    export const METADATA = new chain.object_space(true, System.getContractId(), 1);
+    export const CLAIMS = new chain.object_space(true, arrayToUint8Array([0x01]), 0);
+    export const METADATA = new chain.object_space(true, arrayToUint8Array([0x01]), 1);
   }
 }
 
