@@ -18,7 +18,7 @@ namespace State {
 
 namespace Constants {
   export const KOIN_CONTRACT_ID = BUILD_FOR_TESTING ? Base58.decode('1BRmrUgtSQVUggoeE9weG4f7nidyydnYfQ') : Base58.decode('19JntSm8pSNETT9aHTwAUHC5RMoaSmgZPJ');
-  export const INFO_KEY: Uint8Array = Base64.decode("EiA4c5Il0hdkaHX/LbRV8eIR3XKEzYZG05OFHrvxsbG6mQ==");
+  export const INFO_KEY: Uint8Array = new Uint8Array(0);
 }
 
 export class Claim {
