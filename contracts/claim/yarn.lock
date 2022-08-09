@@ -768,14 +768,14 @@
   integrity sha512-8yQtQ9ArHh/TzdUDKQwEvwCgpDuhSWTDAbiKMl3854PcT+Dk4UmWaiawuFTLy9n5twzXOBXVflWe+90/ffXQrA==
 
 "@npmcli/config@^4.2.0":
-  version "4.2.0"
-  resolved "https://registry.yarnpkg.com/@npmcli/config/-/config-4.2.0.tgz#62b5d2b9cbf93fb2bc9f7cc947f25d7659ef849f"
-  integrity sha512-imWNz5dNWb2u+y41jyxL2WB389tkhu3a01Rchn16O/ur6GrnKySgOqdNG3N/9Z+mqxdISMEGKXI/POCauzz0dA==
+  version "4.2.1"
+  resolved "https://registry.yarnpkg.com/@npmcli/config/-/config-4.2.1.tgz#7a4b46f4a315fe369a3f8543c67fae0b89549a40"
+  integrity sha512-iJEnXNAGGr7sGUcoKmeJNrc943vFiWrDWq6DNK/t+SuqoObmozMb3tN3G5T9yo3uBf5Cw4h+SWgoqSaiwczl0Q==
   dependencies:
     "@npmcli/map-workspaces" "^2.0.2"
     ini "^3.0.0"
     mkdirp-infer-owner "^2.0.0"
-    nopt "^5.0.0"
+    nopt "^6.0.0"
     proc-log "^2.0.0"
     read-package-json-fast "^2.0.3"
     semver "^7.3.5"
@@ -1200,7 +1200,7 @@
     "@typescript-eslint/types" "5.33.0"
     eslint-visitor-keys "^3.3.0"
 
-abbrev@1, abbrev@~1.1.1:
+abbrev@1, abbrev@^1.0.0, abbrev@~1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/abbrev/-/abbrev-1.1.1.tgz#f8f2c887ad10bf67f634f005b6987fed3179aac8"
   integrity sha512-nne9/IiQ/hzIhY6pdDnbBtz7DjPTKrY00P/zvPSm5pOFkl6xuGrGnXn/VtTNNfNtAfZ9/1RtehkszU9qcTii0Q==
@@ -1897,9 +1897,9 @@ doctrine@^3.0.0:
     esutils "^2.0.2"
 
 electron-to-chromium@^1.4.202:
-  version "1.4.211"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.211.tgz#afaa8b58313807501312d598d99b953568d60f91"
-  integrity sha512-BZSbMpyFQU0KBJ1JG26XGeFI3i4op+qOYGxftmZXFZoHkhLgsSv4DHDJfl8ogII3hIuzGt51PaZ195OVu0yJ9A==
+  version "1.4.212"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.212.tgz#20cd48e88288fd2428138c108804edb1961bf559"
+  integrity sha512-LjQUg1SpLj2GfyaPDVBUHdhmlDU1vDB4f0mJWSGkISoXQrn5/lH3ECPCuo2Bkvf6Y30wO+b69te+rZK/llZmjg==
 
 emittery@^0.10.2:
   version "0.10.2"
@@ -2355,9 +2355,9 @@ has@^1.0.3:
     function-bind "^1.1.1"
 
 hosted-git-info@^5.0.0:
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/hosted-git-info/-/hosted-git-info-5.0.0.tgz#df7a06678b4ebd722139786303db80fdf302ea56"
-  integrity sha512-rRnjWu0Bxj+nIfUOkz0695C0H6tRrN5iYIzYejb0tDEefe2AekHu/U5Kn9pEie5vsJqpNQU02az7TGSH3qpz4Q==
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/hosted-git-info/-/hosted-git-info-5.1.0.tgz#9786123f92ef3627f24abc3f15c20d98ec4a6594"
+  integrity sha512-Ek+QmMEqZF8XrbFdwoDjSbm7rT23pCgEMOJmz6GPk/s4yH//RQfNPArhIxbguNxROq/+5lNBwCDHMhA903Kx1Q==
   dependencies:
     lru-cache "^7.5.1"
 
@@ -3107,10 +3107,10 @@ koinos-as-gen@0.4.8:
     protobufjs "^6.11.2"
     somap "^0.5.14"
 
-koinos-proto-as@^0.4.24, koinos-proto-as@^0.4.26:
-  version "0.4.26"
-  resolved "https://registry.yarnpkg.com/koinos-proto-as/-/koinos-proto-as-0.4.26.tgz#242b3c851d8621637f872628e8d1dc9364282b03"
-  integrity sha512-JBE5Uc56PSvjQDLHoJKMI3+1d8k/Djy4+8Hj1CXwFzq1XZ6bcFAxTeP0ES/wHVyxJ4jBEbF3ilytu3ypYa6Dag==
+koinos-proto-as@^0.4.24, koinos-proto-as@^0.4.27:
+  version "0.4.27"
+  resolved "https://registry.yarnpkg.com/koinos-proto-as/-/koinos-proto-as-0.4.27.tgz#67416d2b6776e0d37abc23590c1231a3ab68dcbc"
+  integrity sha512-BXPNatDVGXiINaCaICBMtjS2JtojHaGx22dxovBp9i5JdsvX6cd6/dpdYX1UuQJ+AOZfm2wPvunN640fkTitaw==
   dependencies:
     as-proto "npm:@roaminroe/as-proto"
 
@@ -3133,7 +3133,7 @@ koinos-proto-js@^0.0.3:
 
 "koinos-sdk-as@https://github.com/koinos/koinos-sdk-as#testnet-4":
   version "0.4.11"
-  resolved "https://github.com/koinos/koinos-sdk-as#0382d6ba4c2c472c4407bafe8e9020ffb9c10162"
+  resolved "https://github.com/koinos/koinos-sdk-as#aec37ce248b2244d6823faec259ea42ed7325a14"
   dependencies:
     "@as-covers/core" "^0.2.1"
     "@as-pect/cli" "^6.2.4"
@@ -3144,7 +3144,7 @@ koinos-proto-js@^0.0.3:
     koinos-abi-proto-gen "^0.1.5"
     koinos-as-gen "0.4.8"
     koinos-mock-vm "https://github.com/koinos/koinos-mock-vm#a7ad22f285b4d2b8b4e4bbf6f4695696db733661"
-    koinos-proto-as "^0.4.26"
+    koinos-proto-as "^0.4.27"
     koinos-sdk-as-cli "https://github.com/koinos/koinos-sdk-as-cli#c81d726f1bb4f345ae39e7777f5703efd5bafd62"
 
 leven@^3.1.0:
@@ -3603,6 +3603,13 @@ nopt@^5.0.0:
   integrity sha512-Tbj67rffqceeLpcRXrT7vKAN8CwfPeIBgM7E6iBkmKLV7bEMwpGgYLGv0jACUsECaa/vuxP0IjEont6umdMgtQ==
   dependencies:
     abbrev "1"
+
+nopt@^6.0.0:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/nopt/-/nopt-6.0.0.tgz#245801d8ebf409c6df22ab9d95b65e1309cdb16d"
+  integrity sha512-ZwLpbTgdhuZUnZzjd7nb1ZV+4DoiC6/sfiVKok72ym/4Tlf+DFdlHYmT2JPmcNNWV6Pi3SDf1kT+A4r9RTuT9g==
+  dependencies:
+    abbrev "^1.0.0"
 
 normalize-package-data@^4.0.0:
   version "4.0.0"
