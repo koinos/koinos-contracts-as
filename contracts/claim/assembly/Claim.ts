@@ -75,8 +75,7 @@ export class Claim {
   check_claim(args: claim.check_claim_arguments): claim.check_claim_result {
     const eth_address = args.eth_address!;
     const koin_claim = System.getObject<Uint8Array, claim.claim_status>(State.Space.CLAIMS, eth_address, claim.claim_status.decode);
-    System.require(koin_claim != null, "no KOIN claim with that address exists");
-
+    
     return new claim.check_claim_result(koin_claim);
   }
 }
