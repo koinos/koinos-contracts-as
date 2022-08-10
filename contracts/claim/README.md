@@ -1,4 +1,4 @@
-# Governance contract
+# Claim contract
 
 ## Build
 ```sh
