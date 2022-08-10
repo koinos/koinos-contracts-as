@@ -721,9 +721,9 @@
     fastq "^1.6.0"
 
 "@npmcli/arborist@^5.0.0", "@npmcli/arborist@^5.0.4":
-  version "5.4.0"
-  resolved "https://registry.yarnpkg.com/@npmcli/arborist/-/arborist-5.4.0.tgz#beef01e0b47c682b74cae4c9266f5720bf1cdf0a"
-  integrity sha512-gWDDQjoRndukgV9DLDXLqgzY2sIbUJ0D7JNgNlLuMFbei4Gm7EWYulpOyIjYxdYXM9b0L3sAniOOlOVMkMNMXA==
+  version "5.5.0"
+  resolved "https://registry.yarnpkg.com/@npmcli/arborist/-/arborist-5.5.0.tgz#e40f5379a900ef80c4a97c4e4ca0e9796b702861"
+  integrity sha512-+Qg3h+J0o4NQMpiC4JgllnrvwBJ1utSBWOTa2xsWqbbVAcPTdEwPV3V0BWEhhrx5zt3hRfIwv9TWmYBvyxd4aw==
   dependencies:
     "@isaacs/string-locale-compare" "^1.1.0"
     "@npmcli/installed-package-contents" "^1.0.7"
@@ -743,7 +743,7 @@
     minimatch "^5.1.0"
     mkdirp "^1.0.4"
     mkdirp-infer-owner "^2.0.0"
-    nopt "^5.0.0"
+    nopt "^6.0.0"
     npm-install-checks "^5.0.0"
     npm-package-arg "^9.0.0"
     npm-pick-manifest "^7.0.0"
@@ -881,9 +881,9 @@
     semver "^7.3.7"
 
 "@npmcli/run-script@^4.1.0", "@npmcli/run-script@^4.1.3", "@npmcli/run-script@^4.2.0":
-  version "4.2.0"
-  resolved "https://registry.yarnpkg.com/@npmcli/run-script/-/run-script-4.2.0.tgz#2c25758f80831ba138afe25225d456e89acedac3"
-  integrity sha512-e/QgLg7j2wSJp1/7JRl0GC8c7PMX+uYlA/1Tb+IDOLdSM4T7K1VQ9mm9IGU3WRtY5vEIObpqCLb3aCNCug18DA==
+  version "4.2.1"
+  resolved "https://registry.yarnpkg.com/@npmcli/run-script/-/run-script-4.2.1.tgz#c07c5c71bc1c70a5f2a06b0d4da976641609b946"
+  integrity sha512-7dqywvVudPSrRCW5nTHpHgeWnbBtz8cFkOuKrecm6ih+oO9ciydhWt6OF7HlqupRRmB8Q/gECVdB9LMfToJbRg==
   dependencies:
     "@npmcli/node-gyp" "^2.0.0"
     "@npmcli/promise-spawn" "^3.0.0"
@@ -1587,9 +1587,9 @@ camelcase@^6.2.0:
   integrity sha512-Gmy6FhYlCY7uOElZUSbxo2UCDH8owEk996gkbrpsgGtrJLM3J7jGxl9Ic7Qwwj4ivOE5AWZWRMecDdF7hqGjFA==
 
 caniuse-lite@^1.0.30001370:
-  version "1.0.30001374"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001374.tgz#3dab138e3f5485ba2e74bd13eca7fe1037ce6f57"
-  integrity sha512-mWvzatRx3w+j5wx/mpFN5v5twlPrabG8NqX2c6e45LCpymdoGqNvRkRutFUqpRTXKFQFNQJasvK0YT7suW6/Hw==
+  version "1.0.30001375"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001375.tgz#8e73bc3d1a4c800beb39f3163bf0190d7e5d7672"
+  integrity sha512-kWIMkNzLYxSvnjy0hL8w1NOaWNr2rn39RTAVyIwcw8juu60bZDWiF1/loOYANzjtJmy6qPgNmn38ro5Pygagdw==
 
 chalk@4.1.2, chalk@^4.0.0, chalk@^4.1.0, chalk@^4.1.1, chalk@^4.1.2:
   version "4.1.2"
@@ -1897,9 +1897,9 @@ doctrine@^3.0.0:
     esutils "^2.0.2"
 
 electron-to-chromium@^1.4.202:
-  version "1.4.212"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.212.tgz#20cd48e88288fd2428138c108804edb1961bf559"
-  integrity sha512-LjQUg1SpLj2GfyaPDVBUHdhmlDU1vDB4f0mJWSGkISoXQrn5/lH3ECPCuo2Bkvf6Y30wO+b69te+rZK/llZmjg==
+  version "1.4.213"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.213.tgz#a0d0f535e4fbddc25196c91ff2964b5660932297"
+  integrity sha512-+3DbGHGOCHTVB/Ms63bGqbyC1b8y7Fk86+7ltssB8NQrZtSCvZG6eooSl9U2Q0yw++fL2DpHKOdTU0NVEkFObg==
 
 emittery@^0.10.2:
   version "0.10.2"
@@ -3107,10 +3107,10 @@ koinos-as-gen@0.4.8:
     protobufjs "^6.11.2"
     somap "^0.5.14"
 
-koinos-proto-as@^0.4.24, koinos-proto-as@^0.4.27:
-  version "0.4.27"
-  resolved "https://registry.yarnpkg.com/koinos-proto-as/-/koinos-proto-as-0.4.27.tgz#67416d2b6776e0d37abc23590c1231a3ab68dcbc"
-  integrity sha512-BXPNatDVGXiINaCaICBMtjS2JtojHaGx22dxovBp9i5JdsvX6cd6/dpdYX1UuQJ+AOZfm2wPvunN640fkTitaw==
+koinos-proto-as@^0.4.24, koinos-proto-as@^0.4.28:
+  version "0.4.28"
+  resolved "https://registry.yarnpkg.com/koinos-proto-as/-/koinos-proto-as-0.4.28.tgz#3666abea3add1e1102d1e50e238c931354245b8e"
+  integrity sha512-GxLeQFOPDwmM74hRZ/t/wkz45xe6a7+LBUQxwP+elfTCI/R9AawPpICchEOC6JuE/WGRx9QkYLj+jyjci+jWEQ==
   dependencies:
     as-proto "npm:@roaminroe/as-proto"
 
@@ -3133,7 +3133,7 @@ koinos-proto-js@^0.0.3:
 
 "koinos-sdk-as@https://github.com/koinos/koinos-sdk-as#testnet-4":
   version "0.4.11"
-  resolved "https://github.com/koinos/koinos-sdk-as#aec37ce248b2244d6823faec259ea42ed7325a14"
+  resolved "https://github.com/koinos/koinos-sdk-as#3a7dae125e92ee42b9642b1c582248940ccf02e1"
   dependencies:
     "@as-covers/core" "^0.2.1"
     "@as-pect/cli" "^6.2.4"
@@ -3144,7 +3144,7 @@ koinos-proto-js@^0.0.3:
     koinos-abi-proto-gen "^0.1.5"
     koinos-as-gen "0.4.8"
     koinos-mock-vm "https://github.com/koinos/koinos-mock-vm#a7ad22f285b4d2b8b4e4bbf6f4695696db733661"
-    koinos-proto-as "^0.4.27"
+    koinos-proto-as "^0.4.28"
     koinos-sdk-as-cli "https://github.com/koinos/koinos-sdk-as-cli#c81d726f1bb4f345ae39e7777f5703efd5bafd62"
 
 leven@^3.1.0:
@@ -3185,9 +3185,9 @@ libnpmdiff@^4.0.2:
     tar "^6.1.0"
 
 libnpmexec@^4.0.2:
-  version "4.0.9"
-  resolved "https://registry.yarnpkg.com/libnpmexec/-/libnpmexec-4.0.9.tgz#6bfff09cc05bc60eea023e1c818fa6159ade3954"
-  integrity sha512-w+m/ximjFJQ1ndGu8dTR3K/sZcmSuetOCflFBkwVFXvf2JPd1BT8ETBrmYISMYBo2kuHn8HzvwZZtAeZBvrZbQ==
+  version "4.0.10"
+  resolved "https://registry.yarnpkg.com/libnpmexec/-/libnpmexec-4.0.10.tgz#854909123af9655026b42c6dd9ae18a7cf92785c"
+  integrity sha512-f2bMoQTlvAJaIVYt+iBEvZP7WTX+8jBLApxQKBkMfg6RTKhEtmW2gZ7C0jc4pEzboZzIwqHeUHcSekIyoE1N3A==
   dependencies:
     "@npmcli/arborist" "^5.0.0"
     "@npmcli/ci-detect" "^2.0.0"

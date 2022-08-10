@@ -34,6 +34,19 @@ export function main(): i32 {
       break;
     }
 
+    case 0x2ac66b4c: {
+      const args = Protobuf.decode<claim.check_claim_arguments>(
+        contractArgs.args,
+        claim.check_claim_arguments.decode
+      );
+      const res = c.check_claim(args);
+      retbuf = Protobuf.encode(
+        res,
+        claim.check_claim_result.encode
+      );
+      break;
+    }
+
     default:
       System.exit(1);
       break;
