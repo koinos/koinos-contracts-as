@@ -1,4 +1,5 @@
-import { System, Protobuf, authority, system_calls, token } from "koinos-sdk-as";
+import { System, Protobuf, authority, system_calls, token} from "koinos-sdk-as";
+import { vhp } from "@koinos/proto-as"
 import { Vhp as ContractClass } from "../../vhp/assembly/Vhp";
 
 export function main(): i32 {
@@ -66,6 +67,18 @@ export function main(): i32 {
       retbuf = Protobuf.encode(
         res,
         token.balance_of_result.encode
+      );
+      break;
+    }
+    case 0x629f31e6: {
+      const args = Protobuf.decode<vhp.effective_balance_of_arguments>(
+        contractArgs.args,
+        vhp.effective_balance_of_arguments.decode
+      );
+      const res = c.effective_balance_of(args);
+      retbuf = Protobuf.encode(
+        res,
+        vhp.effective_balance_of_result.encode
       );
       break;
     }

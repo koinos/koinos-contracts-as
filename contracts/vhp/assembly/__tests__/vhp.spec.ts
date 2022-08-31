@@ -1,4 +1,4 @@
-import { Base58, MockVM, token, authority, Arrays, Protobuf, chain } from "koinos-sdk-as";
+import { Base58, MockVM, token, authority, Arrays, Protobuf, chain, protocol } from "koinos-sdk-as";
 import { Vhp } from "../Vhp";
 
 const CONTRACT_ID = Base58.decode("1DQzuCcTKacbs9GGScRTU1Hc8BsyARTPqe");
@@ -11,6 +11,12 @@ describe("vhp", () => {
     MockVM.reset();
     MockVM.setContractId(CONTRACT_ID);
     MockVM.setCaller(new chain.caller_data(new Uint8Array(0), chain.privilege.user_mode));
+
+    let block = new protocol.block()
+    block.header = new protocol.block_header();
+    block.header!.height = 10;
+
+    MockVM.setBlock(block)
   });
 
   it("should get the name", () => {
