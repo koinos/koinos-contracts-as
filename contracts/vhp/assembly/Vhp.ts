@@ -1,5 +1,5 @@
 import { authority, chain, protocol, system_call_ids, System, Protobuf,
-  Base58, value, error, system_calls, Token, SafeMath, token, Crypto } from "koinos-sdk-as";
+  Base58, value, error, system_calls, Token, SafeMath, token, Crypto, Arrays } from "koinos-sdk-as";
 
 namespace Constants {
   export const NAME = "Virtual Hash Power"
@@ -102,7 +102,7 @@ export class Vhp {
 
     let callerData = System.getCaller();
     System.require(
-      callerData.caller == args.from || System.checkAuthority(authority.authorization_type.contract_call, args.from!),
+      Arrays.equal(callerData.caller, args.from) || System.checkAuthority(authority.authorization_type.contract_call, args.from!),
       'from has not authorized transfer',
       error.error_code.authorization_failure
     );
