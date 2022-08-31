@@ -32,6 +32,7 @@ namespace Constants {
   export const SUPPLY_ID: u32 = 0;
   export const BALANCE_ID: u32 = 1;
   export const SUPPLY_KEY = new Uint8Array(0);
+  export const DELAY_BLOCKS: u64 = 20;
 
   let contractId: Uint8Array | null = null;
 
@@ -144,21 +145,34 @@ export class Vhp {
   }
 
   increase_balance_by(balanceObj: vhp.effective_balance_object, blockHeight: u64, value: u64): void {
+    this.trim_balances(balanceObj, blockHeight);
+
     let snapshotLength = balanceObj.past_balances.length;
-    let newBalance = balanceObj.current_balance + value
+
+    if (snapshotLength == 0) {
+      //log("pushing " + (blockHeight - 1).toString() + ", " + balanceObj.current_balance.toString());
+      balanceObj.past_balances.push(new vhp.balance_entry(blockHeight - 1, balanceObj.current_balance))
+      snapshotLength = 1
+    }
+
+    let newBalance = balanceObj.current_balance + value;
     balanceObj.current_balance = newBalance;
 
     // If there is no entry for this block's balance, set it.
     // Otherwise, push it to the back
-    if (snapshotLength == 0 || balanceObj.past_balances[snapshotLength - 1].block_height != blockHeight ) {
-      balanceObj.past_balances.push(new vhp.balance_entry(blockHeight, value));
+    if (balanceObj.past_balances[snapshotLength - 1].block_height != blockHeight ) {
+      //log("pushing " + blockHeight.toString() + ", " + value.toString());
+      balanceObj.past_balances.push(new vhp.balance_entry(blockHeight, newBalance));
     }
     else {
-      balanceObj.past_balances[snapshotLength - 1].balance = value;
+      //log("setting " + (snapshotLength - 1).toString() + ", " + value.toString());
+      balanceObj.past_balances[snapshotLength - 1].balance = newBalance;
     }
   }
 
-  decrease_balance_by(balanceObj: vhp.effective_balance_object, value: u64): void {
+  decrease_balance_by(balanceObj: vhp.effective_balance_object, blockHeight: u64, value: u64): void {
+    this.trim_balances(balanceObj, blockHeight);
+
     balanceObj.current_balance -= value;
 
     for (let i = 0; i < balanceObj.past_balances.length; i++ ) {
@@ -171,12 +185,22 @@ export class Vhp {
   }
 
   trim_balances(balanceObj: vhp.effective_balance_object, blockHeight: u64): void {
+    //log("Trimming to block " + blockHeight.toString());
     if (balanceObj.past_balances.length <= 1)
       return
 
-    while( balanceObj.past_balances.length > 1 && balanceObj.past_balances[1].block_height < blockHeight - 20 ) {
+    let limitBlock = blockHeight - Constants.DELAY_BLOCKS
+
+    if (blockHeight < Constants.DELAY_BLOCKS) {
+      limitBlock = 0
+    }
+
+    while( balanceObj.past_balances.length > 1 && balanceObj.past_balances[1].block_height <= limitBlock ) {
+      //log("Popping " + balanceObj.past_balances[0].block_height.toString() + " , " + balanceObj.past_balances[0].balance.toString());
       balanceObj.past_balances.shift();
     }
+
+    //log("Trimmed to " + balanceObj.past_balances[0].block_height.toString() + ", " + balanceObj.past_balances[0].balance.toString());
   }
 
   transfer(args: token.transfer_arguments): token.transfer_result {
@@ -207,8 +231,9 @@ export class Vhp {
       toBalanceObj.current_balance = 0;
     }
 
-    this.decrease_balance_by(fromBalanceObj, args.value);
-    this.increase_balance_by(toBalanceObj, System.getBlockField("header.height")!.uint64_value, args.value)
+    let blockHeight = System.getBlockField("header.height")!.uint64_value;
+    this.decrease_balance_by(fromBalanceObj, blockHeight, args.value);
+    this.increase_balance_by(toBalanceObj, blockHeight, args.value)
 
     System.putObject(State.Space.Balance(), args.from!, fromBalanceObj, vhp.effective_balance_object.encode);
     System.putObject(State.Space.Balance(), args.to!, toBalanceObj, vhp.effective_balance_object.encode);
@@ -303,7 +328,7 @@ export class Vhp {
     System.require(supplyObject.value >= args.value, 'burn would underflow supply', error.error_code.failure);
 
     supplyObject.value -= args.value;
-    this.decrease_balance_by(fromBalanceObject, args.value);
+    this.decrease_balance_by(fromBalanceObject, System.getBlockField("header.height")!.uint64_value, args.value);
 
     System.putObject(State.Space.Supply(), Constants.SUPPLY_KEY, supplyObject, token.balance_object.encode);
     System.putObject(State.Space.Balance(), args.from!, fromBalanceObject, vhp.effective_balance_object.encode);
