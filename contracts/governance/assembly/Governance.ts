@@ -2,7 +2,7 @@ import { authority, chain, protocol, system_call_ids, System, Protobuf,
   value, error, system_calls, Token, SafeMath, governance, Crypto } from "koinos-sdk-as";
 
 namespace Constants {
-  export const BLOCKS_PER_WEEK: u64 = 10;
+  export const BLOCKS_PER_WEEK: u64 = BUILD_FOR_TESTING ? 10 : 201600;
   export const REVIEW_PERIOD: u64 = BLOCKS_PER_WEEK;
   export const VOTE_PERIOD: u64 = BLOCKS_PER_WEEK*2;
   export const APPLICATION_DELAY: u64 = BLOCKS_PER_WEEK;
