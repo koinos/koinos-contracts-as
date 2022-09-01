@@ -10,6 +10,7 @@ jobs:
 
     runs-on: ${{ matrix.platform }}
     name: "${{ matrix.platform }} ${{ matrix.node-version }}"
+    continue-on-error: true
 
     strategy:
       matrix:
@@ -32,3 +33,19 @@ jobs:
 
       - name: Run test
         run: yarn ci
+
+  report-failure:
+    name: Report Failure to Slack
+    needs:
+      - build
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+      - name: Report Status
+        uses: ravsamhq/notify-slack-action@v1
+        with:
+          status: ${{ env.WORKFLOW_CONCLUSION }}
+          notify_when: 'failure'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLCAK_ALERT_WEBHOOK }}
