@@ -16,11 +16,23 @@ jobs:
         uses: actions/checkout@v3
         with:
           submodules: recursive
+
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
+
       - name: Install dependencies
         run: yarn --frozen-lockfile
+
       - name: Run test
         run: yarn ci
+
+      - name: Report Status
+        if: always()
+        uses: ravsamhq/notify-slack-action@v1
+        with:
+          status: ${{ job.status }}
+          notify_when: 'failure'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLCAK_ALERT_WEBHOOK }}
