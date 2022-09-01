@@ -34,22 +34,24 @@ jobs:
       - name: Run test
         run: yarn ci
 
-  report-failure:
-    name: Report to Slack
-    needs:
-      - build
-    runs-on: ubuntu-latest
-    if: always()
-
-    steps:
-      - name: Report Failure
-        if: env.WORKFLOW_CONCLUSION == 'failure'
-        uses: ravsamhq/notify-slack-action@v2
-        with:
-          status: 'failure'
-          notification_title: "{workflow} has {status_message}"
-          message_format: "{emoji} *{workflow}* {status_message} in <{repo_url}|{repo}>"
-          footer: "Linked Repo <{repo_url}|{repo}> | <{workflow_url}|View Workflow>"
-          notify_when: "failure"
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_ALERT_WEBHOOK }}
+# Don't report failures right now. Needs more work
+#
+#  report-failure:
+#    name: Report to Slack
+#    needs:
+#      - build
+#    runs-on: ubuntu-latest
+#    if: always()
+#
+#    steps:
+#      - name: Report Failure
+#        if: env.WORKFLOW_CONCLUSION == 'failure'
+#        uses: ravsamhq/notify-slack-action@v2
+#        with:
+#          status: 'failure'
+#          notification_title: "{workflow} has {status_message}"
+#          message_format: "{emoji} *{workflow}* {status_message} in <{repo_url}|{repo}>"
+#          footer: "Linked Repo <{repo_url}|{repo}> | <{workflow_url}|View Workflow>"
+#          notify_when: "failure"
+#        env:
+#          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_ALERT_WEBHOOK }}
