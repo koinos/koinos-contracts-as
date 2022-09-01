@@ -1,4 +1,4 @@
-import { authority, chain, error, Protobuf, System, token, vhp } from "@koinos/sdk-as";
+import { Arrays, authority, chain, error, Protobuf, System, token, vhp } from "@koinos/sdk-as";
 
 /**
  * To prevent exploiting the PoB algorithm, the VHP has a "delayed" transfer system built in.
@@ -202,7 +202,7 @@ export class Vhp {
 
     let callerData = System.getCaller();
     System.require(
-      callerData.caller == args.from || System.checkAuthority(authority.authorization_type.contract_call, args.from!),
+      Arrays.equal(callerData.caller, args.from) || System.checkAuthority(authority.authorization_type.contract_call, args.from!),
       'from has not authorized transfer',
       error.error_code.authorization_failure
     );

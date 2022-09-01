@@ -545,4 +545,50 @@ describe("vhp", () => {
 
     expect(tkn.effective_balance_of(effectiveBalanceMockAcct2).value).toBe(0);
   });
+
+  it("should transfer tokens without authority", () => {
+    const tkn = new Vhp();
+
+    // set kernel mode
+    MockVM.setCaller(new chain.caller_data(new Uint8Array(0), chain.privilege.kernel_mode));
+
+    // set contract_call authority for CONTRACT_ID to true so that we can mint tokens
+    const authContractId = new MockVM.MockAuthority(authority.authorization_type.contract_call, CONTRACT_ID, true);
+
+    MockVM.setAuthorities([authContractId]);
+
+    // mint tokens
+    const mintArgs = new token.mint_arguments(MOCK_ACCT1, 123);
+    tkn.mint(mintArgs);
+
+    // set caller with MOCK_ACCT1 to allow transfer if the caller is the same from
+    MockVM.setCaller(new chain.caller_data(MOCK_ACCT1, chain.privilege.kernel_mode));
+
+    // transfer tokens
+    const transferArgs = new token.transfer_arguments(MOCK_ACCT1, MOCK_ACCT2, 10);
+    tkn.transfer(transferArgs);
+
+    // check balances
+    let balanceArgs = new token.balance_of_arguments(MOCK_ACCT1);
+    let balanceRes = tkn.balance_of(balanceArgs);
+    expect(balanceRes.value).toBe(113);
+
+    balanceArgs = new token.balance_of_arguments(MOCK_ACCT2);
+    balanceRes = tkn.balance_of(balanceArgs);
+    expect(balanceRes.value).toBe(10);
+
+    // check events
+    const events = MockVM.getEvents();
+    // 2 events, 1st one is the mint event, the second one is the transfer event
+    expect(events.length).toBe(2);
+    expect(events[1].name).toBe('vhp.transfer');
+    expect(events[1].impacted.length).toBe(2);
+    expect(Arrays.equal(events[1].impacted[0], MOCK_ACCT2)).toBe(true);
+    expect(Arrays.equal(events[1].impacted[1], MOCK_ACCT1)).toBe(true);
+
+    const transferEvent = Protobuf.decode<token.transfer_event>(events[1].data!, token.transfer_event.decode);
+    expect(Arrays.equal(transferEvent.from, MOCK_ACCT1)).toBe(true);
+    expect(Arrays.equal(transferEvent.to, MOCK_ACCT2)).toBe(true);
+    expect(transferEvent.value).toBe(10);
+  });
 });

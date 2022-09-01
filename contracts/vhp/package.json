@@ -16,7 +16,7 @@
     "yaml": "^2.0.0-11"
   },
   "scripts": {
-    "lint": "eslint --max-warnings 0 --ext ts \"*/assembly/**/*.ts\"",
+    "lint": "eslint --max-warnings 0 --ext ts \"assembly/**/*.ts\"",
     "build:debug": "koinos-sdk-as-cli build debug",
     "build:release": "koinos-sdk-as-cli build release",
     "test": "koinos-sdk-as-cli run-tests",
