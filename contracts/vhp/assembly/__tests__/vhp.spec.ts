@@ -1,5 +1,4 @@
-import { vhp } from "@koinos/proto-as";
-import { Base58, MockVM, token, authority, Arrays, Protobuf, chain, protocol, block_store } from "koinos-sdk-as";
+import { Base58, MockVM, token, authority, Arrays, Protobuf, chain, protocol, vhp } from "@koinos/sdk-as";
 import { Vhp } from "../Vhp";
 
 const CONTRACT_ID = Base58.decode("1DQzuCcTKacbs9GGScRTU1Hc8BsyARTPqe");

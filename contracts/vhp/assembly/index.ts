@@ -1,5 +1,4 @@
-import { System, Protobuf, authority, system_calls, token} from "koinos-sdk-as";
-import { vhp } from "@koinos/proto-as"
+import { System, Protobuf, authority, system_calls, token, vhp} from "@koinos/sdk-as";
 import { Vhp as ContractClass } from "../../vhp/assembly/Vhp";
 
 export function main(): i32 {

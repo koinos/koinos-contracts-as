@@ -1,5 +1,4 @@
-import { authority, chain, error, Protobuf, System, token } from "koinos-sdk-as";
-import { vhp } from "@koinos/proto-as"
+import { authority, chain, error, Protobuf, System, token, vhp } from "@koinos/sdk-as";
 
 /**
  * To prevent exploiting the PoB algorithm, the VHP has a "delayed" transfer system built in.
