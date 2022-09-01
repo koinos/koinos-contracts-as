@@ -1,4 +1,4 @@
-import { chain, System, Base64, Base58, Token, Crypto, claim, Arrays, StringBytes } from "koinos-sdk-as";
+import { chain, System, Base58, Token, Crypto, claim, Arrays, StringBytes } from "koinos-sdk-as";
 
 function arrayToUint8Array(a: Array<u8>): Uint8Array {
   let uArray = new Uint8Array(a.length);
@@ -75,7 +75,7 @@ export class Claim {
   check_claim(args: claim.check_claim_arguments): claim.check_claim_result {
     const eth_address = args.eth_address!;
     const koin_claim = System.getObject<Uint8Array, claim.claim_status>(State.Space.CLAIMS, eth_address, claim.claim_status.decode);
-    
+
     return new claim.check_claim_result(koin_claim);
   }
 }

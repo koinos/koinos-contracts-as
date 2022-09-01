@@ -6,7 +6,7 @@ const CONTRACT_ID = Base58.decode("1DQzuCcTKacbs9GGScRTU1Hc8BsyARTPqe");
 const MOCK_ACCT1 = Base58.decode("1DQzuCcTKacbs9GGScRTU1Hc8BsyARTPqG");
 const MOCK_ACCT2 = Base58.decode("1DQzuCcTKacbs9GGScRTU1Hc8BsyARTPqK");
 
-let headBlock = new protocol.block()
+let headBlock = new protocol.block();
 
 describe("vhp", () => {
   beforeEach(() => {
@@ -17,7 +17,7 @@ describe("vhp", () => {
     headBlock.header = new protocol.block_header();
     headBlock.header!.height = 10;
 
-    MockVM.setBlock(headBlock)
+    MockVM.setBlock(headBlock);
   });
 
   it("should get the name", () => {
@@ -245,7 +245,7 @@ describe("vhp", () => {
     expect(() => {
       const tkn = new Vhp();
       const mintArgs = new token.mint_arguments(MOCK_ACCT2, u64.MAX_VALUE);
-      tkn.mint(mintArgs)
+      tkn.mint(mintArgs);
     }).toThrow();
 
     // check total supply
@@ -360,7 +360,7 @@ describe("vhp", () => {
     expect(() => {
       const tkn = new Vhp();
       const transferArgs = new token.transfer_arguments(MOCK_ACCT1, MOCK_ACCT1, 10);
-      tkn.transfer(transferArgs)
+      tkn.transfer(transferArgs);
     }).toThrow();
 
     // check balances
@@ -396,7 +396,7 @@ describe("vhp", () => {
     expect(() => {
       const tkn = new Vhp();
       const transferArgs = new token.transfer_arguments(MOCK_ACCT1, MOCK_ACCT2, 456);
-      tkn.transfer(transferArgs)
+      tkn.transfer(transferArgs);
     }).toThrow();
 
     // check balances
@@ -423,8 +423,8 @@ describe("vhp", () => {
 
     MockVM.setAuthorities([authContractId]);
 
-    const effectiveBalanceMockAcct1 = new vhp.effective_balance_of_arguments(MOCK_ACCT1)
-    const effectiveBalanceMockAcct2 = new vhp.effective_balance_of_arguments(MOCK_ACCT2)
+    const effectiveBalanceMockAcct1 = new vhp.effective_balance_of_arguments(MOCK_ACCT1);
+    const effectiveBalanceMockAcct2 = new vhp.effective_balance_of_arguments(MOCK_ACCT2);
 
     expect(tkn.effective_balance_of(effectiveBalanceMockAcct1).value).toBe(0);
 
@@ -540,7 +540,7 @@ describe("vhp", () => {
     expect(tkn.effective_balance_of(effectiveBalanceMockAcct1).value).toBe(99);
     expect(tkn.effective_balance_of(effectiveBalanceMockAcct2).value).toBe(1);
 
-    MockVM.setAuthorities([authMockAcct2])
+    MockVM.setAuthorities([authMockAcct2]);
     tkn.burn(new token.burn_arguments(MOCK_ACCT2, 1));
 
     expect(tkn.effective_balance_of(effectiveBalanceMockAcct2).value).toBe(0);

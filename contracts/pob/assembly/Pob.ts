@@ -28,7 +28,7 @@ namespace Constants {
 
   export function ContractId() : Uint8Array {
     if (contractId === null) {
-      contractId = System.getContractId()
+      contractId = System.getContractId();
     }
 
     return contractId!;
@@ -103,7 +103,7 @@ export class Pob {
 
     // Create and store the record
     if(args.public_key == null ) {
-      System.removeObject(State.Space.Registration(), args.producer!)
+      System.removeObject(State.Space.Registration(), args.producer!);
     } else {
       const record = new pob.public_key_record(args.public_key!);
       System.putObject(State.Space.Registration(), args.producer!, record, pob.public_key_record.encode);
@@ -158,7 +158,7 @@ export class Pob {
     const difficulty = u128.fromBytes(metadata.difficulty!, true);
     const target = u128.Max / difficulty;
     let mh = new Crypto.Multihash();
-    mh.deserialize(signature.vrf_hash!)
+    mh.deserialize(signature.vrf_hash!);
     // This purposefully only gets the upper 128 bits. That's all we need
     let hash = u128.fromBytes(mh.digest, true);
     const vhp_balance = u128.fromU64(vhp.balanceOf(args.header!.signer!));

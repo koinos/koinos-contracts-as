@@ -25,7 +25,7 @@ import { authority, chain, error, Protobuf, System, token, vhp } from "@koinos/s
  */
 
 namespace Constants {
-  export const NAME = "Virtual Hash Power"
+  export const NAME = "Virtual Hash Power";
   export const SYMBOL = "VHP";
   export const DECIMALS: u32 = 8;
   export const SUPPLY_ID: u32 = 0;
@@ -37,7 +37,7 @@ namespace Constants {
 
   export function ContractId() : Uint8Array {
     if (contractId === null) {
-      contractId = System.getContractId()
+      contractId = System.getContractId();
     }
 
     return contractId!;
@@ -149,9 +149,8 @@ export class Vhp {
     let snapshotLength = balanceObj.past_balances.length;
 
     if (snapshotLength == 0) {
-      //log("pushing " + (blockHeight - 1).toString() + ", " + balanceObj.current_balance.toString());
-      balanceObj.past_balances.push(new vhp.balance_entry(blockHeight - 1, balanceObj.current_balance))
-      snapshotLength = 1
+      balanceObj.past_balances.push(new vhp.balance_entry(blockHeight - 1, balanceObj.current_balance));
+      snapshotLength = 1;
     }
 
     let newBalance = balanceObj.current_balance + value;
@@ -160,11 +159,9 @@ export class Vhp {
     // If there is no entry for this block's balance, set it.
     // Otherwise, push it to the back
     if (balanceObj.past_balances[snapshotLength - 1].block_height != blockHeight ) {
-      //log("pushing " + blockHeight.toString() + ", " + value.toString());
       balanceObj.past_balances.push(new vhp.balance_entry(blockHeight, newBalance));
     }
     else {
-      //log("setting " + (snapshotLength - 1).toString() + ", " + value.toString());
       balanceObj.past_balances[snapshotLength - 1].balance = newBalance;
     }
   }
@@ -176,7 +173,7 @@ export class Vhp {
 
     for (let i = 0; i < balanceObj.past_balances.length; i++ ) {
       if (balanceObj.past_balances[i].balance < value) {
-        balanceObj.past_balances[i].balance = 0
+        balanceObj.past_balances[i].balance = 0;
       } else {
         balanceObj.past_balances[i].balance -= value;
       }
@@ -184,22 +181,18 @@ export class Vhp {
   }
 
   trim_balances(balanceObj: vhp.effective_balance_object, blockHeight: u64): void {
-    //log("Trimming to block " + blockHeight.toString());
     if (balanceObj.past_balances.length <= 1)
-      return
+      return;
 
-    let limitBlock = blockHeight - Constants.DELAY_BLOCKS
+    let limitBlock = blockHeight - Constants.DELAY_BLOCKS;
 
     if (blockHeight < Constants.DELAY_BLOCKS) {
-      limitBlock = 0
+      limitBlock = 0;
     }
 
     while( balanceObj.past_balances.length > 1 && balanceObj.past_balances[1].block_height <= limitBlock ) {
-      //log("Popping " + balanceObj.past_balances[0].block_height.toString() + " , " + balanceObj.past_balances[0].balance.toString());
       balanceObj.past_balances.shift();
     }
-
-    //log("Trimmed to " + balanceObj.past_balances[0].block_height.toString() + ", " + balanceObj.past_balances[0].balance.toString());
   }
 
   transfer(args: token.transfer_arguments): token.transfer_result {
@@ -232,7 +225,7 @@ export class Vhp {
 
     let blockHeight = System.getBlockField("header.height")!.uint64_value;
     this.decrease_balance_by(fromBalanceObj, blockHeight, args.value);
-    this.increase_balance_by(toBalanceObj, blockHeight, args.value)
+    this.increase_balance_by(toBalanceObj, blockHeight, args.value);
 
     System.putObject(State.Space.Balance(), args.from!, fromBalanceObj, vhp.effective_balance_object.encode);
     System.putObject(State.Space.Balance(), args.to!, toBalanceObj, vhp.effective_balance_object.encode);
@@ -280,7 +273,7 @@ export class Vhp {
       balanceObject.current_balance = 0;
     }
 
-    this.increase_balance_by(balanceObject, System.getBlockField("header.height")!.uint64_value, args.value)
+    this.increase_balance_by(balanceObject, System.getBlockField("header.height")!.uint64_value, args.value);
     supplyObject.value += args.value;
 
     System.putObject(State.Space.Supply(), Constants.SUPPLY_KEY, supplyObject, token.balance_object.encode);
@@ -295,7 +288,7 @@ export class Vhp {
 
     System.event('vhp.mint', Protobuf.encode(event, token.mint_event.encode), impacted);
 
-    return new token.mint_result();;
+    return new token.mint_result();
   }
 
   burn(args: token.burn_arguments): token.burn_result {
