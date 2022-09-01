@@ -35,7 +35,7 @@ jobs:
         run: yarn ci
 
   report-failure:
-    name: Report Failure to Slack
+    name: Report to Slack
     needs:
       - build
     runs-on: ubuntu-latest
@@ -48,4 +48,4 @@ jobs:
           status: ${{ env.WORKFLOW_CONCLUSION }}
           notify_when: 'failure'
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLCAK_ALERT_WEBHOOK }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_ALERT_WEBHOOK }}
