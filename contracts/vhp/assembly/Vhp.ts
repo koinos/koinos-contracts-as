@@ -271,6 +271,7 @@ export class Vhp {
     if (!balanceObject) {
       balanceObject = new vhp.effective_balance_object();
       balanceObject.current_balance = 0;
+      foobar
     }
 
     this.increase_balance_by(balanceObject, System.getBlockField("header.height")!.uint64_value, args.value);
