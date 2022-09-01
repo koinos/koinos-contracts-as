@@ -148,7 +148,13 @@ export class Pob {
     // Get signer's public key
     const registration = System.getObject<Uint8Array, pob.public_key_record>(State.Space.Registration(), args.header!.signer!, pob.public_key_record.decode);
     System.require(registration != null, "signer address has no public key record");
-    System.require(registration!.set_block_height <= System.getBlockField('header.height')!.uint64_value - Constants.DELAY_BLOCKS, "public key not yet active");
+
+    let blockHeight = System.getBlockField('header.height')!.uint64_value;
+    if (blockHeight < Constants.DELAY_BLOCKS) {
+      blockHeight = Constants.DELAY_BLOCKS;
+    }
+
+    System.require(registration!.set_block_height <= blockHeight - Constants.DELAY_BLOCKS, "public key not yet active");
 
     // Create vrf payload and serialize it
     const payload = new pob.vrf_payload(metadata.seed, args.header!.timestamp);
