@@ -42,10 +42,14 @@ jobs:
     if: always()
 
     steps:
-      - name: Report Status
-        uses: ravsamhq/notify-slack-action@v1
+      - name: Report Failure
+        if: env.WORKFLOW_CONCLUSION == 'failure'
+        uses: ravsamhq/notify-slack-action@v2
         with:
-          status: ${{ env.WORKFLOW_CONCLUSION }}
-          notify_when: 'failure'
+          status: 'failure'
+          notification_title: "{workflow} has {status_message}"
+          message_format: "{emoji} *{workflow}* {status_message} in <{repo_url}|{repo}>"
+          footer: "Linked Repo <{repo_url}|{repo}> | <{workflow_url}|View Workflow>"
+          notify_when: "failure"
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_ALERT_WEBHOOK }}
