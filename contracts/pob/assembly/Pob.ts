@@ -1,5 +1,5 @@
 import {u128} from 'as-bignum';
-import { chain, System, Protobuf, authority, system_calls, Token, Crypto, pob } from "koinos-sdk-as";
+import { chain, System, Protobuf, authority, system_calls, Token, Crypto, pob } from "@koinos/sdk-as";
 
 namespace Constants {
   /**
@@ -21,6 +21,7 @@ namespace Constants {
   export const INITIAL_DIFFICULTY_BITS:u8 = 48;
   export const ONE_HUNDRED_PERCENT: u32 = 1000000;
   export const MILLISECONDS_PER_YEAR = 31536000000;
+  export const DELAY_BLOCKS: u64 = 20;
 
   let contractId: Uint8Array | null = null;
   let koinContractId: Uint8Array | null = null;
@@ -105,7 +106,7 @@ export class Pob {
     if(args.public_key == null ) {
       System.removeObject(State.Space.Registration(), args.producer!);
     } else {
-      const record = new pob.public_key_record(args.public_key!);
+      const record = new pob.public_key_record(args.public_key!, System.getBlockField('header.height')!.uint64_value);
       System.putObject(State.Space.Registration(), args.producer!, record, pob.public_key_record.encode);
     }
 
@@ -147,6 +148,7 @@ export class Pob {
     // Get signer's public key
     const registration = System.getObject<Uint8Array, pob.public_key_record>(State.Space.Registration(), args.header!.signer!, pob.public_key_record.decode);
     System.require(registration != null, "signer address has no public key record");
+    System.require(registration!.set_block_height <= System.getBlockField('header.height')!.uint64_value - Constants.DELAY_BLOCKS, "public key not yet active");
 
     // Create vrf payload and serialize it
     const payload = new pob.vrf_payload(metadata.seed, args.header!.timestamp);
