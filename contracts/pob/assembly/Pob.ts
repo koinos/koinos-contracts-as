@@ -98,7 +98,7 @@ namespace State {
 
 class VHP extends Token {
   constructor(contractId: Uint8Array) {
-    super(contractId)
+    super(contractId);
   }
 
   effectiveBalanceOf(owner: Uint8Array): u64 {
