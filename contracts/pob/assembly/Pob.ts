@@ -1,5 +1,5 @@
 import {u128} from 'as-bignum';
-import { chain, System, Protobuf, authority, system_calls, Token, Crypto, pob } from "@koinos/sdk-as";
+import { chain, System, Protobuf, authority, system_calls, Token, Crypto, pob, vhp } from "@koinos/sdk-as";
 
 namespace Constants {
   /**
@@ -96,6 +96,22 @@ namespace State {
   }
 }
 
+class VHP extends Token {
+  constructor(contractId: Uint8Array) {
+    super(contractId);
+  }
+
+  effectiveBalanceOf(owner: Uint8Array): u64 {
+    const args = new vhp.effective_balance_of_arguments(owner);
+
+    const callRes = System.call(this._contractId, 0x629f31e6, Protobuf.encode(args, vhp.effective_balance_of_arguments.encode));
+    System.require(callRes.code == 0, "failed to retrieve token balance");
+    const res = Protobuf.decode<vhp.effective_balance_of_result>(callRes.res.object as Uint8Array, vhp.effective_balance_of_result.decode);
+
+    return res.value;
+  }
+}
+
 export class Pob {
   register_public_key(args: pob.register_public_key_arguments): pob.register_public_key_result {
     System.require(args.producer != null, 'producer cannot be null');
@@ -118,15 +134,15 @@ export class Pob {
   }
 
   burn(args: pob.burn_arguments): pob.burn_result {
-    const koin = new Token(Constants.KoinContractId());
-    const vhp = new Token(Constants.VhpContractId());
+    const koinToken = new Token(Constants.KoinContractId());
+    const vhpToken = new VHP(Constants.VhpContractId());
     const amount = args.token_amount;
 
     // Burn the token
-    System.require(koin.burn(args.burn_address!, amount), "could not burn KOIN");
+    System.require(koinToken.burn(args.burn_address!, amount), "could not burn KOIN");
 
     // Mint the new VHP
-    System.require(vhp.mint(args.vhp_address!, amount), "could not mint VHP");
+    System.require(vhpToken.mint(args.vhp_address!, amount), "could not mint VHP");
 
     return new pob.burn_result();
   }
@@ -136,8 +152,8 @@ export class Pob {
 
     const signature = Protobuf.decode<pob.signature_data>(args.signature!, pob.signature_data.decode);
 
-    const koin = new Token(Constants.KoinContractId());
-    const vhp = new Token(Constants.VhpContractId());
+    const koinToken = new Token(Constants.KoinContractId());
+    const vhpToken = new VHP(Constants.VhpContractId());
 
     const metadata = this.fetch_metadata();
     const params = this.fetch_consensus_parameters();
@@ -169,13 +185,13 @@ export class Pob {
     mh.deserialize(signature.vrf_hash!);
     // This purposefully only gets the upper 128 bits. That's all we need
     let hash = u128.fromBytes(mh.digest, true);
-    const vhp_balance = u128.fromU64(vhp.balanceOf(args.header!.signer!));
+    const vhp_balance = u128.fromU64(vhpToken.effectiveBalanceOf(args.header!.signer!));
 
     hash = hash / vhp_balance;
 
     System.require(hash < target, "provided hash is not sufficient");
 
-    const virtual_supply = u128.fromU64(koin.totalSupply() + vhp.totalSupply());
+    const virtual_supply = u128.fromU64(koinToken.totalSupply() + vhpToken.totalSupply());
     const yearly_inflation = virtual_supply * u128.fromU64(params.target_annual_inflation_rate) / u128.fromU64(Constants.ONE_HUNDRED_PERCENT);
 
     const blocks_per_year = Constants.MILLISECONDS_PER_YEAR / params.target_block_interval;
@@ -185,8 +201,8 @@ export class Pob {
     const vhp_reduction = (virtual_supply * u128.fromU64(params.target_burn_percent)) / u128.fromU64(blocks_per_year * Constants.ONE_HUNDRED_PERCENT);
 
     // On successful block deduct vhp and mint new koin
-    System.require(vhp.burn(args.header!.signer!, vhp_reduction.toU64()), "could not burn vhp");
-    System.require(koin.mint(args.header!.signer!, block_reward + vhp_reduction.toU64()), "could not mint token");
+    System.require(vhpToken.burn(args.header!.signer!, vhp_reduction.toU64()), "could not burn vhp");
+    System.require(koinToken.mint(args.header!.signer!, block_reward + vhp_reduction.toU64()), "could not mint token");
 
     this.update_difficulty(difficulty, metadata, params, args.header!.timestamp, signature.vrf_hash!);
 
