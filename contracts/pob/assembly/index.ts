@@ -84,6 +84,16 @@ export function main(): i32 {
       break;
     }
 
+    case 0x793e7c30: {
+      const args = Protobuf.decode<pob.update_consensus_parameters_arguments>(
+        contractArgs.args,
+        pob.update_consensus_parameters_arguments.decode
+      );
+      const res = c.update_consensus_parameters(args);
+      retbuf = Protobuf.encode(res, pob.update_consensus_parameters_result.encode);
+      break;
+    }
+
     default:
       System.exit(1);
       break;

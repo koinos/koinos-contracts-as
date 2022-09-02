@@ -16,6 +16,7 @@ namespace Constants {
   export const DEFAULT_TARGET_BURN_PERCENT: u32 = 501000; // 50.1%
   export const DEFAULT_TARGET_BLOCK_INTERVAL_MS: u32 = 3000; // 3s
   export const DEFAULT_QUANTUM_LENGTH_MS: u32 = 10;
+  export const DEFAULT_MINIMUM_BLOCK_TIME_MS = 1000;
   export const METADATA_KEY: Uint8Array = new Uint8Array(0);
   export const CONSENSUS_PARAMS_KEY: Uint8Array = new Uint8Array(1);
   export const INITIAL_DIFFICULTY_BITS:u8 = 48;
@@ -144,6 +145,9 @@ export class Pob {
     // Check block quanta
     System.require(args.header!.timestamp % params.quantum_length == 0, "time stamp does not match time quanta");
 
+    // Make sure the block is later than the minimum block time
+    System.require(args.header!.timestamp >= (metadata.last_block_time + params.minimum_block_time), "block is not later than the minimum block time");
+
     // Get signer's public key
     const registration = System.getObject<Uint8Array, pob.public_key_record>(State.Space.Registration(), args.header!.signer!, pob.public_key_record.decode);
     System.require(registration != null, "signer address has no public key record");
@@ -248,6 +252,7 @@ export class Pob {
     new_data.target_burn_percent = Constants.DEFAULT_TARGET_BURN_PERCENT;
     new_data.target_block_interval = Constants.DEFAULT_TARGET_BLOCK_INTERVAL_MS;
     new_data.quantum_length = Constants.DEFAULT_QUANTUM_LENGTH_MS;
+    new_data.minimum_block_time = Constants.DEFAULT_MINIMUM_BLOCK_TIME_MS;
 
     return new_data;
   }
@@ -257,5 +262,13 @@ export class Pob {
     System.require(registration != null, "given address has no public key record");
 
     return new pob.get_public_key_result(registration!.public_key);
+  }
+
+  update_consensus_parameters(args: pob.update_consensus_parameters_arguments): pob.update_consensus_parameters_result {
+    System.require(System.getCaller().caller_privilege == chain.privilege.kernel_mode, "only the kernel can update consensus parameters");
+
+    System.putObject(State.Space.Metadata(), Constants.CONSENSUS_PARAMS_KEY, args.value, pob.consensus_parameters.encode);
+
+    return new pob.update_consensus_parameters_result();
   }
 }
