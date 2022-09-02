@@ -1,4 +1,4 @@
-import { System, Protobuf, authority, system_calls, pob } from "koinos-sdk-as";
+import { System, Protobuf, system_calls, pob } from "@koinos/sdk-as";
 import { Pob as ContractClass } from "./Pob";
 
 export function main(): i32 {
