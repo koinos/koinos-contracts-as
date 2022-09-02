@@ -16,7 +16,7 @@ namespace Constants {
 
   export function ContractId() : Uint8Array {
     if (contractId === null) {
-      contractId = System.getContractId()
+      contractId = System.getContractId();
     }
 
     return contractId!;
@@ -331,10 +331,10 @@ export class Governance {
 
     const votes = Protobuf.decode<value.list_type>(proposal_votes_bytes.message_value!.value!, value.list_type.decode);
 
-    let proposal_set = new Set<Uint8Array>()
+    let proposal_set = new Set<Uint8Array>();
     for (let index = 0; index < votes.values.length; index++) {
-        const proposal = votes.values[index].bytes_value;
-        proposal_set.add(proposal!);
+      const proposal = votes.values[index].bytes_value;
+      proposal_set.add(proposal!);
     }
 
     let proposals = proposal_set.values();
@@ -369,7 +369,7 @@ export class Governance {
   block_callback(
     args: system_calls.pre_block_callback_arguments
   ): system_calls.pre_block_callback_result {
-    System.require(System.getCaller().caller_privilege == chain.privilege.kernel_mode, 'governance contract block callback must be called from kernel')
+    System.require(System.getCaller().caller_privilege == chain.privilege.kernel_mode, 'governance contract block callback must be called from kernel');
 
     this.handle_votes();
 

@@ -1,4 +1,4 @@
-import { Base58, MockVM, token, authority, Arrays, Protobuf, chain } from "koinos-sdk-as";
+import { Base58, MockVM, token, authority, Arrays, Protobuf, chain, protocol, vhp } from "@koinos/sdk-as";
 import { Vhp } from "../Vhp";
 
 const CONTRACT_ID = Base58.decode("1DQzuCcTKacbs9GGScRTU1Hc8BsyARTPqe");
@@ -6,11 +6,18 @@ const CONTRACT_ID = Base58.decode("1DQzuCcTKacbs9GGScRTU1Hc8BsyARTPqe");
 const MOCK_ACCT1 = Base58.decode("1DQzuCcTKacbs9GGScRTU1Hc8BsyARTPqG");
 const MOCK_ACCT2 = Base58.decode("1DQzuCcTKacbs9GGScRTU1Hc8BsyARTPqK");
 
+let headBlock = new protocol.block();
+
 describe("vhp", () => {
   beforeEach(() => {
     MockVM.reset();
     MockVM.setContractId(CONTRACT_ID);
     MockVM.setCaller(new chain.caller_data(new Uint8Array(0), chain.privilege.user_mode));
+
+    headBlock.header = new protocol.block_header();
+    headBlock.header!.height = 10;
+
+    MockVM.setBlock(headBlock);
   });
 
   it("should get the name", () => {
@@ -238,7 +245,7 @@ describe("vhp", () => {
     expect(() => {
       const tkn = new Vhp();
       const mintArgs = new token.mint_arguments(MOCK_ACCT2, u64.MAX_VALUE);
-      tkn.mint(mintArgs)
+      tkn.mint(mintArgs);
     }).toThrow();
 
     // check total supply
@@ -353,7 +360,7 @@ describe("vhp", () => {
     expect(() => {
       const tkn = new Vhp();
       const transferArgs = new token.transfer_arguments(MOCK_ACCT1, MOCK_ACCT1, 10);
-      tkn.transfer(transferArgs)
+      tkn.transfer(transferArgs);
     }).toThrow();
 
     // check balances
@@ -389,7 +396,7 @@ describe("vhp", () => {
     expect(() => {
       const tkn = new Vhp();
       const transferArgs = new token.transfer_arguments(MOCK_ACCT1, MOCK_ACCT2, 456);
-      tkn.transfer(transferArgs)
+      tkn.transfer(transferArgs);
     }).toThrow();
 
     // check balances
@@ -401,6 +408,144 @@ describe("vhp", () => {
     expect(MockVM.getErrorMessage()).toBe("account 'from' has insufficient balance");
   });
 
+  it("should delay effective balance", () => {
+    const tkn = new Vhp();
+
+    // set kernel mode
+    MockVM.setCaller(new chain.caller_data(new Uint8Array(0), chain.privilege.kernel_mode));
+
+    // set contract_call authority for CONTRACT_ID to true so that we can mint tokens
+    const authContractId = new MockVM.MockAuthority(authority.authorization_type.contract_call, CONTRACT_ID, true);
+
+    // set contract_call authority for MOCK_ACCT1 to true so that we can transfer tokens
+    const authMockAcct1 = new MockVM.MockAuthority(authority.authorization_type.contract_call, MOCK_ACCT1, true);
+    const authMockAcct2 = new MockVM.MockAuthority(authority.authorization_type.contract_call, MOCK_ACCT2, true);
+
+    MockVM.setAuthorities([authContractId]);
+
+    const effectiveBalanceMockAcct1 = new vhp.effective_balance_of_arguments(MOCK_ACCT1);
+    const effectiveBalanceMockAcct2 = new vhp.effective_balance_of_arguments(MOCK_ACCT2);
+
+    expect(tkn.effective_balance_of(effectiveBalanceMockAcct1).value).toBe(0);
+
+    // mint tokens
+    const mintArgs = new token.mint_arguments(MOCK_ACCT1, 100);
+    tkn.mint(mintArgs);
+
+    expect(tkn.effective_balance_of(effectiveBalanceMockAcct1).value).toBe(0);
+
+    headBlock.header!.height = 29;
+    MockVM.setBlock(headBlock);
+
+    expect(tkn.effective_balance_of(effectiveBalanceMockAcct1).value).toBe(0);
+
+    headBlock.header!.height = 30;
+    MockVM.setBlock(headBlock);
+
+    expect(tkn.effective_balance_of(effectiveBalanceMockAcct1).value).toBe(100);
+
+    const transferArgs = new token.transfer_arguments(MOCK_ACCT1, MOCK_ACCT2, 1);
+    MockVM.setAuthorities([authMockAcct1, authMockAcct1, authMockAcct1, authMockAcct1]);
+
+    tkn.transfer(transferArgs);
+
+    expect(tkn.effective_balance_of(effectiveBalanceMockAcct1).value).toBe(99);
+    expect(tkn.effective_balance_of(effectiveBalanceMockAcct2).value).toBe(0);
+
+    tkn.transfer(transferArgs);
+
+    expect(tkn.effective_balance_of(effectiveBalanceMockAcct1).value).toBe(98);
+    expect(tkn.effective_balance_of(effectiveBalanceMockAcct2).value).toBe(0);
+
+    headBlock.header!.height = 31;
+    MockVM.setBlock(headBlock);
+
+    tkn.transfer(transferArgs);
+
+    expect(tkn.effective_balance_of(effectiveBalanceMockAcct1).value).toBe(97);
+    expect(tkn.effective_balance_of(effectiveBalanceMockAcct2).value).toBe(0);
+
+    headBlock.header!.height = 35;
+    MockVM.setBlock(headBlock);
+
+    tkn.transfer(transferArgs);
+
+    expect(tkn.effective_balance_of(effectiveBalanceMockAcct1).value).toBe(96);
+    expect(tkn.effective_balance_of(effectiveBalanceMockAcct2).value).toBe(0);
+
+    headBlock.header!.height = 49;
+    MockVM.setBlock(headBlock);
+
+    expect(tkn.effective_balance_of(effectiveBalanceMockAcct1).value).toBe(96);
+    expect(tkn.effective_balance_of(effectiveBalanceMockAcct2).value).toBe(0);
+
+    headBlock.header!.height = 50;
+    MockVM.setBlock(headBlock);
+
+    expect(tkn.effective_balance_of(effectiveBalanceMockAcct1).value).toBe(96);
+    expect(tkn.effective_balance_of(effectiveBalanceMockAcct2).value).toBe(2);
+
+    headBlock.header!.height = 51;
+    MockVM.setBlock(headBlock);
+
+    expect(tkn.effective_balance_of(effectiveBalanceMockAcct1).value).toBe(96);
+    expect(tkn.effective_balance_of(effectiveBalanceMockAcct2).value).toBe(3);
+
+    headBlock.header!.height = 54;
+    MockVM.setBlock(headBlock);
+
+    expect(tkn.effective_balance_of(effectiveBalanceMockAcct1).value).toBe(96);
+    expect(tkn.effective_balance_of(effectiveBalanceMockAcct2).value).toBe(3);
+
+    headBlock.header!.height = 55;
+    MockVM.setBlock(headBlock);
+
+    expect(tkn.effective_balance_of(effectiveBalanceMockAcct1).value).toBe(96);
+    expect(tkn.effective_balance_of(effectiveBalanceMockAcct2).value).toBe(4);
+
+    MockVM.setAuthorities([authMockAcct1, authMockAcct2]);
+
+    tkn.transfer(transferArgs);
+
+    expect(tkn.effective_balance_of(effectiveBalanceMockAcct1).value).toBe(95);
+    expect(tkn.effective_balance_of(effectiveBalanceMockAcct2).value).toBe(4);
+
+    headBlock.header!.height = 56;
+    MockVM.setBlock(headBlock);
+
+    transferArgs.from = MOCK_ACCT2;
+    transferArgs.to = MOCK_ACCT1;
+    transferArgs.value = 4;
+
+    tkn.transfer(transferArgs);
+
+    expect(tkn.effective_balance_of(effectiveBalanceMockAcct1).value).toBe(95);
+    expect(tkn.effective_balance_of(effectiveBalanceMockAcct2).value).toBe(0);
+
+    headBlock.header!.height = 74;
+    MockVM.setBlock(headBlock);
+
+    expect(tkn.effective_balance_of(effectiveBalanceMockAcct1).value).toBe(95);
+    expect(tkn.effective_balance_of(effectiveBalanceMockAcct2).value).toBe(0);
+
+    headBlock.header!.height = 75;
+    MockVM.setBlock(headBlock);
+
+    expect(tkn.effective_balance_of(effectiveBalanceMockAcct1).value).toBe(95);
+    expect(tkn.effective_balance_of(effectiveBalanceMockAcct2).value).toBe(1);
+
+    headBlock.header!.height = 76;
+    MockVM.setBlock(headBlock);
+
+    expect(tkn.effective_balance_of(effectiveBalanceMockAcct1).value).toBe(99);
+    expect(tkn.effective_balance_of(effectiveBalanceMockAcct2).value).toBe(1);
+
+    MockVM.setAuthorities([authMockAcct2]);
+    tkn.burn(new token.burn_arguments(MOCK_ACCT2, 1));
+
+    expect(tkn.effective_balance_of(effectiveBalanceMockAcct2).value).toBe(0);
+  });
+
   it("should transfer tokens without authority", () => {
     const tkn = new Vhp();
 
@@ -409,6 +554,7 @@ describe("vhp", () => {
 
     // set contract_call authority for CONTRACT_ID to true so that we can mint tokens
     const authContractId = new MockVM.MockAuthority(authority.authorization_type.contract_call, CONTRACT_ID, true);
+
     MockVM.setAuthorities([authContractId]);
 
     // mint tokens

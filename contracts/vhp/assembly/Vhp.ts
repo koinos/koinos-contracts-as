@@ -1,19 +1,43 @@
-import { authority, chain, protocol, system_call_ids, System, Protobuf,
-  Base58, value, error, system_calls, Token, SafeMath, token, Crypto, Arrays } from "koinos-sdk-as";
+import { Arrays, authority, chain, error, Protobuf, System, token, vhp } from "@koinos/sdk-as";
+
+/**
+ * To prevent exploiting the PoB algorithm, the VHP has a "delayed" transfer system built in.
+ * Rather, this system does not delay property rights transferral, but delays the VHP from
+ * being counted towards an address for block production. Increases the balance are delayed
+ * while decreases are instantaneous.
+ *
+ * Calculating and storing this information uses rolling snapshots. This approach only works
+ * because we are only interested in a short period of history (20 blocks). Each balance has a
+ * list of previous snapshots by block height and balance. When we increase the balance, we
+ * store the new balance as a snapshot with the current head block height. When we decrease
+ * the balance on all snapshots.
+ *
+ * We also need to clean up the snapshots. We want at most one snapshot earlier than 20 blocks.
+ * So we trim all but the most recent snapshot older than 20 blocks. Then, when we want to
+ * retrieve the effective balance, we just have to find the most recent snapshot older than
+ * 20 blocks.
+ *
+ * All balance objects will "decay" back to the current balance and the snapshot equal to the
+ * current balance.
+ *
+ * The trick to making the algorithms on the snapshots efficient is that new snapshots are
+ * pushed to the back of the array and old snapshots are removed from the front.
+ */
 
 namespace Constants {
-  export const NAME = "Virtual Hash Power"
+  export const NAME = "Virtual Hash Power";
   export const SYMBOL = "VHP";
   export const DECIMALS: u32 = 8;
   export const SUPPLY_ID: u32 = 0;
   export const BALANCE_ID: u32 = 1;
   export const SUPPLY_KEY = new Uint8Array(0);
+  export const DELAY_BLOCKS: u64 = 20;
 
   let contractId: Uint8Array | null = null;
 
   export function ContractId() : Uint8Array {
     if (contractId === null) {
-      contractId = System.getContractId()
+      contractId = System.getContractId();
     }
 
     return contractId!;
@@ -83,16 +107,92 @@ export class Vhp {
 
     System.require(args.owner != null, 'owner cannot be null');
 
-    let fromBalanceObj = System.getObject<Uint8Array, token.balance_object>(State.Space.Balance(), args.owner!, token.balance_object.decode);
+    let balanceObj = System.getObject<Uint8Array, vhp.effective_balance_object>(State.Space.Balance(), args.owner!, vhp.effective_balance_object.decode);
 
-    if (!fromBalanceObj) {
+    if (!balanceObj) {
       result.value = 0;
     }
     else {
-      result.value = fromBalanceObj.value;
+      result.value = balanceObj.current_balance;
     }
 
     return result;
+  }
+
+  effective_balance_of(args: vhp.effective_balance_of_arguments): vhp.effective_balance_of_result {
+    let result = new vhp.effective_balance_of_result();
+
+    System.require(args.owner != null, 'owner cannot be null');
+
+    let balanceObj = System.getObject<Uint8Array, vhp.effective_balance_object>(State.Space.Balance(), args.owner!, vhp.effective_balance_object.decode);
+
+    if (!balanceObj) {
+      // No balance object means a balance of 0
+      result.value = 0;
+    }
+    else if (balanceObj.past_balances.length == 0) {
+      // No past balances means the current balance is the effective balance
+      result.value = balanceObj.current_balance;
+    }
+    else {
+      // Otherwise, we need to find the most recent valid past balance
+      this.trim_balances(balanceObj, System.getBlockField("header.height")!.uint64_value);
+      result.value = balanceObj.past_balances[0].balance;
+    }
+
+    return result;
+  }
+
+  increase_balance_by(balanceObj: vhp.effective_balance_object, blockHeight: u64, value: u64): void {
+    this.trim_balances(balanceObj, blockHeight);
+
+    let snapshotLength = balanceObj.past_balances.length;
+
+    if (snapshotLength == 0) {
+      balanceObj.past_balances.push(new vhp.balance_entry(blockHeight - 1, balanceObj.current_balance));
+      snapshotLength = 1;
+    }
+
+    let newBalance = balanceObj.current_balance + value;
+    balanceObj.current_balance = newBalance;
+
+    // If there is no entry for this block's balance, set it.
+    // Otherwise, push it to the back
+    if (balanceObj.past_balances[snapshotLength - 1].block_height != blockHeight ) {
+      balanceObj.past_balances.push(new vhp.balance_entry(blockHeight, newBalance));
+    }
+    else {
+      balanceObj.past_balances[snapshotLength - 1].balance = newBalance;
+    }
+  }
+
+  decrease_balance_by(balanceObj: vhp.effective_balance_object, blockHeight: u64, value: u64): void {
+    this.trim_balances(balanceObj, blockHeight);
+
+    balanceObj.current_balance -= value;
+
+    for (let i = 0; i < balanceObj.past_balances.length; i++ ) {
+      if (balanceObj.past_balances[i].balance < value) {
+        balanceObj.past_balances[i].balance = 0;
+      } else {
+        balanceObj.past_balances[i].balance -= value;
+      }
+    }
+  }
+
+  trim_balances(balanceObj: vhp.effective_balance_object, blockHeight: u64): void {
+    if (balanceObj.past_balances.length <= 1)
+      return;
+
+    let limitBlock = blockHeight - Constants.DELAY_BLOCKS;
+
+    if (blockHeight < Constants.DELAY_BLOCKS) {
+      limitBlock = 0;
+    }
+
+    while( balanceObj.past_balances.length > 1 && balanceObj.past_balances[1].block_height <= limitBlock ) {
+      balanceObj.past_balances.shift();
+    }
   }
 
   transfer(args: token.transfer_arguments): token.transfer_result {
@@ -107,27 +207,28 @@ export class Vhp {
       error.error_code.authorization_failure
     );
 
-    let fromBalanceObj = System.getObject<Uint8Array, token.balance_object>(State.Space.Balance(), args.from!, token.balance_object.decode);
+    let fromBalanceObj = System.getObject<Uint8Array, vhp.effective_balance_object>(State.Space.Balance(), args.from!, vhp.effective_balance_object.decode);
 
     if (!fromBalanceObj) {
-      fromBalanceObj = new token.balance_object();
-      fromBalanceObj.value = 0;
+      fromBalanceObj = new vhp.effective_balance_object();
+      fromBalanceObj.current_balance = 0;
     }
 
-    System.require(fromBalanceObj.value >= args.value, "account 'from' has insufficient balance", error.error_code.failure);
+    System.require(fromBalanceObj.current_balance >= args.value, "account 'from' has insufficient balance", error.error_code.failure);
 
-    let toBalanceObj = System.getObject<Uint8Array, token.balance_object>(State.Space.Balance(), args.to!, token.balance_object.decode);
+    let toBalanceObj = System.getObject<Uint8Array, vhp.effective_balance_object>(State.Space.Balance(), args.to!, vhp.effective_balance_object.decode);
 
     if (!toBalanceObj) {
-      toBalanceObj = new token.balance_object();
-      toBalanceObj.value = 0;
+      toBalanceObj = new vhp.effective_balance_object();
+      toBalanceObj.current_balance = 0;
     }
 
-    fromBalanceObj.value -= args.value;
-    toBalanceObj.value += args.value;
+    let blockHeight = System.getBlockField("header.height")!.uint64_value;
+    this.decrease_balance_by(fromBalanceObj, blockHeight, args.value);
+    this.increase_balance_by(toBalanceObj, blockHeight, args.value);
 
-    System.putObject(State.Space.Balance(), args.from!, fromBalanceObj, token.balance_object.encode);
-    System.putObject(State.Space.Balance(), args.to!, toBalanceObj, token.balance_object.encode);
+    System.putObject(State.Space.Balance(), args.from!, fromBalanceObj, vhp.effective_balance_object.encode);
+    System.putObject(State.Space.Balance(), args.to!, toBalanceObj, vhp.effective_balance_object.encode);
 
     let event = new token.transfer_event();
     event.from = args.from;
@@ -165,18 +266,18 @@ export class Vhp {
 
     System.require(supplyObject.value <= u64.MAX_VALUE - args.value, 'mint would overflow supply', error.error_code.failure);
 
-    let balanceObject = System.getObject<Uint8Array, token.balance_object>(State.Space.Balance(), args.to!, token.balance_object.decode);
+    let balanceObject = System.getObject<Uint8Array, vhp.effective_balance_object>(State.Space.Balance(), args.to!, vhp.effective_balance_object.decode);
 
     if (!balanceObject) {
-      balanceObject = new token.balance_object();
-      balanceObject.value = 0;
+      balanceObject = new vhp.effective_balance_object();
+      balanceObject.current_balance = 0;
     }
 
-    balanceObject.value += args.value;
+    this.increase_balance_by(balanceObject, System.getBlockField("header.height")!.uint64_value, args.value);
     supplyObject.value += args.value;
 
     System.putObject(State.Space.Supply(), Constants.SUPPLY_KEY, supplyObject, token.balance_object.encode);
-    System.putObject(State.Space.Balance(), args.to!, balanceObject, token.balance_object.encode);
+    System.putObject(State.Space.Balance(), args.to!, balanceObject, vhp.effective_balance_object.encode);
 
     let event = new token.mint_event();
     event.to = args.to;
@@ -187,7 +288,7 @@ export class Vhp {
 
     System.event('vhp.mint', Protobuf.encode(event, token.mint_event.encode), impacted);
 
-    return new token.mint_result();;
+    return new token.mint_result();
   }
 
   burn(args: token.burn_arguments): token.burn_result {
@@ -200,14 +301,14 @@ export class Vhp {
       error.error_code.authorization_failure
     );
 
-    let fromBalanceObject = System.getObject<Uint8Array, token.balance_object>(State.Space.Balance(), args.from!, token.balance_object.decode);
+    let fromBalanceObject = System.getObject<Uint8Array, vhp.effective_balance_object>(State.Space.Balance(), args.from!, vhp.effective_balance_object.decode);
 
     if (fromBalanceObject == null) {
-      fromBalanceObject = new token.balance_object();
-      fromBalanceObject.value = 0;
+      fromBalanceObject = new vhp.effective_balance_object();
+      fromBalanceObject.current_balance = 0;
     }
 
-    System.require(fromBalanceObject.value >= args.value, "account 'from' has insufficient balance", error.error_code.failure);
+    System.require(fromBalanceObject.current_balance >= args.value, "account 'from' has insufficient balance", error.error_code.failure);
 
     let supplyObject = System.getObject<Uint8Array, token.balance_object>(State.Space.Supply(), Constants.SUPPLY_KEY, token.balance_object.decode);
 
@@ -219,10 +320,10 @@ export class Vhp {
     System.require(supplyObject.value >= args.value, 'burn would underflow supply', error.error_code.failure);
 
     supplyObject.value -= args.value;
-    fromBalanceObject.value -= args.value;
+    this.decrease_balance_by(fromBalanceObject, System.getBlockField("header.height")!.uint64_value, args.value);
 
     System.putObject(State.Space.Supply(), Constants.SUPPLY_KEY, supplyObject, token.balance_object.encode);
-    System.putObject(State.Space.Balance(), args.from!, fromBalanceObject, token.balance_object.encode);
+    System.putObject(State.Space.Balance(), args.from!, fromBalanceObject, vhp.effective_balance_object.encode);
 
     let event = new token.burn_event();
     event.from = args.from;
