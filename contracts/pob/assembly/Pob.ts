@@ -146,7 +146,7 @@ export class Pob {
     System.require(args.header!.timestamp % params.quantum_length == 0, "time stamp does not match time quanta");
 
     // Make sure the block is later than the minimum block time
-    System.require(args.header!.timestamp >= (metadata.last_block_time + params.minimum_block_time), "block is not later than the minimum block time");
+    System.require(args.header!.timestamp >= (metadata.last_block_time + params.minimum_block_time), "block is too early");
 
     // Get signer's public key
     const registration = System.getObject<Uint8Array, pob.public_key_record>(State.Space.Registration(), args.header!.signer!, pob.public_key_record.decode);
@@ -265,7 +265,7 @@ export class Pob {
   }
 
   update_consensus_parameters(args: pob.update_consensus_parameters_arguments): pob.update_consensus_parameters_result {
-    System.require(System.getCaller().caller_privilege == chain.privilege.kernel_mode, "only the kernel can update consensus parameters");
+    System.require(System.checkSystemAuthority(), "caller must have system authority to update consensus parameters");
 
     System.putObject(State.Space.Metadata(), Constants.CONSENSUS_PARAMS_KEY, args.value, pob.consensus_parameters.encode);
 
