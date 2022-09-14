@@ -36,8 +36,9 @@ export class Claim {
     const ethAddr    = Arrays.toHexString(eth_address);
     const koinosAddr = Base58.encode(koin_address);
     const message    = `claim koins ${ethAddr}:${koinosAddr}`;
+    const signedMessage = `\x19Ethereum Signed Message:\n${message.length}${message}`;
 
-    let multihashBytes = System.hash(Crypto.multicodec.keccak_256, StringBytes.stringToBytes(message));
+    let multihashBytes = System.hash(Crypto.multicodec.keccak_256, StringBytes.stringToBytes(signedMessage));
     const pubKey       = System.recoverPublicKey(signature, multihashBytes!, chain.dsa.ecdsa_secp256k1, false);
 
     multihashBytes = System.hash(Crypto.multicodec.keccak_256, pubKey!.subarray(1));
