@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package govtest;
+
+message post_block_callback_event { }
+
+// @description example
+// @read-only false
+message example_arguments {}
+
+message example_result {}
