@@ -2,8 +2,8 @@ import { authority, Base58, Crypto, Protobuf, error, System, StringBytes, claim,
 import { protocol } from "@koinos/proto-as";
 
 export class Claim {
-  private _claim_contract_id: Uint8Array
-  private _check_claim_entry: u32 = 0x2ac66b4c
+  private _claim_contract_id: Uint8Array;
+  private _check_claim_entry: u32 = 0x2ac66b4c;
 
   constructor() {
     this._claim_contract_id = BUILD_FOR_TESTING ? Base58.decode('1BRmrUgtSQVUggoeE9weG4f7nidyydnYfQ') : Base58.decode('19JntSm8pSNETT9aHTwAUHC5RMoaSmgZPJ');
