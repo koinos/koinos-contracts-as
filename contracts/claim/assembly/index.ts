@@ -1,4 +1,4 @@
-import { System, Protobuf, claim } from "koinos-sdk-as";
+import { System, Protobuf, claim } from "@koinos/sdk-as";
 import { Claim as ContractClass } from "./Claim";
 
 export function main(): i32 {
@@ -20,7 +20,7 @@ export function main(): i32 {
       );
       break;
     }
-           
+
     case 0xbd7f6850: {
       const args = Protobuf.decode<claim.get_info_arguments>(
         contractArgs.args,
