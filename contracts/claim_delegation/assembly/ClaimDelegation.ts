@@ -3,6 +3,7 @@ import { protocol } from "@koinos/proto-as";
 
 export class Claim {
   private _claim_contract_id: Uint8Array;
+  private _claim_entry: u32 = 0xdd1b3c31;
   private _check_claim_entry: u32 = 0x2ac66b4c;
 
   constructor() {
@@ -10,7 +11,11 @@ export class Claim {
   }
 
   checkClaim(account: Uint8Array): claim.claim_status {
-    let ret = System.call(this._claim_contract_id, this._check_claim_entry, account);
+    System.log("calling check claim")
+    let checkArgs = new claim.check_claim_arguments(account)
+    let argsBytes = Protobuf.encode<claim.check_claim_arguments>(checkArgs, claim.check_claim_arguments.encode)
+
+    let ret = System.call(this._claim_contract_id, this._check_claim_entry, argsBytes);
 
     if (ret.code != error.error_code.success)
       System.exit(ret.code, StringBytes.stringToBytes('failed to check claim'));
@@ -39,7 +44,7 @@ export class Claim {
       const operation = Protobuf.decode<protocol.operation>(operations.values[0].message_value!.value!, protocol.operation.decode);
       System.require(operation.call_contract != null, 'expected call contract operation');
       System.require(Arrays.equal(operation.call_contract!.contract_id, this._claim_contract_id), 'expected call contract operation to be the claim contract');
-      System.require(operation.call_contract!.entry_point == this._check_claim_entry, 'expected call contract operation to be the claim entry point');
+      System.require(operation.call_contract!.entry_point == this._claim_entry, 'expected call contract operation to be the claim entry point');
 
       System.require(operation.call_contract!.args != null, 'expected call contract arguments to not be null');
       const claimArgs = Protobuf.decode<claim.check_claim_arguments>(operation.call_contract!.args!, claim.check_claim_arguments.decode);
