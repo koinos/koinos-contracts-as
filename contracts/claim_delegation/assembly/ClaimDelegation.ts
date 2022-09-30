@@ -11,7 +11,6 @@ export class Claim {
   }
 
   checkClaim(account: Uint8Array): claim.claim_status {
-    System.log("calling check claim")
     let checkArgs = new claim.check_claim_arguments(account)
     let argsBytes = Protobuf.encode<claim.check_claim_arguments>(checkArgs, claim.check_claim_arguments.encode)
 
@@ -20,7 +19,12 @@ export class Claim {
     if (ret.code != error.error_code.success)
       System.exit(ret.code, StringBytes.stringToBytes('failed to check claim'));
 
-    return Protobuf.decode<claim.check_claim_result>(ret.res.object!, claim.check_claim_result.decode).value!;
+    if (ret.res.object == null)
+      return new claim.claim_status(0, false);
+
+    let res = Protobuf.decode<claim.check_claim_result>(ret.res.object!, claim.check_claim_result.decode);
+
+    return res.value != null ? res.value! : new claim.claim_status(0, false);
   }
 
   authorize(args: authority.authorize_arguments): authority.authorize_result {
