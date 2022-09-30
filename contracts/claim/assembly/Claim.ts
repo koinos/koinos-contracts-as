@@ -74,8 +74,8 @@ export class Claim {
   }
 
   check_claim(args: claim.check_claim_arguments): claim.check_claim_result {
-    System.require( args.eth_address != null, "address address must not be null")
-    let result = new claim.check_claim_result()
+    System.require( args.eth_address != null, "address address must not be null");
+    let result = new claim.check_claim_result();
 
     const koin_claim = System.getObject<Uint8Array, claim.claim_status>(State.Space.CLAIMS, args.eth_address!, claim.claim_status.decode);
 

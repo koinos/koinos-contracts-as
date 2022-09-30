@@ -11,8 +11,8 @@ export class Claim {
   }
 
   checkClaim(account: Uint8Array): claim.claim_status {
-    let checkArgs = new claim.check_claim_arguments(account)
-    let argsBytes = Protobuf.encode<claim.check_claim_arguments>(checkArgs, claim.check_claim_arguments.encode)
+    let checkArgs = new claim.check_claim_arguments(account);
+    let argsBytes = Protobuf.encode<claim.check_claim_arguments>(checkArgs, claim.check_claim_arguments.encode);
 
     let ret = System.call(this._claim_contract_id, this._check_claim_entry, argsBytes);
 
