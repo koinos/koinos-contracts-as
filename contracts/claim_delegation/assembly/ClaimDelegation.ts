@@ -19,9 +19,6 @@ export class Claim {
     if (ret.code != error.error_code.success)
       System.exit(ret.code, StringBytes.stringToBytes('failed to check claim'));
 
-    if (ret.res.object == null)
-      return new claim.claim_status(0, false);
-
     let res = Protobuf.decode<claim.check_claim_result>(ret.res.object!, claim.check_claim_result.decode);
 
     return res.value != null ? res.value! : new claim.claim_status(0, false);
