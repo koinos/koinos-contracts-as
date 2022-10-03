@@ -74,9 +74,18 @@ export class Claim {
   }
 
   check_claim(args: claim.check_claim_arguments): claim.check_claim_result {
-    const eth_address = args.eth_address!;
-    const koin_claim = System.getObject<Uint8Array, claim.claim_status>(State.Space.CLAIMS, eth_address, claim.claim_status.decode);
+    System.require( args.eth_address != null, "address address must not be null");
+    let result = new claim.check_claim_result();
 
-    return new claim.check_claim_result(koin_claim);
+    const koin_claim = System.getObject<Uint8Array, claim.claim_status>(State.Space.CLAIMS, args.eth_address!, claim.claim_status.decode);
+
+    if (!koin_claim) {
+      result.value = new claim.claim_status(0, false);
+    }
+    else {
+      result.value = koin_claim;
+    }
+
+    return result;
   }
 }
