@@ -205,7 +205,7 @@ export class Governance {
     event.id = args.operation_merkle_root;
     event.status = governance.proposal_status.pending;
 
-    System.event('proposal.submission', Protobuf.encode(event, governance.proposal_status_event.encode), []);
+    System.event('koinos.contracts.governance.proposal_status_event', Protobuf.encode(event, governance.proposal_status_event.encode), []);
 
     return new governance.submit_proposal_result();
   }
@@ -252,7 +252,7 @@ export class Governance {
     event.id = id;
     event.status = prec.status;
 
-    System.event('proposal.status', Protobuf.encode(event, governance.proposal_status_event.encode), []);
+    System.event('koinos.contracts.governance.proposal_status_event', Protobuf.encode(event, governance.proposal_status_event.encode), []);
   }
 
   handle_active_proposal(prec: governance.proposal_record, height: u64): void {
@@ -274,7 +274,7 @@ export class Governance {
     event.id = id;
     event.status = prec.status;
 
-    System.event('proposal.status', Protobuf.encode(event, governance.proposal_status_event.encode), []);
+    System.event('koinos.contracts.governance.proposal_status_event', Protobuf.encode(event, governance.proposal_status_event.encode), []);
   }
 
   handle_approved_proposal(prec: governance.proposal_record, height: u64): void {
@@ -318,7 +318,7 @@ export class Governance {
     event.id = id;
     event.status = prec.status;
 
-    System.event('proposal.status', Protobuf.encode(event, governance.proposal_status_event.encode), []);
+    System.event('koinos.contracts.governance.proposal_status_event', Protobuf.encode(event, governance.proposal_status_event.encode), []);
 
     System.removeObject(State.Space.Proposal(), id);
   }
@@ -362,7 +362,7 @@ export class Governance {
       event.vote_tally = current_vote_tally;
       event.vote_threshold = prec.vote_threshold;
 
-      System.event('proposal.vote', Protobuf.encode(event, governance.proposal_vote_event.encode), []);
+      System.event('koinos.contracts.governance.proposal_vote_event', Protobuf.encode(event, governance.proposal_vote_event.encode), []);
     }
   }
 

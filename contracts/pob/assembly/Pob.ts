@@ -128,7 +128,7 @@ export class Pob {
 
     // Emit an event
     const event = new pob.register_public_key_event(args.producer!, args.public_key);
-    System.event('pob.register_public_key', Protobuf.encode(event, pob.register_public_key_event.encode), [args.producer!]);
+    System.event('koinos.contracts.pob.register_public_key_event', Protobuf.encode(event, pob.register_public_key_event.encode), [args.producer!]);
 
     return new pob.register_public_key_result();
   }
