@@ -35,7 +35,7 @@ export class Claim {
     // Verify the signature in the second slot against the given address
     const ethAddr    = Arrays.toHexString(eth_address);
     const koinosAddr = Base58.encode(koin_address);
-    const message    = `claim tkoins ${ethAddr}:${koinosAddr}`;
+    const message    = BUILD_FOR_TESTING ? `claim tkoins ${ethAddr}:${koinosAddr}` : `claim koins ${ethAddr}:${koinosAddr}`;
     const signedMessage = `\x19Ethereum Signed Message:\n${message.length}${message}`;
 
     let multihashBytes = System.hash(Crypto.multicodec.keccak_256, StringBytes.stringToBytes(signedMessage));
