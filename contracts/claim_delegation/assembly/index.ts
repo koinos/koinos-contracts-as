@@ -1,5 +1,5 @@
 import { System, Protobuf, authority } from "@koinos/sdk-as";
-import { Claim as ContractClass } from "./ClaimDelegation";
+import { ClaimDelegation as ContractClass } from "./ClaimDelegation";
 
 export function main(): i32 {
   const contractArgs = System.getArguments();

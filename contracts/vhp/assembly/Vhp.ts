@@ -239,7 +239,7 @@ export class Vhp {
     impacted.push(args.to!);
     impacted.push(args.from!);
 
-    System.event('vhp.transfer', Protobuf.encode(event, token.transfer_event.encode), impacted);
+    System.event('koinos.contracts.token.transfer_event', Protobuf.encode(event, token.transfer_event.encode), impacted);
 
     return new token.transfer_result();
   }
@@ -286,7 +286,7 @@ export class Vhp {
     let impacted: Uint8Array[] = [];
     impacted.push(args.to!);
 
-    System.event('vhp.mint', Protobuf.encode(event, token.mint_event.encode), impacted);
+    System.event('koinos.contracts.token.mint_event', Protobuf.encode(event, token.mint_event.encode), impacted);
 
     return new token.mint_result();
   }
@@ -332,7 +332,7 @@ export class Vhp {
     let impacted: Uint8Array[] = [];
     impacted.push(args.from!);
 
-    System.event('vhp.burn', Protobuf.encode(event, token.burn_event.encode), impacted);
+    System.event('koinos.contracts.token.burn_event', Protobuf.encode(event, token.burn_event.encode), impacted);
 
     return new token.burn_result();
   }

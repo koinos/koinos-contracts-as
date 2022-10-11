@@ -1,7 +1,7 @@
 import { authority, Base58, Crypto, Protobuf, error, System, StringBytes, claim, value, Arrays } from "@koinos/sdk-as";
 import { protocol } from "@koinos/proto-as";
 
-export class Claim {
+export class ClaimDelegation {
   private _claim_contract_id: Uint8Array;
   private _claim_entry: u32 = 0xdd1b3c31;
   private _check_claim_entry: u32 = 0x2ac66b4c;
