@@ -22,8 +22,6 @@ namespace State {
 }
 
 export class NameService {
-  constructor() {}
-
   set_record(args: name_service.set_record_arguments): name_service.set_record_result {
     System.requireSystemAuthority();
 
