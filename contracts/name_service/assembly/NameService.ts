@@ -66,13 +66,13 @@ export class NameService {
 
   get_address(args: name_service.get_address_arguments): name_service.get_address_result {
     const record = System.getObject<string, name_service.address_record>(State.Space.NAME2ADDRESS, args.name!, name_service.address_record.decode);
-    System.require(record != null, 'no record found for the given name', error.error_code.field_not_found);
+    System.require(record != null, 'no record found for the given name');
     return new name_service.get_address_result(record);
   }
 
   get_name(args: name_service.get_name_arguments): name_service.get_name_result {
     const record = System.getObject<Uint8Array, name_service.name_record>(State.Space.ADDRESS2NAME, args.address!, name_service.name_record.decode);
-    System.require(record != null, 'no record found for the given address', error.error_code.field_not_found);
+    System.require(record != null, 'no record found for the given address');
     return new name_service.get_name_result(record);
   }
 }
