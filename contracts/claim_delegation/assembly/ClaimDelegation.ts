@@ -1,4 +1,4 @@
-import { authority, Base58, Crypto, Protobuf, error, System, StringBytes, claim, value, Arrays } from "@koinos/sdk-as";
+import { authority, Crypto, Protobuf, error, System, StringBytes, claim, value, Arrays } from "@koinos/sdk-as";
 import { protocol } from "@koinos/proto-as";
 
 export class ClaimDelegation {

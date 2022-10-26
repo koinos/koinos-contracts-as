@@ -21,16 +21,7 @@ namespace Constants {
 
     return contractId!;
   }
-
-  function arrayToUint8Array(a: Array<u8>): Uint8Array {
-    let uArray = new Uint8Array(a.length);
-
-    for (let i = 0; i < a.length; i++)
-      uArray[i] = a[i];
-
-    return uArray;
-  }
-
+  
   export function KoinContractId() : Uint8Array {
     if (koinContractId === null) {
       koinContractId = System.getContractAddress('koin');
