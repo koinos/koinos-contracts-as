@@ -1,5 +1,5 @@
 import { authority, chain, protocol, system_call_ids, System, Protobuf,
-  value, error, system_calls, Token, SafeMath, governance, Crypto } from "koinos-sdk-as";
+  value, error, system_calls, Token, SafeMath, governance, Crypto } from "@koinos/sdk-as";
 
 namespace Constants {
   export const BLOCKS_PER_WEEK: u64 = BUILD_FOR_TESTING ? 10 : 201600;
@@ -33,13 +33,7 @@ namespace Constants {
 
   export function KoinContractId() : Uint8Array {
     if (koinContractId === null) {
-      if (BUILD_FOR_TESTING) {
-        // Address: BRmrUgtSQVUggoeE9weG4f7nidyydnYfQ
-        koinContractId = arrayToUint8Array([0x00, 0x72, 0x60, 0xae, 0xaf, 0xad, 0xc7, 0x04, 0x31, 0xea, 0x9c, 0x3f, 0xbe, 0xf1, 0x35, 0xb9, 0xa4, 0x15, 0xc1, 0x0f, 0x51, 0x95, 0xe8, 0xd5, 0x57]);
-      } else {
-        // Address: 19JntSm8pSNETT9aHTwAUHC5RMoaSmgZPJ
-        koinContractId = arrayToUint8Array([0x00, 0x5b, 0x1e, 0x61, 0xd3, 0x72, 0x59, 0xb9, 0xc2, 0xd9, 0x9b, 0xf4, 0x17, 0xf5, 0x92, 0xe0, 0xb7, 0x77, 0x25, 0x16, 0x5d, 0x24, 0x88, 0xbe, 0x45]);
-      }
+      koinContractId = System.getContractAddress('koin');
     }
 
     return koinContractId!;

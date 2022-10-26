@@ -7,7 +7,7 @@ export class ClaimDelegation {
   private _check_claim_entry: u32 = 0x2ac66b4c;
 
   constructor() {
-    this._claim_contract_id = BUILD_FOR_TESTING ? Base58.decode('19RgTeBJUE6rufk3yBwXYiHaFXAJymmVTb') : Base58.decode('15XWhAV99fSmz8z9vrA5j9rwwBpXMPHkBQ');
+    this._claim_contract_id = System.getContractAddress('claim');
   }
 
   checkClaim(account: Uint8Array): claim.claim_status {
