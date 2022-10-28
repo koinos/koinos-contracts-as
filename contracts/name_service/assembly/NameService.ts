@@ -1,4 +1,4 @@
-import { chain, Protobuf, System, name_service, error } from "@koinos/sdk-as";
+import { Base58, chain, Protobuf, System, name_service, error } from "@koinos/sdk-as";
 
 namespace Constants {
   export const NAME = "Name Service";
@@ -82,13 +82,13 @@ export class NameService {
 
   get_address(args: name_service.get_address_arguments): name_service.get_address_result {
     const record = System.getObject<string, name_service.address_record>(State.Space.NameToAddress(), args.name!, name_service.address_record.decode);
-    System.require(record != null, 'no record found for the given name', error.error_code.failure);
+    System.require(record != null, 'no record found for the name: ' + args.name!, error.error_code.failure);
     return new name_service.get_address_result(record);
   }
 
   get_name(args: name_service.get_name_arguments): name_service.get_name_result {
     const record = System.getObject<Uint8Array, name_service.name_record>(State.Space.AddressToName(), args.address!, name_service.name_record.decode);
-    System.require(record != null, 'no record found for the given address', error.error_code.failure);
+    System.require(record != null, 'no record found for the address: ' + Base58.encode(args.address!), error.error_code.failure);
     return new name_service.get_name_result(record);
   }
 }
