@@ -9,6 +9,7 @@ const MOCK_ACCT3 = Base58.decode("1Fv9wJ69oNchdrdWMzYWU12hTfZSCpXZgy")
 
 const MOCK_NAME1 = "test1";
 const MOCK_NAME2 = "test2";
+const MOCK_NAME3 = "test3";
 
 let headBlock = new protocol.block();
 
@@ -50,6 +51,20 @@ describe("name_service", () => {
       ns.get_name(new name_service.get_name_arguments(MOCK_ACCT1))
     }).toThrow();
 
+    // Update the record to a new name
+
+    ns.set_record(new name_service.set_record_arguments(MOCK_NAME3, MOCK_ACCT3));
+
+    // check the records
+    check_mapping(ns, MOCK_NAME3, MOCK_ACCT3);
+    check_mapping(ns, MOCK_NAME2, MOCK_ACCT2);
+
+    // check throw on getting old record
+    expect(() => {
+      const ns = new NameService();
+      ns.get_address(new name_service.get_address_arguments(MOCK_NAME1))
+    }).toThrow();
+
     // check throw when setting without system authority
     MockVM.setSystemAuthority(false);
 
@@ -59,7 +74,7 @@ describe("name_service", () => {
     }).toThrow();
 
     // check the records
-    check_mapping(ns, MOCK_NAME1, MOCK_ACCT3);
+    check_mapping(ns, MOCK_NAME3, MOCK_ACCT3);
     check_mapping(ns, MOCK_NAME2, MOCK_ACCT2);
 
     MockVM.setSystemAuthority(false);
