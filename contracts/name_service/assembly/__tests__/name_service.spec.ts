@@ -48,7 +48,7 @@ describe("name_service", () => {
     expect(() => {
       const ns = new NameService();
       ns.get_name(new name_service.get_name_arguments(MOCK_ACCT1))
-    }).toThrow()
+    }).toThrow();
 
     // check throw when setting without system authority
     MockVM.setSystemAuthority(false);
@@ -56,11 +56,34 @@ describe("name_service", () => {
     expect(() => {
       const ns = new NameService();
       ns.set_record(new name_service.set_record_arguments(MOCK_NAME1, MOCK_ACCT1));
-    }).toThrow()
+    }).toThrow();
 
     // check the records
     check_mapping(ns, MOCK_NAME1, MOCK_ACCT3);
     check_mapping(ns, MOCK_NAME2, MOCK_ACCT2);
+
+    MockVM.setSystemAuthority(false);
+
+    // check failure on null arguments
+    expect(() => {
+      const ns = new NameService();
+      ns.set_record(new name_service.set_record_arguments(null, MOCK_ACCT1));
+    }).toThrow();
+
+    expect(() => {
+      const ns = new NameService();
+      ns.set_record(new name_service.set_record_arguments(MOCK_NAME1, null));
+    }).toThrow();
+
+    expect(() => {
+      const ns = new NameService();
+      ns.get_address(new name_service.get_address_arguments(null));
+    }).toThrow();
+
+    expect(() => {
+      const ns = new NameService();
+      ns.get_name(new name_service.get_name_arguments(null));
+    }).toThrow();
   });
 });
 
