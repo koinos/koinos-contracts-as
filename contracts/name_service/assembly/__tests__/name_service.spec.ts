@@ -5,7 +5,7 @@ const CONTRACT_ID = Base58.decode("1DQzuCcTKacbs9GGScRTU1Hc8BsyARTPqe");
 
 const MOCK_ACCT1 = Base58.decode("1DQzuCcTKacbs9GGScRTU1Hc8BsyARTPqG");
 const MOCK_ACCT2 = Base58.decode("1DQzuCcTKacbs9GGScRTU1Hc8BsyARTPqK");
-const MOCK_ACCT3 = Base58.decode("1Fv9wJ69oNchdrdWMzYWU12hTfZSCpXZgy")
+const MOCK_ACCT3 = Base58.decode("1Fv9wJ69oNchdrdWMzYWU12hTfZSCpXZgy");
 
 const MOCK_NAME1 = "test1";
 const MOCK_NAME2 = "test2";
@@ -48,7 +48,7 @@ describe("name_service", () => {
     // check throw on getting old record
     expect(() => {
       const ns = new NameService();
-      ns.get_name(new name_service.get_name_arguments(MOCK_ACCT1))
+      ns.get_name(new name_service.get_name_arguments(MOCK_ACCT1));
     }).toThrow();
 
     // Update the record to a new name
@@ -62,7 +62,7 @@ describe("name_service", () => {
     // check throw on getting old record
     expect(() => {
       const ns = new NameService();
-      ns.get_address(new name_service.get_address_arguments(MOCK_NAME1))
+      ns.get_address(new name_service.get_address_arguments(MOCK_NAME1));
     }).toThrow();
 
     // check throw when setting without system authority
@@ -103,9 +103,9 @@ describe("name_service", () => {
 });
 
 function check_mapping(ns:NameService, expected_name:string, expected_address:Uint8Array): void {
-    const a_record = ns.get_address(new name_service.get_address_arguments(expected_name));
-    expect(Arrays.equal(a_record.value!.address, expected_address)).toBe(true);
+  const a_record = ns.get_address(new name_service.get_address_arguments(expected_name));
+  expect(Arrays.equal(a_record.value!.address, expected_address)).toBe(true);
 
-    const n_record = ns.get_name(new name_service.get_name_arguments(expected_address));
-    expect(n_record.value!.name).toBe(expected_name);
+  const n_record = ns.get_name(new name_service.get_name_arguments(expected_address));
+  expect(n_record.value!.name).toBe(expected_name);
 }
