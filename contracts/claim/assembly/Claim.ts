@@ -47,7 +47,7 @@ export class Claim {
     System.require(Arrays.equal(mh.digest.subarray(-20), eth_address), "ethereum address mismatch");
 
     // Mint the koin
-    const koinContractId = System.getContractAddress('koin')
+    const koinContractId = System.getContractAddress('koin');
     const koin = new Token(koinContractId);
     System.require(koin.mint(koin_address, koin_claim!.token_amount), "could not mint koin");
 
