@@ -17,7 +17,6 @@ namespace State {
 }
 
 namespace Constants {
-  export const KOIN_CONTRACT_ID = BUILD_FOR_TESTING ? Base58.decode('1BRmrUgtSQVUggoeE9weG4f7nidyydnYfQ') : Base58.decode('19JntSm8pSNETT9aHTwAUHC5RMoaSmgZPJ');
   export const INFO_KEY: Uint8Array = new Uint8Array(0);
 }
 
@@ -48,7 +47,8 @@ export class Claim {
     System.require(Arrays.equal(mh.digest.subarray(-20), eth_address), "ethereum address mismatch");
 
     // Mint the koin
-    const koin = new Token(Constants.KOIN_CONTRACT_ID);
+    const koinContractId = System.getContractAddress('koin');
+    const koin = new Token(koinContractId);
     System.require(koin.mint(koin_address, koin_claim!.token_amount), "could not mint koin");
 
     // Update the record to signify that the claim has been made
@@ -74,7 +74,7 @@ export class Claim {
   }
 
   check_claim(args: claim.check_claim_arguments): claim.check_claim_result {
-    System.require( args.eth_address != null, "address address must not be null");
+    System.require( args.eth_address != null, "address must not be null");
     let result = new claim.check_claim_result();
 
     const koin_claim = System.getObject<Uint8Array, claim.claim_status>(State.Space.CLAIMS, args.eth_address!, claim.claim_status.decode);

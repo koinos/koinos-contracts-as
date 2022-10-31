@@ -1,4 +1,0 @@
-
-describe("name_service", () => {
-
-});
