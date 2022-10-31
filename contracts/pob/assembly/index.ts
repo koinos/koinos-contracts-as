@@ -1,4 +1,4 @@
-import { System, Protobuf, system_calls, pob } from "@koinos/sdk-as";
+import { System, Protobuf, authority, system_calls, pob } from "@koinos/sdk-as";
 import { Pob as ContractClass } from "./Pob";
 
 export function main(): i32 {
@@ -81,6 +81,14 @@ export function main(): i32 {
       );
       const res = c.process_block_signature(args);
       retbuf = Protobuf.encode(res, system_calls.process_block_signature_result.encode);
+      break;
+    }
+
+    case 0x4a2dbd90: {
+      retbuf = Protobuf.encode(
+        new authority.authorize_result(System.checkSystemAuthority()),
+        authority.authorize_result.encode
+      )
       break;
     }
 

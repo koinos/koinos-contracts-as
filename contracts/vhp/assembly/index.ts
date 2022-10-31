@@ -1,4 +1,4 @@
-import { System, Protobuf, authority, system_calls, token, vhp} from "@koinos/sdk-as";
+import { System, Protobuf, authority, token, vhp} from "@koinos/sdk-as";
 import { Vhp as ContractClass } from "../../vhp/assembly/Vhp";
 
 export function main(): i32 {
@@ -115,6 +115,13 @@ export function main(): i32 {
         res,
         token.burn_result.encode
       );
+      break;
+    }
+    case 0x4a2dbd90: {
+      retbuf = Protobuf.encode(
+        new authority.authorize_result(System.checkSystemAuthority()),
+        authority.authorize_result.encode
+      )
       break;
     }
     default:

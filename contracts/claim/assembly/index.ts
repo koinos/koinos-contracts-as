@@ -1,4 +1,4 @@
-import { System, Protobuf, claim } from "@koinos/sdk-as";
+import { System, Protobuf, authority, claim } from "@koinos/sdk-as";
 import { Claim as ContractClass } from "./Claim";
 
 export function main(): i32 {
@@ -44,6 +44,14 @@ export function main(): i32 {
         res,
         claim.check_claim_result.encode
       );
+      break;
+    }
+
+    case 0x4a2dbd90: {
+      retbuf = Protobuf.encode(
+        new authority.authorize_result(System.checkSystemAuthority()),
+        authority.authorize_result.encode
+      )
       break;
     }
 
