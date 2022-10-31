@@ -17,7 +17,6 @@ namespace State {
 }
 
 namespace Constants {
-  export const KOIN_CONTRACT_ID = System.getContractAddress('koin');
   export const INFO_KEY: Uint8Array = new Uint8Array(0);
 }
 
@@ -48,7 +47,8 @@ export class Claim {
     System.require(Arrays.equal(mh.digest.subarray(-20), eth_address), "ethereum address mismatch");
 
     // Mint the koin
-    const koin = new Token(Constants.KOIN_CONTRACT_ID);
+    const koinContractId = System.getContractAddress('koin')
+    const koin = new Token(koinContractId);
     System.require(koin.mint(koin_address, koin_claim!.token_amount), "could not mint koin");
 
     // Update the record to signify that the claim has been made
