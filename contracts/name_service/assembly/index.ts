@@ -1,4 +1,4 @@
-import { System, Protobuf, name_service } from "@koinos/sdk-as";
+import { System, Protobuf, authority, name_service } from "@koinos/sdk-as";
 import { NameService as ContractClass } from "./NameService";
 
 export function main(): i32 {
@@ -44,6 +44,14 @@ export function main(): i32 {
       res,
       name_service.get_address_result.encode
     );
+    break;
+  }
+
+  case 0x4a2dbd90: {
+    retbuf = Protobuf.encode(
+      new authority.authorize_result(System.checkSystemAuthority()),
+      authority.authorize_result.encode
+    )
     break;
   }
 

@@ -32,14 +32,20 @@
   },
   "scripts": {
     "lint": "eslint --max-warnings 0 --ext ts \"contracts/*/assembly/**/*.ts\"",
+    "buildClaim": "cd contracts/claim && yarn install && yarn build:release && yarn test",
+    "buildClaim:ubuntu": "cd contracts/claim && yarn install && yarn build:release && yarn test && yarn integration-tests",
+    "buildClaimDelegation": "cd contracts/claim_delegation && yarn install && yarn build:release && yarn test",
+    "buildClaimDelegation:ubuntu": "cd contracts/claim_delegation && yarn install && yarn build:release && yarn test && yarn integration-tests",
     "buildGovernance": "cd contracts/governance && yarn install && yarn build:release && yarn test",
     "buildGovernance:ubuntu": "cd contracts/governance && yarn install && yarn build:release && yarn test && yarn integration-tests",
-    "buildVHP": "cd contracts/vhp && yarn install && yarn build:release && yarn test",
-    "buildVHP:ubuntu": "cd contracts/vhp && yarn install && yarn build:release && yarn test && yarn integration-tests",
+    "buildNameService": "cd contracts/name_service && yarn install && yarn build:release && yarn test",
+    "buildNameService:ubuntu": "cd contracts/name_service && yarn install && yarn build:release && yarn test && yarn integration-tests",
     "buildPOB": "cd contracts/pob && yarn install && yarn build:release && yarn test",
     "buildPOB:ubuntu": "cd contracts/pob && yarn install && yarn build:release && yarn test && yarn integration-tests",
-    "buildAll": "yarn buildGovernance && yarn buildVHP && yarn buildPOB",
-    "buildAll:ubuntu": "yarn buildGovernance:ubuntu && yarn buildVHP:ubuntu && yarn buildPOB:ubuntu",
+    "buildVHP": "cd contracts/vhp && yarn install && yarn build:release && yarn test",
+    "buildVHP:ubuntu": "cd contracts/vhp && yarn install && yarn build:release && yarn test && yarn integration-tests",
+    "buildAll": "yarn buildClaim && yarn buildClaimDelegation && yarn buildGovernance && yarn buildNameService && yarn buildPOB && yarn buildVHP",
+    "buildAll:ubuntu": "yarn buildClaim:ubuntu && yarn buildClaimDelegation:ubuntu && yarn buildGovernance:ubuntu && yarn buildNameService:ubuntu && yarn buildPOB:ubuntu && yarn buildVHP:ubuntu",
     "ci": "yarn buildAll && yarn lint"
   }
 }
