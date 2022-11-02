@@ -261,4 +261,12 @@ export class Pob {
 
     return new pob.get_public_key_result(registration!.public_key);
   }
+
+  update_consensus_parameters(args: pob.update_consensus_parameters_arguments): pob.update_consensus_parameters_result {
+    System.require(System.checkSystemAuthority(), "caller must have system authority to update consensus parameters");
+
+    System.putObject(State.Space.Metadata(), Constants.CONSENSUS_PARAMS_KEY, args.value, pob.consensus_parameters.encode);
+
+    return new pob.update_consensus_parameters_result();
+  }
 }
