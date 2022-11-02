@@ -711,7 +711,20 @@
     ts-poet "^4.9.0"
     typescript "^4.6.4"
 
-"@koinos/mock-vm@^0.4.1", "@koinos/mock-vm@^0.4.3":
+"@koinos/mock-vm@0.4.4":
+  version "0.4.4"
+  resolved "https://registry.yarnpkg.com/@koinos/mock-vm/-/mock-vm-0.4.4.tgz#1dbbea0b7835b7bc804ea4f91b98503ed13f3f59"
+  integrity sha512-Pdr0zXTIg7+S4zNU4raPffu+EjHTzp7PNLeISaA/IpEu8+mRHeYW2QKB37oL74oPsLm5yIKtpcpcK8GvKi3oig==
+  dependencies:
+    "@koinos/proto-js" "^0.4.0"
+    "@noble/hashes" "^1.0.0"
+    "@noble/secp256k1" "^1.5.5"
+    chalk "4.1.2"
+    multibase "^4.0.6"
+    protobufjs "^6.11.2"
+    somap "^0.5.14"
+
+"@koinos/mock-vm@^0.4.1":
   version "0.4.3"
   resolved "https://registry.yarnpkg.com/@koinos/mock-vm/-/mock-vm-0.4.3.tgz#58976fc9c39a3f66c90d8f384712e327622b2674"
   integrity sha512-9fg8VhRW2M55L0ug41dROEit2xOlZfZ/3kqJcwrGEJNSk896u6eHtROuHfS8eyD6q5HltYADPd6ECnmUNDzNYQ==
@@ -724,7 +737,14 @@
     protobufjs "^6.11.2"
     somap "^0.5.14"
 
-"@koinos/proto-as@^0.4.3", "@koinos/proto-as@^0.4.7":
+"@koinos/proto-as@^0.4.12":
+  version "0.4.12"
+  resolved "https://registry.yarnpkg.com/@koinos/proto-as/-/proto-as-0.4.12.tgz#724ddca0cf702ce56b8dd04d2a56a2462f3f3987"
+  integrity sha512-2I3Ddyqpd/b00/pvfXrs8mPB3MEsi5jJ+m2krolbmzHUZ/DxQr5pXrgNxm05FEC0Wu1BBE2maVkoHn6U/7t7aA==
+  dependencies:
+    as-proto "npm:@koinos/as-proto"
+
+"@koinos/proto-as@^0.4.3":
   version "0.4.11"
   resolved "https://registry.yarnpkg.com/@koinos/proto-as/-/proto-as-0.4.11.tgz#2a198fd5e0bd0e00290d3360a7985ab4328c94a2"
   integrity sha512-VrjoO9CxtFaTEF8TJwV4druHPiREEzkJBA+OId5kikiomRpscmcGop3Ix/A1KAyFC93KSdJGk13jMXY5DL4XXw==
@@ -744,18 +764,18 @@
     chalk "4.1.2"
     commander "^9.0.0"
 
-"@koinos/sdk-as@^0.4.4":
-  version "0.4.7"
-  resolved "https://registry.yarnpkg.com/@koinos/sdk-as/-/sdk-as-0.4.7.tgz#6e2d5b30406f22a2b65cdb88c931bb2dba0204a7"
-  integrity sha512-PjzVz5jWeP13FX7V2EB2kJwX4BOHeQA9YtS6AIDHH5CAGFfhR1svqfJDT/+8XU6lCpHRpG7BaEjbCkXwwd8m2w==
+"@koinos/sdk-as@^0.4.9":
+  version "0.4.9"
+  resolved "https://registry.yarnpkg.com/@koinos/sdk-as/-/sdk-as-0.4.9.tgz#e972b940d316e61dc83e284f4ec2ad087dd42b15"
+  integrity sha512-OAbb5nIFOGMCTF1vqNaZLQ0c/nyR+RiW98wWCZtSCEUlhg/pBVMHPntW1MOt+s5KY9PFbOrQOCEB/lCEwzG4jA==
   dependencies:
     "@as-covers/core" "^0.2.1"
     "@as-pect/cli" "^6.2.4"
     "@koinos/abi-proto-gen" "^0.4.0"
     "@koinos/as-gen" "^0.4.0"
     "@koinos/as-proto-gen" "^0.4.3"
-    "@koinos/mock-vm" "^0.4.3"
-    "@koinos/proto-as" "^0.4.7"
+    "@koinos/mock-vm" "0.4.4"
+    "@koinos/proto-as" "^0.4.12"
     "@koinos/sdk-as-cli" "^0.4.1"
     "@roamin/protoc" "^2.4.0"
     as-bignum "^0.2.18"
