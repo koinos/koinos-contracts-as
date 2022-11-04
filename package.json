@@ -1,10 +1,10 @@
 {
-  "name": "koinos-sdk-as-examples",
-  "version": "0.4.2",
+  "name": "koinos-contracts-as",
+  "version": "1.0.0",
   "main": "assembly/index.ts",
   "license": "MIT",
   "author": "Koinos Group <contact@koinos.group>",
-  "repository": "https://github.com/koinos/koinos-system-contracts-as",
+  "repository": "https://github.com/koinos/koinos-contracts-as",
   "dependencies": {
     "koinos-proto-js": "^0.0.3",
     "local-koinos": "^0.0.5"
