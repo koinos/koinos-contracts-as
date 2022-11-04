@@ -1,10 +1,10 @@
 {
-  "name": "koinos-system-contracts-as",
+  "name": "koinos-contracts-as",
   "version": "1.0.0",
   "main": "assembly/index.ts",
   "license": "MIT",
   "author": "Koinos Group <contact@koinos.group>",
-  "repository": "https://github.com/koinos/koinos-system-contracts-as",
+  "repository": "https://github.com/koinos/koinos-contracts-as",
   "scripts": {
     "lint": "eslint --max-warnings 0 --ext ts \"contracts/*/assembly/**/*.ts\"",
     "buildClaim": "cd contracts/claim && yarn install && yarn build:release && yarn test",
