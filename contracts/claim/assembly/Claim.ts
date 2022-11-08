@@ -1,4 +1,4 @@
-import { chain, System, Base58, Token, Crypto, claim, Arrays, StringBytes, Protobuf, value, authority } from "@koinos/sdk-as";
+import { chain, System, Base58, Token, Crypto, claim, Arrays, StringBytes, authority } from "@koinos/sdk-as";
 
 function arrayToUint8Array(a: Array<u8>): Uint8Array {
   let uArray = new Uint8Array(a.length);
