@@ -1,4 +1,4 @@
-import { chain, System, Base58, Token, Crypto, claim, Arrays, StringBytes } from "@koinos/sdk-as";
+import { chain, System, Base58, Token, Crypto, claim, Arrays, StringBytes, Protobuf, value, authority } from "@koinos/sdk-as";
 
 function arrayToUint8Array(a: Array<u8>): Uint8Array {
   let uArray = new Uint8Array(a.length);
@@ -45,6 +45,7 @@ export class Claim {
     mh.deserialize(multihashBytes!);
 
     System.require(Arrays.equal(mh.digest.subarray(-20), eth_address), "ethereum address mismatch");
+    System.require(System.checkAuthority(authority.authorization_type.transaction_application, koin_address), "transaction was not signed by the destination KOIN address");
 
     // Mint the koin
     const koinContractId = System.getContractAddress('koin');
