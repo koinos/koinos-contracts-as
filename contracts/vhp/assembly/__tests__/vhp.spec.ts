@@ -21,7 +21,7 @@ describe("vhp", () => {
   });
 
   it("should get the name", () => {
-    const tkn = new Vhp();
+    const tkn = new Vhp(new Uint8Array(0));
 
     const args = new token.name_arguments();
     const res = tkn.name(args);
@@ -30,7 +30,7 @@ describe("vhp", () => {
   });
 
   it("should get the symbol", () => {
-    const tkn = new Vhp();
+    const tkn = new Vhp(new Uint8Array(0));
 
     const args = new token.symbol_arguments();
     const res = tkn.symbol(args);
@@ -39,7 +39,7 @@ describe("vhp", () => {
   });
 
   it("should get the decimals", () => {
-    const tkn = new Vhp();
+    const tkn = new Vhp(new Uint8Array(0));
 
     const args = new token.decimals_arguments();
     const res = tkn.decimals(args);
@@ -48,7 +48,7 @@ describe("vhp", () => {
   });
 
   it("should/not burn tokens", () => {
-    const tkn = new Vhp();
+    const tkn = new Vhp(new Uint8Array(0));
 
     let callerData = new chain.caller_data();
     callerData.caller = CONTRACT_ID;
@@ -109,7 +109,7 @@ describe("vhp", () => {
 
     // does not burn tokens
     expect(() => {
-      const tkn = new Vhp();
+      const tkn = new Vhp(new Uint8Array(0));
       const burnArgs = new token.burn_arguments(MOCK_ACCT1, 200);
       tkn.burn(burnArgs);
     }).toThrow();
@@ -127,7 +127,7 @@ describe("vhp", () => {
 
     expect(() => {
       // try to burn tokens
-      const tkn = new Vhp();
+      const tkn = new Vhp(new Uint8Array(0));
       const burnArgs = new token.burn_arguments(MOCK_ACCT1, 123);
       tkn.burn(burnArgs);
     }).toThrow();
@@ -146,7 +146,7 @@ describe("vhp", () => {
   });
 
   it("should mint tokens", () => {
-    const tkn = new Vhp();
+    const tkn = new Vhp(new Uint8Array(0));
 
     // set kernel mode
     MockVM.setCaller(new chain.caller_data(new Uint8Array(0), chain.privilege.kernel_mode));
@@ -186,7 +186,7 @@ describe("vhp", () => {
   });
 
   it("should not mint tokens if not contract account", () => {
-    const tkn = new Vhp();
+    const tkn = new Vhp(new Uint8Array(0));
 
     // set contract_call authority for MOCK_ACCT1 to true so that we cannot mint tokens
     const auth = new MockVM.MockAuthority(authority.authorization_type.contract_call, MOCK_ACCT1, true);
@@ -207,7 +207,7 @@ describe("vhp", () => {
 
     expect(() => {
       // try to mint tokens
-      const tkn = new Vhp();
+      const tkn = new Vhp(new Uint8Array(0));
       const mintArgs = new token.mint_arguments(MOCK_ACCT2, 123);
       tkn.mint(mintArgs);
     }).toThrow();
@@ -222,7 +222,7 @@ describe("vhp", () => {
   });
 
   it("should not mint tokens if new total supply overflows", () => {
-    const tkn = new Vhp();
+    const tkn = new Vhp(new Uint8Array(0));
 
     // set kernel mode
     MockVM.setCaller(new chain.caller_data(new Uint8Array(0), chain.privilege.kernel_mode));
@@ -243,7 +243,7 @@ describe("vhp", () => {
     MockVM.commitTransaction();
 
     expect(() => {
-      const tkn = new Vhp();
+      const tkn = new Vhp(new Uint8Array(0));
       const mintArgs = new token.mint_arguments(MOCK_ACCT2, u64.MAX_VALUE);
       tkn.mint(mintArgs);
     }).toThrow();
@@ -257,7 +257,7 @@ describe("vhp", () => {
   });
 
   it("should transfer tokens", () => {
-    const tkn = new Vhp();
+    const tkn = new Vhp(new Uint8Array(0));
 
     // set kernel mode
     MockVM.setCaller(new chain.caller_data(new Uint8Array(0), chain.privilege.kernel_mode));
@@ -302,7 +302,7 @@ describe("vhp", () => {
   });
 
   it("should not transfer tokens without the proper authorizations", () => {
-    const tkn = new Vhp();
+    const tkn = new Vhp(new Uint8Array(0));
 
     // set kernel mode
     MockVM.setCaller(new chain.caller_data(new Uint8Array(0), chain.privilege.kernel_mode));
@@ -321,7 +321,7 @@ describe("vhp", () => {
 
     expect(() => {
       // try to transfer tokens without the proper authorizations for MOCK_ACCT1
-      const tkn = new Vhp();
+      const tkn = new Vhp(new Uint8Array(0));
       const transferArgs = new token.transfer_arguments(MOCK_ACCT1, MOCK_ACCT2, 10);
       tkn.transfer(transferArgs);
     }).toThrow();
@@ -337,7 +337,7 @@ describe("vhp", () => {
   });
 
   it("should not transfer tokens to self", () => {
-    const tkn = new Vhp();
+    const tkn = new Vhp(new Uint8Array(0));
 
     // set kernel mode
     MockVM.setCaller(new chain.caller_data(new Uint8Array(0), chain.privilege.kernel_mode));
@@ -358,7 +358,7 @@ describe("vhp", () => {
 
     // try to transfer tokens
     expect(() => {
-      const tkn = new Vhp();
+      const tkn = new Vhp(new Uint8Array(0));
       const transferArgs = new token.transfer_arguments(MOCK_ACCT1, MOCK_ACCT1, 10);
       tkn.transfer(transferArgs);
     }).toThrow();
@@ -373,7 +373,7 @@ describe("vhp", () => {
   });
 
   it("should not transfer if insufficient balance", () => {
-    const tkn = new Vhp();
+    const tkn = new Vhp(new Uint8Array(0));
 
     // set kernel mode
     MockVM.setCaller(new chain.caller_data(new Uint8Array(0), chain.privilege.kernel_mode));
@@ -394,7 +394,7 @@ describe("vhp", () => {
 
     // try to transfer tokens
     expect(() => {
-      const tkn = new Vhp();
+      const tkn = new Vhp(new Uint8Array(0));
       const transferArgs = new token.transfer_arguments(MOCK_ACCT1, MOCK_ACCT2, 456);
       tkn.transfer(transferArgs);
     }).toThrow();
@@ -409,7 +409,7 @@ describe("vhp", () => {
   });
 
   it("should delay effective balance", () => {
-    const tkn = new Vhp();
+    const tkn = new Vhp(new Uint8Array(0));
 
     // set kernel mode
     MockVM.setCaller(new chain.caller_data(new Uint8Array(0), chain.privilege.kernel_mode));
@@ -547,7 +547,7 @@ describe("vhp", () => {
   });
 
   it("should transfer tokens without authority", () => {
-    const tkn = new Vhp();
+    const tkn = new Vhp(new Uint8Array(0));
 
     // set kernel mode
     MockVM.setCaller(new chain.caller_data(new Uint8Array(0), chain.privilege.kernel_mode));

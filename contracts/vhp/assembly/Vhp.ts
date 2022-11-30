@@ -68,6 +68,11 @@ namespace State {
 }
 
 export class Vhp {
+  private _arguments: Uint8Array = new Uint8Array(0);
+
+  constructor(args: Uint8Array) {
+    this._arguments = args;
+  }
 
   name(args?: token.name_arguments): token.name_result {
     let result = new token.name_result();
@@ -202,7 +207,7 @@ export class Vhp {
 
     let callerData = System.getCaller();
     System.require(
-      Arrays.equal(callerData.caller, args.from) || System.checkAuthority(authority.authorization_type.contract_call, args.from!),
+      Arrays.equal(callerData.caller, args.from) || System.checkAuthority(authority.authorization_type.contract_call, args.from!, this._arguments),
       'from has not authorized transfer',
       error.error_code.authorization_failure
     );
@@ -296,7 +301,7 @@ export class Vhp {
 
     let callerData = System.getCaller();
     System.require(
-      callerData.caller_privilege == chain.privilege.kernel_mode || callerData.caller == args.from || System.checkAuthority(authority.authorization_type.contract_call, args.from!),
+      callerData.caller_privilege == chain.privilege.kernel_mode || callerData.caller == args.from || System.checkAuthority(authority.authorization_type.contract_call, args.from!, this._arguments),
       'from has not authorized burn',
       error.error_code.authorization_failure
     );
