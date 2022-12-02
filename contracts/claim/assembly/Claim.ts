@@ -22,9 +22,9 @@ namespace Constants {
 
 export class Claim {
   claim(args: claim.claim_arguments): claim.claim_result {
-    const eth_address = args.eth_address!;
-    const koin_address = args.koin_address!;
-    const signature = args.signature!;
+    const eth_address = args.eth_address;
+    const koin_address = args.koin_address;
+    const signature = args.signature;
 
     // Ensure the claim exists and is still unclaimed
     let koin_claim = System.getObject<Uint8Array, claim.claim_status>(State.Space.CLAIMS, eth_address, claim.claim_status.decode);
@@ -75,10 +75,9 @@ export class Claim {
   }
 
   check_claim(args: claim.check_claim_arguments): claim.check_claim_result {
-    System.require( args.eth_address != null, "address must not be null");
     let result = new claim.check_claim_result();
 
-    const koin_claim = System.getObject<Uint8Array, claim.claim_status>(State.Space.CLAIMS, args.eth_address!, claim.claim_status.decode);
+    const koin_claim = System.getObject<Uint8Array, claim.claim_status>(State.Space.CLAIMS, args.eth_address, claim.claim_status.decode);
 
     if (!koin_claim) {
       result.value = new claim.claim_status(0, false);

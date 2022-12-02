@@ -91,7 +91,7 @@ describe("vhp", () => {
     expect(events[1].impacted.length).toBe(1);
     expect(Arrays.equal(events[1].impacted[0], MOCK_ACCT1)).toBe(true);
 
-    const burnEvent = Protobuf.decode<token.burn_event>(events[1].data!, token.burn_event.decode);
+    const burnEvent = Protobuf.decode<token.burn_event>(events[1].data, token.burn_event.decode);
     expect(Arrays.equal(burnEvent.from, MOCK_ACCT1)).toBe(true);
     expect(burnEvent.value).toBe(10);
 
@@ -171,7 +171,7 @@ describe("vhp", () => {
     expect(events[0].impacted.length).toBe(1);
     expect(Arrays.equal(events[0].impacted[0], MOCK_ACCT1)).toBe(true);
 
-    const mintEvent = Protobuf.decode<token.mint_event>(events[0].data!, token.mint_event.decode);
+    const mintEvent = Protobuf.decode<token.mint_event>(events[0].data, token.mint_event.decode);
     expect(Arrays.equal(mintEvent.to, MOCK_ACCT1)).toBe(true);
     expect(mintEvent.value).toBe(123);
 
@@ -295,7 +295,7 @@ describe("vhp", () => {
     expect(Arrays.equal(events[1].impacted[0], MOCK_ACCT2)).toBe(true);
     expect(Arrays.equal(events[1].impacted[1], MOCK_ACCT1)).toBe(true);
 
-    const transferEvent = Protobuf.decode<token.transfer_event>(events[1].data!, token.transfer_event.decode);
+    const transferEvent = Protobuf.decode<token.transfer_event>(events[1].data, token.transfer_event.decode);
     expect(Arrays.equal(transferEvent.from, MOCK_ACCT1)).toBe(true);
     expect(Arrays.equal(transferEvent.to, MOCK_ACCT2)).toBe(true);
     expect(transferEvent.value).toBe(10);
@@ -586,7 +586,7 @@ describe("vhp", () => {
     expect(Arrays.equal(events[1].impacted[0], MOCK_ACCT2)).toBe(true);
     expect(Arrays.equal(events[1].impacted[1], MOCK_ACCT1)).toBe(true);
 
-    const transferEvent = Protobuf.decode<token.transfer_event>(events[1].data!, token.transfer_event.decode);
+    const transferEvent = Protobuf.decode<token.transfer_event>(events[1].data, token.transfer_event.decode);
     expect(Arrays.equal(transferEvent.from, MOCK_ACCT1)).toBe(true);
     expect(Arrays.equal(transferEvent.to, MOCK_ACCT2)).toBe(true);
     expect(transferEvent.value).toBe(10);

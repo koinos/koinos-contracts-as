@@ -41,8 +41,8 @@ export class NameService {
   set_record(args: name_service.set_record_arguments): name_service.set_record_result {
     System.requireSystemAuthority();
 
-    const name = args.name!;
-    const address = args.address!;
+    const name = args.name;
+    const address = args.address;
 
     const a_record = new name_service.address_record(args.address);
     const n_record = new name_service.name_record(args.name);
@@ -54,17 +54,17 @@ export class NameService {
     // Check for and handle old address record
     const old_a_record = System.getObject<string, name_service.address_record>(State.Space.NameToAddress(), name, name_service.address_record.decode);
     if (old_a_record !== null) {
-      System.removeObject<Uint8Array>(State.Space.AddressToName(), old_a_record.address!);
+      System.removeObject<Uint8Array>(State.Space.AddressToName(), old_a_record.address);
       // Add old address to impacted if it is not equal to the new address
-      if (!impacted.includes(old_a_record.address!)) {
-        impacted.push(old_a_record.address!);
+      if (!impacted.includes(old_a_record.address)) {
+        impacted.push(old_a_record.address);
       }
     }
 
     // Check for and handle old name record
     const old_n_record = System.getObject<Uint8Array, name_service.name_record>(State.Space.AddressToName(), address, name_service.name_record.decode);
     if (old_n_record !== null) {
-      System.removeObject<string>(State.Space.NameToAddress(), old_n_record.name!);
+      System.removeObject<string>(State.Space.NameToAddress(), old_n_record.name);
     }
 
     // Set new records
@@ -81,14 +81,14 @@ export class NameService {
   }
 
   get_address(args: name_service.get_address_arguments): name_service.get_address_result {
-    const record = System.getObject<string, name_service.address_record>(State.Space.NameToAddress(), args.name!, name_service.address_record.decode);
-    System.require(record != null, 'no record found for the name: ' + args.name!, error.error_code.failure);
+    const record = System.getObject<string, name_service.address_record>(State.Space.NameToAddress(), args.name, name_service.address_record.decode);
+    System.require(record != null, 'no record found for the name: ' + args.name, error.error_code.failure);
     return new name_service.get_address_result(record);
   }
 
   get_name(args: name_service.get_name_arguments): name_service.get_name_result {
-    const record = System.getObject<Uint8Array, name_service.name_record>(State.Space.AddressToName(), args.address!, name_service.name_record.decode);
-    System.require(record != null, 'no record found for the address: ' + Base58.encode(args.address!), error.error_code.failure);
+    const record = System.getObject<Uint8Array, name_service.name_record>(State.Space.AddressToName(), args.address, name_service.name_record.decode);
+    System.require(record != null, 'no record found for the address: ' + Base58.encode(args.address), error.error_code.failure);
     return new name_service.get_name_result(record);
   }
 }

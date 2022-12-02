@@ -112,7 +112,7 @@ export class Vhp {
 
     System.require(args.owner != null, 'owner cannot be null');
 
-    let balanceObj = System.getObject<Uint8Array, vhp.effective_balance_object>(State.Space.Balance(), args.owner!, vhp.effective_balance_object.decode);
+    let balanceObj = System.getObject<Uint8Array, vhp.effective_balance_object>(State.Space.Balance(), args.owner, vhp.effective_balance_object.decode);
 
     if (!balanceObj) {
       result.value = 0;
@@ -129,7 +129,7 @@ export class Vhp {
 
     System.require(args.owner != null, 'owner cannot be null');
 
-    let balanceObj = System.getObject<Uint8Array, vhp.effective_balance_object>(State.Space.Balance(), args.owner!, vhp.effective_balance_object.decode);
+    let balanceObj = System.getObject<Uint8Array, vhp.effective_balance_object>(State.Space.Balance(), args.owner, vhp.effective_balance_object.decode);
 
     if (!balanceObj) {
       // No balance object means a balance of 0
@@ -207,12 +207,12 @@ export class Vhp {
 
     let callerData = System.getCaller();
     System.require(
-      Arrays.equal(callerData.caller, args.from) || System.checkAuthority(authority.authorization_type.contract_call, args.from!, this._arguments),
+      Arrays.equal(callerData.caller, args.from) || System.checkAuthority(authority.authorization_type.contract_call, args.from, this._arguments),
       'from has not authorized transfer',
       error.error_code.authorization_failure
     );
 
-    let fromBalanceObj = System.getObject<Uint8Array, vhp.effective_balance_object>(State.Space.Balance(), args.from!, vhp.effective_balance_object.decode);
+    let fromBalanceObj = System.getObject<Uint8Array, vhp.effective_balance_object>(State.Space.Balance(), args.from, vhp.effective_balance_object.decode);
 
     if (!fromBalanceObj) {
       fromBalanceObj = new vhp.effective_balance_object();
@@ -221,7 +221,7 @@ export class Vhp {
 
     System.require(fromBalanceObj.current_balance >= args.value, "account 'from' has insufficient balance", error.error_code.failure);
 
-    let toBalanceObj = System.getObject<Uint8Array, vhp.effective_balance_object>(State.Space.Balance(), args.to!, vhp.effective_balance_object.decode);
+    let toBalanceObj = System.getObject<Uint8Array, vhp.effective_balance_object>(State.Space.Balance(), args.to, vhp.effective_balance_object.decode);
 
     if (!toBalanceObj) {
       toBalanceObj = new vhp.effective_balance_object();
@@ -232,8 +232,8 @@ export class Vhp {
     this.decrease_balance_by(fromBalanceObj, blockHeight, args.value);
     this.increase_balance_by(toBalanceObj, blockHeight, args.value);
 
-    System.putObject(State.Space.Balance(), args.from!, fromBalanceObj, vhp.effective_balance_object.encode);
-    System.putObject(State.Space.Balance(), args.to!, toBalanceObj, vhp.effective_balance_object.encode);
+    System.putObject(State.Space.Balance(), args.from, fromBalanceObj, vhp.effective_balance_object.encode);
+    System.putObject(State.Space.Balance(), args.to, toBalanceObj, vhp.effective_balance_object.encode);
 
     let event = new token.transfer_event();
     event.from = args.from;
@@ -241,8 +241,8 @@ export class Vhp {
     event.value = args.value;
 
     let impacted: Uint8Array[] = [];
-    impacted.push(args.to!);
-    impacted.push(args.from!);
+    impacted.push(args.to);
+    impacted.push(args.from);
 
     System.event('koinos.contracts.token.transfer_event', Protobuf.encode(event, token.transfer_event.encode), impacted);
 
@@ -271,7 +271,7 @@ export class Vhp {
 
     System.require(supplyObject.value <= u64.MAX_VALUE - args.value, 'mint would overflow supply', error.error_code.failure);
 
-    let balanceObject = System.getObject<Uint8Array, vhp.effective_balance_object>(State.Space.Balance(), args.to!, vhp.effective_balance_object.decode);
+    let balanceObject = System.getObject<Uint8Array, vhp.effective_balance_object>(State.Space.Balance(), args.to, vhp.effective_balance_object.decode);
 
     if (!balanceObject) {
       balanceObject = new vhp.effective_balance_object();
@@ -282,14 +282,14 @@ export class Vhp {
     supplyObject.value += args.value;
 
     System.putObject(State.Space.Supply(), Constants.SUPPLY_KEY, supplyObject, token.balance_object.encode);
-    System.putObject(State.Space.Balance(), args.to!, balanceObject, vhp.effective_balance_object.encode);
+    System.putObject(State.Space.Balance(), args.to, balanceObject, vhp.effective_balance_object.encode);
 
     let event = new token.mint_event();
     event.to = args.to;
     event.value = args.value;
 
     let impacted: Uint8Array[] = [];
-    impacted.push(args.to!);
+    impacted.push(args.to);
 
     System.event('koinos.contracts.token.mint_event', Protobuf.encode(event, token.mint_event.encode), impacted);
 
@@ -301,12 +301,12 @@ export class Vhp {
 
     let callerData = System.getCaller();
     System.require(
-      callerData.caller_privilege == chain.privilege.kernel_mode || callerData.caller == args.from || System.checkAuthority(authority.authorization_type.contract_call, args.from!, this._arguments),
+      callerData.caller_privilege == chain.privilege.kernel_mode || callerData.caller == args.from || System.checkAuthority(authority.authorization_type.contract_call, args.from, this._arguments),
       'from has not authorized burn',
       error.error_code.authorization_failure
     );
 
-    let fromBalanceObject = System.getObject<Uint8Array, vhp.effective_balance_object>(State.Space.Balance(), args.from!, vhp.effective_balance_object.decode);
+    let fromBalanceObject = System.getObject<Uint8Array, vhp.effective_balance_object>(State.Space.Balance(), args.from, vhp.effective_balance_object.decode);
 
     if (fromBalanceObject == null) {
       fromBalanceObject = new vhp.effective_balance_object();
@@ -328,14 +328,14 @@ export class Vhp {
     this.decrease_balance_by(fromBalanceObject, System.getBlockField("header.height")!.uint64_value, args.value);
 
     System.putObject(State.Space.Supply(), Constants.SUPPLY_KEY, supplyObject, token.balance_object.encode);
-    System.putObject(State.Space.Balance(), args.from!, fromBalanceObject, vhp.effective_balance_object.encode);
+    System.putObject(State.Space.Balance(), args.from, fromBalanceObject, vhp.effective_balance_object.encode);
 
     let event = new token.burn_event();
     event.from = args.from;
     event.value = args.value;
 
     let impacted: Uint8Array[] = [];
-    impacted.push(args.from!);
+    impacted.push(args.from);
 
     System.event('koinos.contracts.token.burn_event', Protobuf.encode(event, token.burn_event.encode), impacted);
 
