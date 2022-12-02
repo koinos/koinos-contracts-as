@@ -18,7 +18,7 @@ namespace Constants {
   export const DEFAULT_QUANTUM_LENGTH_MS: u32 = 10;
   export const METADATA_KEY: Uint8Array = new Uint8Array(0);
   export const CONSENSUS_PARAMS_KEY: Uint8Array = new Uint8Array(1);
-  export const INITIAL_DIFFICULTY_BITS:u8 = 58;
+  export const INITIAL_DIFFICULTY_BITS:u8 = BUILD_FOR_TESTING ? 44 : 58;
   export const ONE_HUNDRED_PERCENT: u32 = 1000000;
   export const MILLISECONDS_PER_YEAR = 31536000000;
   export const DELAY_BLOCKS: u64 = 20;
