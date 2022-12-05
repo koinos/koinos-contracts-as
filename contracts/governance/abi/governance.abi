@@ -10,7 +10,7 @@
         "get_proposal_by_id": {
             "argument": "koinos.contracts.governance.get_proposal_by_id_arguments",
             "return": "koinos.contracts.governance.get_proposal_by_id_result",
-            "description": "Retrieves proposals by ID",
+            "description": "Retrieves a proposal by ID",
             "entry-point": "0xc66013ad",
             "read-only": true
         },
@@ -28,10 +28,10 @@
             "entry-point": "0xd44caa11",
             "read-only": true
         },
-        "pre_block_callback_arguments": {
+        "pre_block_callback": {
             "argument": "koinos.chain.pre_block_callback_arguments",
             "return": "koinos.chain.pre_block_callback_result",
-            "description": "An implement of pre_block, not to be called directly",
+            "description": "An implementation of the pre_block system call, not to be called directly",
             "entry-point": "0x531d5d4e",
             "read-only": false
         }

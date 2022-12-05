@@ -4,7 +4,7 @@
          "argument"    : "koinos.contracts.pob.burn_arguments",
          "return"      : "koinos.contracts.pob.burn_result",
          "entry-point" : "0x859facc5",
-         "description" : "Burn KOIN to receive VHP",
+         "description" : "Burns KOIN to receive VHP",
          "read-only"   : false
       },
       "register_public_key": {
@@ -25,21 +25,21 @@
          "argument"    : "koinos.contracts.pob.get_metadata_arguments",
          "return"      : "koinos.contracts.pob.get_metadata_result",
          "entry-point" : "0xfcf7a68f",
-         "description" : "Returns PoB metadata",
+         "description" : "Returns the PoB metadata",
          "read-only"   : true
       },
       "get_consensus_parameters": {
          "argument"    : "koinos.contracts.pob.get_consensus_parameters_arguments",
          "return"      : "koinos.contracts.pob.get_consensus_parameters_result",
          "entry-point" : "0x5fd7ac0f",
-         "description" : "Returns PoB consensus parameters",
+         "description" : "Returns the PoB consensus parameters",
          "read-only"   : true
       },
       "update_consensus_parameters": {
          "argument"    : "koinos.contracts.pob.update_consensus_parameters_arguments",
          "return"      : "koinos.contracts.pob.update_consensus_parameters_result",
          "entry-point" : "0x793e7c30",
-         "description" : "Returns PoB consensus parameters",
+         "description" : "Updates the PoB consensus parameters",
          "read-only"   : false
       }
    },

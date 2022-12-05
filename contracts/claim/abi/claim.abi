@@ -3,7 +3,7 @@
         "claim": {
             "argument": "koinos.contracts.claim.claim_arguments",
             "return": "koinos.contracts.claim.claim_result",
-            "description": "Claim KOIN from the snapshot",
+            "description": "Claims KOIN from the snapshot",
             "entry-point": "0xdd1b3c31",
             "read-only": false
         },
@@ -17,7 +17,7 @@
         "check_claim": {
             "argument": "koinos.contracts.claim.check_claim_arguments",
             "return": "koinos.contracts.claim.check_claim_result",
-            "description": "Check the status of a KOIN claim",
+            "description": "Checks the status of a KOIN claim",
             "entry-point": "0x2ac66b4c",
             "read-only": true
         }
