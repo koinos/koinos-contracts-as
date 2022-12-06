@@ -95,19 +95,19 @@ export class Pob {
   register_public_key(args: pob.register_public_key_arguments): pob.register_public_key_result {
     System.require(args.producer != null, 'producer cannot be null');
 
-    System.requireAuthority(authority.authorization_type.contract_call, args.producer!);
+    System.requireAuthority(authority.authorization_type.contract_call, args.producer);
 
     // Create and store the record
     if(args.public_key == null ) {
-      System.removeObject(State.Space.Registration(), args.producer!);
+      System.removeObject(State.Space.Registration(), args.producer);
     } else {
-      const record = new pob.public_key_record(args.public_key!, System.getBlockField('header.height')!.uint64_value);
-      System.putObject(State.Space.Registration(), args.producer!, record, pob.public_key_record.encode);
+      const record = new pob.public_key_record(args.public_key, System.getBlockField('header.height')!.uint64_value);
+      System.putObject(State.Space.Registration(), args.producer, record, pob.public_key_record.encode);
     }
 
     // Emit an event
-    const event = new pob.register_public_key_event(args.producer!, args.public_key);
-    System.event('koinos.contracts.pob.register_public_key_event', Protobuf.encode(event, pob.register_public_key_event.encode), [args.producer!]);
+    const event = new pob.register_public_key_event(args.producer, args.public_key);
+    System.event('koinos.contracts.pob.register_public_key_event', Protobuf.encode(event, pob.register_public_key_event.encode), [args.producer]);
 
     return new pob.register_public_key_result();
   }
@@ -118,10 +118,10 @@ export class Pob {
     const amount = args.token_amount;
 
     // Burn the token
-    System.require(koinToken.burn(args.burn_address!, amount), "could not burn KOIN");
+    System.require(koinToken.burn(args.burn_address, amount), "could not burn KOIN");
 
     // Mint the new VHP
-    System.require(vhpToken.mint(args.vhp_address!, amount), "could not mint VHP");
+    System.require(vhpToken.mint(args.vhp_address, amount), "could not mint VHP");
 
     return new pob.burn_result();
   }
@@ -129,7 +129,7 @@ export class Pob {
   process_block_signature(args: system_calls.process_block_signature_arguments): system_calls.process_block_signature_result {
     System.require(System.getCaller().caller_privilege == chain.privilege.kernel_mode, 'pob contract process block signature must be called from kernel');
 
-    const signature = Protobuf.decode<pob.signature_data>(args.signature!, pob.signature_data.decode);
+    const signature = Protobuf.decode<pob.signature_data>(args.signature, pob.signature_data.decode);
 
     const koinToken = new Token(Constants.KoinContractId());
     const vhpToken = new VHP(Constants.VhpContractId());
@@ -141,7 +141,7 @@ export class Pob {
     System.require(args.header!.timestamp % params.quantum_length == 0, "time stamp does not match time quanta");
 
     // Get signer's public key
-    const registration = System.getObject<Uint8Array, pob.public_key_record>(State.Space.Registration(), args.header!.signer!, pob.public_key_record.decode);
+    const registration = System.getObject<Uint8Array, pob.public_key_record>(State.Space.Registration(), args.header!.signer, pob.public_key_record.decode);
     System.require(registration != null, "signer address has no public key record");
 
     let blockHeight = System.getBlockField('header.height')!.uint64_value;
@@ -155,16 +155,16 @@ export class Pob {
     const payload = new pob.vrf_payload(metadata.seed, args.header!.timestamp);
     const payload_bytes = Protobuf.encode(payload, pob.vrf_payload.encode);
 
-    System.require(System.verifyVRFProof(registration!.public_key!, signature.vrf_proof!, signature.vrf_hash!, payload_bytes), "proof failed vrf validation");
+    System.require(System.verifyVRFProof(registration!.public_key, signature.vrf_proof, signature.vrf_hash, payload_bytes), "proof failed vrf validation");
 
     // Ensure vrf hash divided by producer's vhp is below difficulty
-    const difficulty = u128.fromBytes(metadata.difficulty!, true);
+    const difficulty = u128.fromBytes(metadata.difficulty, true);
     const target = u128.Max / difficulty;
     let mh = new Crypto.Multihash();
-    mh.deserialize(signature.vrf_hash!);
+    mh.deserialize(signature.vrf_hash);
     // This purposefully only gets the upper 128 bits. That's all we need
     let hash = u128.fromBytes(mh.digest, true);
-    const vhp_balance = u128.fromU64(vhpToken.effectiveBalanceOf(args.header!.signer!));
+    const vhp_balance = u128.fromU64(vhpToken.effectiveBalanceOf(args.header!.signer));
 
     hash = hash / vhp_balance;
 
@@ -180,10 +180,10 @@ export class Pob {
     const vhp_reduction = (virtual_supply * u128.fromU64(params.target_burn_percent)) / u128.fromU64(blocks_per_year * Constants.ONE_HUNDRED_PERCENT);
 
     // On successful block deduct vhp and mint new koin
-    System.require(vhpToken.burn(args.header!.signer!, vhp_reduction.toU64()), "could not burn vhp");
-    System.require(koinToken.mint(args.header!.signer!, block_reward + vhp_reduction.toU64()), "could not mint token");
+    System.require(vhpToken.burn(args.header!.signer, vhp_reduction.toU64()), "could not burn vhp");
+    System.require(koinToken.mint(args.header!.signer, block_reward + vhp_reduction.toU64()), "could not mint token");
 
-    this.update_difficulty(difficulty, metadata, params, args.header!.timestamp, signature.vrf_hash!);
+    this.update_difficulty(difficulty, metadata, params, args.header!.timestamp, signature.vrf_hash);
 
     return new system_calls.process_block_signature_result(true);
   }
@@ -208,7 +208,7 @@ export class Pob {
     }
 
     let new_data = new pob.metadata(
-      System.hash(Crypto.multicodec.sha2_256, vrf_hash),
+      System.hash(Crypto.multicodec.sha2_256, vrf_hash)!,
       new_difficulty.toUint8Array(true),
       current_block_time
     );
@@ -256,7 +256,7 @@ export class Pob {
   }
 
   get_public_key(args: pob.get_public_key_arguments): pob.get_public_key_result {
-    const registration = System.getObject<Uint8Array, pob.public_key_record>(State.Space.Registration(), args.producer!, pob.public_key_record.decode);
+    const registration = System.getObject<Uint8Array, pob.public_key_record>(State.Space.Registration(), args.producer, pob.public_key_record.decode);
     System.require(registration != null, "given address has no public key record");
 
     return new pob.get_public_key_result(registration!.public_key);

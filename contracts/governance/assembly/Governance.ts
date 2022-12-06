@@ -21,7 +21,7 @@ namespace Constants {
 
     return contractId!;
   }
-  
+
   export function KoinContractId() : Uint8Array {
     if (koinContractId === null) {
       koinContractId = System.getContractAddress('koin');
@@ -129,8 +129,7 @@ export class Governance {
   submit_proposal(
     args: governance.submit_proposal_arguments
   ): governance.submit_proposal_result {
-    System.require(args.operation_merkle_root != null, 'operation merkle root cannot be null');
-    const operationMerkleRoot = args.operation_merkle_root!;
+    const operationMerkleRoot = args.operation_merkle_root;
 
     const payerField = System.getTransactionField('header.payer');
     System.require(payerField != null, 'payer field cannot be null');
@@ -184,7 +183,7 @@ export class Governance {
       prec.vote_threshold = Constants.VOTE_PERIOD * Constants.STANDARD_THRESHOLD / 100;
     }
 
-    System.putObject(State.Space.Proposal(), prec.operation_merkle_root!, prec, governance.proposal_record.encode);
+    System.putObject(State.Space.Proposal(), prec.operation_merkle_root, prec, governance.proposal_record.encode);
 
     let event = new governance.proposal_status_event();
     event.id = args.operation_merkle_root;
@@ -200,7 +199,7 @@ export class Governance {
   ): governance.get_proposal_by_id_result {
     let res = new governance.get_proposal_by_id_result();
 
-    let obj = System.getObject<Uint8Array, governance.proposal_record>(State.Space.Proposal(), args.proposal_id!, governance.proposal_record.decode);
+    let obj = System.getObject<Uint8Array, governance.proposal_record>(State.Space.Proposal(), args.proposal_id, governance.proposal_record.decode);
 
     res.value = obj;
 
@@ -228,7 +227,7 @@ export class Governance {
     if (prec.vote_start_height != height) {
       return;
     }
-    let id = prec.operation_merkle_root!;
+    let id = prec.operation_merkle_root;
 
     prec.status = governance.proposal_status.active;
     System.putObject(State.Space.Proposal(), id, prec, governance.proposal_record.encode);
@@ -244,7 +243,7 @@ export class Governance {
     if (prec.vote_start_height + Constants.VOTE_PERIOD != height) {
       return;
     }
-    let id = prec.operation_merkle_root!;
+    let id = prec.operation_merkle_root;
 
     if (prec.vote_tally < prec.vote_threshold) {
       prec.status = governance.proposal_status.expired;
@@ -267,7 +266,7 @@ export class Governance {
       return;
     }
 
-    let id = prec.operation_merkle_root!;
+    let id = prec.operation_merkle_root;
 
     prec.shall_authorize = true;
     System.putObject(State.Space.Proposal(), id, prec, governance.proposal_record.encode);
@@ -288,7 +287,7 @@ export class Governance {
     trx.header!.rc_limit = prec.fee / Constants.MAX_PROPOSAL_MULTIPLIER;
 
     let header_bytes = Protobuf.encode(trx.header!, protocol.transaction_header.encode);
-    trx.id = System.hash(Crypto.multicodec.sha2_256, header_bytes);
+    trx.id = System.hash(Crypto.multicodec.sha2_256, header_bytes)!;
 
     let code = System.applyTransaction(trx);
 
@@ -319,7 +318,7 @@ export class Governance {
     let proposal_set = new Set<Uint8Array>();
     for (let index = 0; index < votes.values.length; index++) {
       const proposal = votes.values[index].bytes_value;
-      proposal_set.add(proposal!);
+      proposal_set.add(proposal);
     }
 
     let proposals = proposal_set.values();
@@ -385,7 +384,7 @@ export class Governance {
   }
 
   transaction_authorized(): bool {
-    let id: Uint8Array = System.getTransactionField('header.operation_merkle_root')!.bytes_value!;
+    let id: Uint8Array = System.getTransactionField('header.operation_merkle_root')!.bytes_value;
 
     let prec = System.getObject<Uint8Array, governance.proposal_record>(State.Space.Proposal(), id, governance.proposal_record.decode);
 
