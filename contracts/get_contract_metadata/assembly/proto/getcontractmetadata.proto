@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package getcontractmetadata;
+
+import "koinos/options.proto";
+import "koinos/chain/chain.proto";
+
+// entry points
+
+// @description Get a contract's metadata
+// @read-only true
+message get_contract_metadata_arguments {
+  bytes contract_id = 1 [(koinos.btype) = CONTRACT_ID];
+}
+
+message get_contract_metadata_result {
+  koinos.chain.contract_metadata_object contract_metadata = 1;
+}
