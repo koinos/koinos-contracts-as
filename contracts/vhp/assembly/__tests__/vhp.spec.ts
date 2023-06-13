@@ -359,7 +359,7 @@ describe("vhp", () => {
     // try to transfer tokens
     expect(() => {
       const tkn = new Vhp(new Uint8Array(0));
-      const transferArgs = new token.transfer_arguments(MOCK_ACCT1, MOCK_ACCT1, 10);
+      const transferArgs = new token.transfer_arguments(Base58.decode("1DQzuCcTKacbs9GGScRTU1Hc8BsyARTPqG"), MOCK_ACCT1, 10);
       tkn.transfer(transferArgs);
     }).toThrow();
 
