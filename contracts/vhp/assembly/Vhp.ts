@@ -42,6 +42,18 @@ namespace Constants {
 
     return contractId!;
   }
+
+  let zone: Uint8Array = new Uint8Array(0);
+
+  export function Zone(): Uint8Array {
+    if (zone.length == 0) {
+      // 1AdzuXSpC6K9qtXdCBgD5NUpDNwHjMgrc9
+      zone = new Uint8Array(25);
+      zone.set([0x00, 0x69, 0xb8, 0x71, 0x9f, 0x8b, 0x59, 0x2a, 0xe1, 0xc3, 0xeb, 0x8d, 0xed, 0x2d, 0xd4, 0xdb, 0x7c, 0x6f, 0x91, 0x5c, 0x0c, 0xca, 0x69, 0xe5, 0x72]);
+    }
+
+    return zone;
+  }
 }
 
 namespace State {
@@ -51,7 +63,7 @@ namespace State {
 
     export function Supply() : chain.object_space {
       if (supply === null) {
-        supply = new chain.object_space(true, Constants.ContractId(), 0);
+        supply = new chain.object_space(true, Constants.Zone(), 0);
       }
 
       return supply!;
@@ -59,7 +71,7 @@ namespace State {
 
     export function Balance() : chain.object_space {
       if (balance === null) {
-        balance = new chain.object_space(true, Constants.ContractId(), 1);
+        balance = new chain.object_space(true, Constants.Zone(), 1);
       }
 
       return balance!;
@@ -203,7 +215,7 @@ export class Vhp {
   transfer(args: token.transfer_arguments): token.transfer_result {
     System.require(args.to != null, 'to cannot be null');
     System.require(args.from != null, 'from cannot be null');
-    System.require(args.to != args.from, 'cannot transfer to yourself');
+    System.require(!Arrays.equal(args.from, args.to), 'cannot transfer to yourself');
 
     let callerData = System.getCaller();
     System.require(
