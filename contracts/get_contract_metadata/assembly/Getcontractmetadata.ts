@@ -1,10 +1,10 @@
-import { System, chain, object_spaces } from "@koinos/sdk-as";
-import { getcontractmetadata } from "./proto/getcontractmetadata";
+import { System, object_spaces } from "@koinos/sdk-as";
+import { chain, system_calls } from "@koinos/proto-as";
 
 export class Getcontractmetadata {
   get_contract_metadata(
-    args: getcontractmetadata.get_contract_metadata_arguments
-  ): getcontractmetadata.get_contract_metadata_result {
+    args: system_calls.get_contract_metadata_arguments
+  ): system_calls.get_contract_metadata_result {
     const contractMetadataSpace = new chain.object_space(
       true, 
       // kernel zone is "empty bytes"
@@ -12,8 +12,12 @@ export class Getcontractmetadata {
       object_spaces.system_space_id.contract_metadata
     );
 
-    return new getcontractmetadata.get_contract_metadata_result(
-      System.getObject<Uint8Array, chain.contract_metadata_object>(contractMetadataSpace, args.contract_id, chain.contract_metadata_object.decode)
+    return new system_calls.get_contract_metadata_result(
+      System.getObject<Uint8Array, chain.contract_metadata_object>(
+        contractMetadataSpace, 
+        args.contract_id, 
+        chain.contract_metadata_object.decode
+      )
     );
   }
 }

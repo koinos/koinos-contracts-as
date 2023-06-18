@@ -833,6 +833,12 @@
   dependencies:
     as-proto "npm:@koinos/as-proto"
 
+"@koinos/proto-as@github:koinos/koinos-proto-as#ce72fe6cd86e1a038d18f1467138c07e513f63da":
+  version "1.2.0"
+  resolved "https://codeload.github.com/koinos/koinos-proto-as/tar.gz/ce72fe6cd86e1a038d18f1467138c07e513f63da"
+  dependencies:
+    as-proto "npm:@koinos/as-proto"
+
 "@koinos/proto-js@1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@koinos/proto-js/-/proto-js-1.0.0.tgz#ac200fb6e95dbbc0059e0f3c002b8fa54498340a"

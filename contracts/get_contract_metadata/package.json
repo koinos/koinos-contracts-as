@@ -12,6 +12,7 @@
     "@koinos/as-proto-gen": "^1.0.3",
     "@koinos/mock-vm": "^1.0.0",
     "@koinos/sdk-as": "^1.1.0",
+    "@koinos/proto-as": "github:koinos/koinos-proto-as#ce72fe6cd86e1a038d18f1467138c07e513f63da",
     "@roamin/local-koinos": "^0.4.9",
     "@roamin/protoc": "^2.4.0",
     "@types/jest": "^29.4.0",
@@ -26,13 +27,11 @@
     "yaml": "^2.0.0-11"
   },
   "scripts": {
-    "lint": "eslint --max-warnings 0 --ext ts \"*/assembly/**/*.ts\"",
-    "build:all:debug": "koinos-sdk-as-cli build-all debug 0 getcontractmetadata.proto koinos/chain/chain.proto koinos/common.proto",
-    "build:all:release": "koinos-sdk-as-cli build-all release 0 getcontractmetadata.proto koinos/chain/chain.proto koinos/common.proto",
+    "lint": "eslint --max-warnings 0 --ext ts \"assembly/**/*.ts\"",
     "build:debug": "koinos-sdk-as-cli build debug",
     "build:release": "koinos-sdk-as-cli build release",
     "test": "koinos-sdk-as-cli run-tests",
-    "ci": "jest -i",
-    "ci:devcontainer": "ENV=DEVCONTAINER jest -i"
+    "integration-tests": "jest -i",
+    "integration-tests:devcontainer": "ENV=DEVCONTAINER jest -i"
   }
 }

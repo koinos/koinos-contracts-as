@@ -1,6 +1,6 @@
-import { System, Protobuf, authority } from "@koinos/sdk-as";
+import { System, Protobuf } from "@koinos/sdk-as";
 import { Getcontractmetadata as ContractClass } from "./Getcontractmetadata";
-import { getcontractmetadata as ProtoNamespace } from "./proto/getcontractmetadata";
+import { system_calls } from "@koinos/proto-as";
 
 export function main(): i32 {
   const contractArgs = System.getArguments();
@@ -11,14 +11,14 @@ export function main(): i32 {
   switch (contractArgs.entry_point) {
     case 0x784faa08: {
       const args =
-        Protobuf.decode<ProtoNamespace.get_contract_metadata_arguments>(
+        Protobuf.decode<system_calls.get_contract_metadata_arguments>(
           contractArgs.args,
-          ProtoNamespace.get_contract_metadata_arguments.decode
+          system_calls.get_contract_metadata_arguments.decode
         );
       const res = c.get_contract_metadata(args);
       retbuf = Protobuf.encode(
         res,
-        ProtoNamespace.get_contract_metadata_result.encode
+        system_calls.get_contract_metadata_result.encode
       );
       break;
     }

@@ -9,3 +9,4 @@ build
 yarn-error.log
 .env
 !test_contract.wasm
+*.boilderplate.ts
