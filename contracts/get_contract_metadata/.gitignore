@@ -1,0 +1,12 @@
+node_modules
+build
+\.idea/
+\.vs/
+*.wasm
+*.pb
+*.spec.map
+*.spec.wat
+yarn-error.log
+.env
+!test_contract.wasm
+*.boilderplate.ts
