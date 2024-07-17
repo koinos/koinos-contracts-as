@@ -5,15 +5,11 @@ export function main(): i32 {
   const contractArgs = System.getArguments();
   let retbuf = new Uint8Array(1024);
 
-  const c = new ContractClass(contractArgs.args);
+  const c = new ContractClass();
 
   switch (contractArgs.entry_point) {
     case 0x82a3537f: {
-      const args = Protobuf.decode<token.name_arguments>(
-        contractArgs.args,
-        token.name_arguments.decode
-      );
-      const res = c.name(args);
+      const res = c.name();
       retbuf = Protobuf.encode(
         res,
         token.name_result.encode
