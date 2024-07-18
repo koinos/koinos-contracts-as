@@ -10,24 +10,10 @@
     "@jridgewell/gen-mapping" "^0.1.0"
     "@jridgewell/trace-mapping" "^0.3.9"
 
-"@as-covers/assembly@^0.2.0":
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/@as-covers/assembly/-/assembly-0.2.0.tgz#6f335834483ddf91b21da06955bd86647f9e8db9"
-  integrity sha512-3Mo0pdLmaorJPqookq10LmJlWIpyXF/D9JWjphMtv5Th23yO537t6vMGi92uKe35d07k2xMOH/4WRHi04mlk6Q==
-
 "@as-covers/assembly@^0.4.1":
   version "0.4.1"
   resolved "https://registry.yarnpkg.com/@as-covers/assembly/-/assembly-0.4.1.tgz#d41e601b456bfa640591386ef084e538f67f029c"
   integrity sha512-JPLYG9aVuncJaZ8sAqsb2oOebssbbTNahAB4WL4k4mwzgPw5H0gNB14YxSHr8wAiWvYUqLPYb+dGvGuFCUFcpQ==
-
-"@as-covers/core@0.2.1", "@as-covers/core@^0.2.1":
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/@as-covers/core/-/core-0.2.1.tgz#362a4719a1901d416941f5425b63fa46288ce8e6"
-  integrity sha512-/GGTzPB850shvL6ZiidKDmIXSpBflYfzhYyipe7HA1eijBQKKluaLSRy/JLSN53f6kp3tLrCevPXN6HA2fyuBw==
-  dependencies:
-    "@as-covers/assembly" "^0.2.0"
-    "@as-covers/glue" "^0.2.0"
-    "@as-covers/transform" "^0.2.1"
 
 "@as-covers/core@0.4.2", "@as-covers/core@^0.4.2":
   version "0.4.2"
@@ -37,14 +23,6 @@
     "@as-covers/assembly" "^0.4.1"
     "@as-covers/glue" "^0.4.2"
     "@as-covers/transform" "^0.4.2"
-
-"@as-covers/glue@^0.2.0":
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/@as-covers/glue/-/glue-0.2.0.tgz#c829491bcda643087259675361efba300d477615"
-  integrity sha512-oIRC3q5TA4zfNBv+UwNH10FKq1poAeRTrZUg5pmEcFNv2HpZfED30mb9fF0anNRbr7gmXrSY9iMsRSz6hkrmYQ==
-  dependencies:
-    csv-stringify "^5.6.2"
-    table "^6.7.1"
 
 "@as-covers/glue@^0.4.2":
   version "0.4.2"
@@ -62,37 +40,10 @@
     line-column "^1.0.2"
     visitor-as "^0.11.4"
 
-"@as-covers/transform@^0.2.1":
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/@as-covers/transform/-/transform-0.2.1.tgz#ea3cb56371493ba77b5761766d3ef46aba36d7c0"
-  integrity sha512-FutGj2yMIT2GOfqXrbnqSpeZ0eB5Bsnsg+BLnmqpEszthFhe/5/hKYmfNsiF2QBYZnqcIQ7dHw/z31+PlyUDug==
-  dependencies:
-    line-column "^1.0.2"
-    visitor-as "^0.6.0"
-
-"@as-pect/assembly@^6.2.0":
-  version "6.2.0"
-  resolved "https://registry.yarnpkg.com/@as-pect/assembly/-/assembly-6.2.0.tgz#29a0efa173df321354b76d92228e46944159ba95"
-  integrity sha512-jYr1jdlr0xNndIhOpTMBaPHmlhD/c3PcVCzow8wIkzLxgcSOzhBkqjip+LWPWGsiFK1vsZ8ZUaMTeK3fcnXQhw==
-
 "@as-pect/assembly@^8.1.0":
   version "8.1.0"
   resolved "https://registry.yarnpkg.com/@as-pect/assembly/-/assembly-8.1.0.tgz#788ad200e2eec36e6fc158c5cf65932faca18671"
   integrity sha512-ALDm5M0Zx/hoFZ27vS3/kjkzMHbcPt2IBIkNjJz0M798meRCJV6ZWbChfmi4kDcMqaPk/awU54b4Bpx+VxBKfg==
-
-"@as-pect/cli@^6.2.4":
-  version "6.2.4"
-  resolved "https://registry.yarnpkg.com/@as-pect/cli/-/cli-6.2.4.tgz#83476d235a6bfb9052e78cef24e450c199ae9146"
-  integrity sha512-OSWehx90djGxgR4RxFZKixRyh9hsMLNM/6otayAljijEPjiD1zS2lxu3WCu/DiwSWIRJUYdGOUVzw15nqvdcZQ==
-  dependencies:
-    "@as-covers/core" "0.2.1"
-    "@as-pect/assembly" "^6.2.0"
-    "@as-pect/core" "^6.2.1"
-    chalk "^4.1.1"
-    glob "^7.1.7"
-  optionalDependencies:
-    "@as-pect/csv-reporter" "^6.2.1"
-    "@as-pect/json-reporter" "^6.2.1"
 
 "@as-pect/cli@^8.0.1":
   version "8.1.0"
@@ -113,16 +64,6 @@
     "@as-pect/csv-reporter" "^8.1.0"
     "@as-pect/json-reporter" "^8.1.0"
 
-"@as-pect/core@^6.2.1":
-  version "6.2.1"
-  resolved "https://registry.yarnpkg.com/@as-pect/core/-/core-6.2.1.tgz#fa1f3658e337506c19df7944f75a8ba7b13aed97"
-  integrity sha512-JnvUb55OhGP7CYUnYtsLXttUb+FGv+6kEN9NleTbIMvU73NFJzyTCGjoZuayPNpfiUzOF96j91XuMHuinJ8BAg==
-  dependencies:
-    "@as-pect/assembly" "^6.2.0"
-    "@as-pect/snapshots" "^6.2.1"
-    chalk "^4.1.1"
-    long "^4.0.0"
-
 "@as-pect/core@^8.1.0":
   version "8.1.0"
   resolved "https://registry.yarnpkg.com/@as-pect/core/-/core-8.1.0.tgz#80257068e7e0c194fab519ef5bc33dd0e85fe06f"
@@ -136,13 +77,6 @@
     chalk-template "^0.4.0"
     long "^5.2.1"
 
-"@as-pect/csv-reporter@^6.2.1":
-  version "6.2.1"
-  resolved "https://registry.yarnpkg.com/@as-pect/csv-reporter/-/csv-reporter-6.2.1.tgz#fe7e23ac2d811e2519006ccc82f5245adcaad526"
-  integrity sha512-jy8ka8dEP4UY/pK/OIjHFUqs4j2Hvw3r6no6XfX1AkOd9CRLlt/JIDddlzwEqCGEfF83GSBQfQ1At86FkE7RtA==
-  dependencies:
-    "@as-pect/core" "^6.2.1"
-
 "@as-pect/csv-reporter@^8.1.0":
   version "8.1.0"
   resolved "https://registry.yarnpkg.com/@as-pect/csv-reporter/-/csv-reporter-8.1.0.tgz#463919672b7c2e878b483443a7e92f678227a170"
@@ -150,27 +84,12 @@
   dependencies:
     "@as-pect/core" "^8.1.0"
 
-"@as-pect/json-reporter@^6.2.1":
-  version "6.2.1"
-  resolved "https://registry.yarnpkg.com/@as-pect/json-reporter/-/json-reporter-6.2.1.tgz#a77c3257aed8e5b1e5175509fb1046c1f94851cf"
-  integrity sha512-vsTYOiqB42+WPpec0M3apm9P2SjstUe6MfXepDvVIu2DCZzt1rkEuIIXro13LLQCnOzwXgHO/00sn+uPEjsmSQ==
-  dependencies:
-    "@as-pect/core" "^6.2.1"
-
 "@as-pect/json-reporter@^8.1.0":
   version "8.1.0"
   resolved "https://registry.yarnpkg.com/@as-pect/json-reporter/-/json-reporter-8.1.0.tgz#0281b75e93258fe2fc4cb345d800251f4f0f7e93"
   integrity sha512-KcMq15cGcY4mJh34UHOrqQAUR7LwajCJ0OkfcZZE3vPN45IY2R5CeO+sj4/1a/7TQIGvLFVMGB57szBIe6lDqQ==
   dependencies:
     "@as-pect/core" "^8.1.0"
-
-"@as-pect/snapshots@^6.2.1":
-  version "6.2.1"
-  resolved "https://registry.yarnpkg.com/@as-pect/snapshots/-/snapshots-6.2.1.tgz#237ed3b958e85b3e527a0e9f43292813b6dbf789"
-  integrity sha512-a6xcOUaXMrR3f1n6vgGxMJxUUd6MIVm5vlQ3nZ2hDEMz1PFyEQ04OvGqqUIYHhKAeXIvD3iwz02cI8Wh9lDK7Q==
-  dependencies:
-    diff "^5.0.0"
-    nearley "^2.20.1"
 
 "@as-pect/snapshots@^8.1.0":
   version "8.1.0"
@@ -818,25 +737,10 @@
     google-protobuf "^3.19.4"
     protobufjs "^6.11.2"
 
-"@koinos/abi-proto-gen@^0.4.0":
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/@koinos/abi-proto-gen/-/abi-proto-gen-0.4.0.tgz#4f047c503e72768d0699e2ad7d476e9f86fd477d"
-  integrity sha512-aNukWePVQyPXk3tctCUsx4UsLSExb5rBTzc9/1lh5RRcqohN6+xlhAYNlLQH19eG5HTIbjFDin3bHs+pexHRAw==
-  dependencies:
-    google-protobuf "^3.19.4"
-    protobufjs "^6.11.2"
-
 "@koinos/as-gen@1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@koinos/as-gen/-/as-gen-1.0.0.tgz#b43bd035235266176321dd67354886e6b159c89e"
   integrity sha512-sm9i2GU+FN/6dJjQ7clXV3SVOpkr6f0Nom9pxNDWrhtM2y7+nr7aYBYwtgrBlXRRLDR361f59SKMbJyjiE1kzA==
-  dependencies:
-    google-protobuf "^3.19.4"
-
-"@koinos/as-gen@^0.4.0":
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/@koinos/as-gen/-/as-gen-0.4.0.tgz#4acc59b701ff8e9c8864f7c4ca17727a70c0870f"
-  integrity sha512-dWXJGAEUgI8/A4i+hcLAkv6jGv4PDqOTIRLLUuCPyG0XhotyWUt8CbW5hSOS1hlmyVfE2fP3MelzUcvsIsWEuA==
   dependencies:
     google-protobuf "^3.19.4"
 
@@ -852,21 +756,10 @@
     ts-poet "^4.9.0"
     typescript "^4.6.4"
 
-"@koinos/as-proto-gen@^0.4.3":
-  version "0.4.3"
-  resolved "https://registry.yarnpkg.com/@koinos/as-proto-gen/-/as-proto-gen-0.4.3.tgz#bea81e7692fd34c8d6ac2f3ff89d87a3b3114ab6"
-  integrity sha512-4Pu3NfBHZTP3mk0CENlbC0mg8NpTTQKbqHetiJBFNvUUKZBzn9YCnVv/qs1uKEAImUBjPjc+hKOdHtsIyZj15Q==
-  dependencies:
-    "@types/node" "^17.0.34"
-    google-protobuf "^3.19.2"
-    prettier "^2.5.0"
-    rimraf "^3.0.2"
-    ts-poet "^4.9.0"
-    typescript "^4.6.4"
-
 "@koinos/mock-vm@1.1.0":
   version "1.1.0"
-  resolved "https://github.com/koinos/koinos-mock-vm.git#133bb991a714a840f934c9935bb7bddb636a1966"
+  resolved "https://registry.yarnpkg.com/@koinos/mock-vm/-/mock-vm-1.1.0.tgz#fc3d384e42d8dd6c9f0116528f3c9dffc71e8334"
+  integrity sha512-R03wLkHs6j3zVau/wUyXne8Ifh83jBbEhdPP+nthdEWh5n+oKA0GF34DNtpo5KkhW1afOfdEJjP6svbM2frPGQ==
   dependencies:
     "@koinos/proto-js" "2.1.0"
     "@noble/hashes" "^1.0.0"
@@ -875,26 +768,6 @@
     multibase "^4.0.6"
     protobufjs "^6.11.2"
     somap "^0.5.14"
-
-"@koinos/mock-vm@^0.4.1":
-  version "0.4.4"
-  resolved "https://registry.yarnpkg.com/@koinos/mock-vm/-/mock-vm-0.4.4.tgz#1dbbea0b7835b7bc804ea4f91b98503ed13f3f59"
-  integrity sha512-Pdr0zXTIg7+S4zNU4raPffu+EjHTzp7PNLeISaA/IpEu8+mRHeYW2QKB37oL74oPsLm5yIKtpcpcK8GvKi3oig==
-  dependencies:
-    "@koinos/proto-js" "^0.4.0"
-    "@noble/hashes" "^1.0.0"
-    "@noble/secp256k1" "^1.5.5"
-    chalk "4.1.2"
-    multibase "^4.0.6"
-    protobufjs "^6.11.2"
-    somap "^0.5.14"
-
-"@koinos/proto-as@^0.4.3":
-  version "0.4.12"
-  resolved "https://registry.yarnpkg.com/@koinos/proto-as/-/proto-as-0.4.12.tgz#724ddca0cf702ce56b8dd04d2a56a2462f3f3987"
-  integrity sha512-2I3Ddyqpd/b00/pvfXrs8mPB3MEsi5jJ+m2krolbmzHUZ/DxQr5pXrgNxm05FEC0Wu1BBE2maVkoHn6U/7t7aA==
-  dependencies:
-    as-proto "npm:@koinos/as-proto"
 
 "@koinos/proto-as@https://github.com/koinos/koinos-proto-as#master":
   version "2.1.0"
@@ -906,19 +779,6 @@
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/@koinos/proto-js/-/proto-js-2.1.0.tgz#38fdbd01519ad1706b5f7edcf697a6ebbbd3db76"
   integrity sha512-mp2JmNhp7db6TixVqXF4VrhCW6lRXf6JCojY3c6jyByPyysQgAVJLLx2sUZlPzeUdP6Bnqt23485FMIo46TQ9g==
-
-"@koinos/proto-js@^0.4.0":
-  version "0.4.9"
-  resolved "https://registry.yarnpkg.com/@koinos/proto-js/-/proto-js-0.4.9.tgz#184e46b1287c6a945a630aa878fc7ceab9f5b412"
-  integrity sha512-gr6gdzGPt/9YB3q6OILWUgkKkYTME1I9hhGh8b/dCbRyeYlTAPjsCS7NkBb2CUxrtPmpIvSzisPICo2N0kBHhA==
-
-"@koinos/sdk-as-cli@^0.4.1":
-  version "0.4.1"
-  resolved "https://registry.yarnpkg.com/@koinos/sdk-as-cli/-/sdk-as-cli-0.4.1.tgz#17ff0bb3b5d00028e8278568d4664ba3e95566cb"
-  integrity sha512-kB3e8LBl1DooLBScPS9SWRg5wuIgg93bPUBZc5/ZxsSje6p0qbeqHGdE77GU4Kc+0nj0MsFv3z/3jZcwQ+nLzA==
-  dependencies:
-    chalk "4.1.2"
-    commander "^9.0.0"
 
 "@koinos/sdk-as@https://github.com/koinos/koinos-sdk-as#check-authority":
   version "1.1.0"
@@ -1188,25 +1048,6 @@
   version "2.5.0"
   resolved "https://registry.yarnpkg.com/@roamin/protoc/-/protoc-2.5.0.tgz#ebb18406415667151218f8adeda419b9e90bf544"
   integrity sha512-wkmQKWtmfIXg3Qe874Yv0+0erfE+vVm0GmMKHZUA/1TBbFQ/krZpCDuIo1BzSL58AtREvDg0lUeZv19TXgIQKg==
-
-"@roaminroe/as-proto-gen@^0.4.2":
-  version "0.4.2"
-  resolved "https://registry.yarnpkg.com/@roaminroe/as-proto-gen/-/as-proto-gen-0.4.2.tgz#d665cd0e37c420eed29e933ace4f7ceec9a5eb0d"
-  integrity sha512-Q5XcyzZOtr7aaIadnGk9s+XiTWUUJ31VLEu09cybgabGeQVqkT1mHdtMDamERdIU2d9o6fZApC1mvIfz89esvA==
-  dependencies:
-    google-protobuf "^3.19.2"
-    prettier "^2.5.0"
-    ts-poet "^4.9.0"
-
-"@roaminroe/koinos-proto-protobufjs@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@roaminroe/koinos-proto-protobufjs/-/koinos-proto-protobufjs-1.0.0.tgz#0c4e0cfba81dbeaa6a11b4400f90bf08ea524818"
-  integrity sha512-DvvJmP5BncE62z/5oW/rB4WX9yAlkMABatr2j9TGQ4nrYdVyLoOQPysI6JnT7gC1c2s1AO+2stjvF2U8/wEc0A==
-
-"@roaminroe/protoc@^2.4.0":
-  version "2.4.0"
-  resolved "https://registry.yarnpkg.com/@roaminroe/protoc/-/protoc-2.4.0.tgz#9f50b727af5bdf7a06e20ae38a2f9c80ef24a2d0"
-  integrity sha512-M2H/EaGYyNd4Zcskyf8PrtpMi7q7ewT+A7fPu3kIB3pN0y/8mXIuGRvqp8pO7LsKSCkGA+coCGTYeFLx7dC2lg==
 
 "@sinclair/typebox@^0.23.3":
   version "0.23.5"
@@ -1723,9 +1564,9 @@ arraybuffer.prototype.slice@^1.0.3:
     is-shared-array-buffer "^1.0.2"
 
 as-bignum@^0.2.18:
-  version "0.2.18"
-  resolved "https://registry.yarnpkg.com/as-bignum/-/as-bignum-0.2.18.tgz#61ed4dd07d4a62107bde227fdb4370190217bf0b"
-  integrity sha512-5LODrOr7wvS643oh7PHfyRtbBO9vCcU69vNNvrqh5yovrApM9nRHDeT5XcqnaSI8TqK9ZhN12qhZnq4rdIGcwQ==
+  version "0.2.40"
+  resolved "https://registry.yarnpkg.com/as-bignum/-/as-bignum-0.2.40.tgz#d4dc94d77d2e781219d25a9cb408a61eb272f7c6"
+  integrity sha512-fql9j63qUCmWwgWB3qW7+S8vp1DUrqSgFnpn/L3O2bjHMW52GZ0H/DfwLCQUAgQS15gsMsjwzMT14A2KCxu0cA==
 
 "as-proto@npm:@koinos/as-proto", "as-proto@npm:@koinos/as-proto@1.0.1":
   version "1.0.1"
@@ -1743,15 +1584,6 @@ asn1@~0.2.3:
   integrity sha512-ix/FxPn0MDjeyJ7i/yoHGFt/EX6LyNbxSEhPPXODPL+KB0VPk86UYfL0lMdy+KCnv+fmvIzySwaK5COwqVbWTQ==
   dependencies:
     safer-buffer "~2.1.0"
-
-assemblyscript@^0.19.22:
-  version "0.19.23"
-  resolved "https://registry.yarnpkg.com/assemblyscript/-/assemblyscript-0.19.23.tgz#16ece69f7f302161e2e736a0f6a474e6db72134c"
-  integrity sha512-fwOQNZVTMga5KRsfY80g7cpOl4PsFQczMwHzdtgoqLXaYhkhavufKb0sB0l3T1DUxpAufA0KNhlbpuuhZUwxMA==
-  dependencies:
-    binaryen "102.0.0-nightly.20211028"
-    long "^5.2.0"
-    source-map-support "^0.5.20"
 
 assemblyscript@^0.27.1, assemblyscript@^0.27.2:
   version "0.27.29"
@@ -1893,11 +1725,6 @@ binary-extensions@^2.2.0:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/binary-extensions/-/binary-extensions-2.2.0.tgz#75f502eeaf9ffde42fc98829645be4ea76bd9e2d"
   integrity sha512-jDctJ/IVQbZoJykoeHbhXpOlNBqGNcwXJKJog42E5HDPUwQTSdjCHdihjj0DlnheQ7blbT6dHOafNAiS8ooQKA==
-
-binaryen@102.0.0-nightly.20211028:
-  version "102.0.0-nightly.20211028"
-  resolved "https://registry.yarnpkg.com/binaryen/-/binaryen-102.0.0-nightly.20211028.tgz#8f1efb0920afd34509e342e37f84313ec936afb2"
-  integrity sha512-GCJBVB5exbxzzvyt8MGDv/MeUjs6gkXDvf4xOIItRBptYl0Tz5sm1o/uG95YK0L0VeG5ajDu3hRtkBP2kzqC5w==
 
 binaryen@116.0.0-nightly.20240114:
   version "116.0.0-nightly.20240114"
@@ -2112,7 +1939,7 @@ chalk-template@^0.4.0:
   dependencies:
     chalk "^4.1.2"
 
-chalk@4.1.2, chalk@^4.0.0, chalk@^4.1.0, chalk@^4.1.1, chalk@^4.1.2:
+chalk@4.1.2, chalk@^4.0.0, chalk@^4.1.0, chalk@^4.1.2:
   version "4.1.2"
   resolved "https://registry.yarnpkg.com/chalk/-/chalk-4.1.2.tgz#aac4e2b7734a740867aeb16bf02aad556a1e7a01"
   integrity sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==
@@ -2491,11 +2318,6 @@ crypto-random-string@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/crypto-random-string/-/crypto-random-string-1.0.0.tgz#a230f64f568310e1498009940790ec99545bca7e"
   integrity sha512-GsVpkFPlycH7/fRR7Dhcmnoii54gV1nz7y4CWyeFS14N+JVBBhY+r8amRHE4BwSYal7BPTDp8isvAlCxyFt3Hg==
-
-csv-stringify@^5.6.2:
-  version "5.6.5"
-  resolved "https://registry.yarnpkg.com/csv-stringify/-/csv-stringify-5.6.5.tgz#c6d74badda4b49a79bf4e72f91cce1e33b94de00"
-  integrity sha512-PjiQ659aQ+fUTQqSrd1XEDnOr52jh30RBurfzkscaE2tPaFsDH5wOAHJiw8XAHphRknCwMUE9KRayc4K/NbO8A==
 
 csv-stringify@^6.2.3:
   version "6.5.0"
@@ -3467,7 +3289,7 @@ glob-promise@^5.0.0:
     "@types/glob" "^8.0.0"
     npm-install-peers "^1.2.2"
 
-glob@^7.1.1, glob@^7.1.2, glob@^7.1.3, glob@^7.1.4, glob@^7.1.7, glob@^7.2.3:
+glob@^7.1.1, glob@^7.1.2, glob@^7.1.3, glob@^7.1.4, glob@^7.2.3:
   version "7.2.3"
   resolved "https://registry.yarnpkg.com/glob/-/glob-7.2.3.tgz#b8df0fb802bbfa8e89bd1d938b4e16578ed44f2b"
   integrity sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==
@@ -3944,9 +3766,9 @@ is-cidr@^4.0.2:
     cidr-regex "^3.1.1"
 
 is-core-module@^2.13.0:
-  version "2.14.0"
-  resolved "https://registry.yarnpkg.com/is-core-module/-/is-core-module-2.14.0.tgz#43b8ef9f46a6a08888db67b1ffd4ec9e3dfd59d1"
-  integrity sha512-a5dFJih5ZLYlRtDc0dZWP7RiKr6xIKzmn/oAYCDvdLThadVgyJwlaoQPmRtMSpz+rk0OGAgIu+TcM9HUF0fk1A==
+  version "2.15.0"
+  resolved "https://registry.yarnpkg.com/is-core-module/-/is-core-module-2.15.0.tgz#71c72ec5442ace7e76b306e9d48db361f22699ea"
+  integrity sha512-Dd+Lb2/zvk9SKy1TGCt1wFJFo/MWBPMX5x7KcvLajWTGuomczdQX61PvY5yK6SVACwpoexWo81IfFyoKY2QnTA==
   dependencies:
     hasown "^2.0.2"
 
@@ -4693,63 +4515,10 @@ koilib@^3.1.1:
     multibase "^4.0.6"
     protobufjs "^6.11.2"
 
-koinos-abi-proto-gen@^0.1.11:
-  version "0.1.11"
-  resolved "https://registry.yarnpkg.com/koinos-abi-proto-gen/-/koinos-abi-proto-gen-0.1.11.tgz#ba7518e95afad603e2e7b9669b9ff72c902c78cf"
-  integrity sha512-5hbAhgm3x1JlDPII1EAMaNCSJ+q71WyJK+ndMkh1RM8nptWRUmkJxyAw7kmX2/n9I1cOFF+YdGYgA5CgO1N6Fg==
-  dependencies:
-    google-protobuf "^3.19.4"
-    protobufjs "^6.11.2"
-
-koinos-as-gen@^0.4.8:
-  version "0.4.8"
-  resolved "https://registry.yarnpkg.com/koinos-as-gen/-/koinos-as-gen-0.4.8.tgz#b20893f1c6870ced7e48fa65a81d3e0b2676a670"
-  integrity sha512-Bbpp9Wr4SgFxP4QfoXAW3BRY3hBOH/+jgJAXlFlleJ9RYW9b96x0eM+gs9X/hsu1jBqAcVdXVK52y3VeNO0qmQ==
-  dependencies:
-    google-protobuf "^3.19.4"
-
-"koinos-mock-vm@npm:@roaminroe/koinos-mock-vm@^1.1.3":
-  version "1.1.3"
-  resolved "https://registry.yarnpkg.com/@roaminroe/koinos-mock-vm/-/koinos-mock-vm-1.1.3.tgz#2292624c7d058dafe1c21816f6b38ff2e04bcefe"
-  integrity sha512-HhCT2Dir/BfJ+mpmWxOQJ3eBD98l7aiWiRs3KVnNS2O7zjghPtnWA5lwNodnmSAURwZSymERK0LxC4f1jWKR0Q==
-  dependencies:
-    "@noble/hashes" "^1.0.0"
-    "@noble/secp256k1" "^1.5.5"
-    "@roaminroe/koinos-proto-protobufjs" "^1.0.0"
-    chalk "4.1.2"
-    multibase "^4.0.6"
-    protobufjs "^6.11.2"
-    somap "^0.5.14"
-
 koinos-proto-js@^0.0.3:
   version "0.0.3"
   resolved "https://registry.yarnpkg.com/koinos-proto-js/-/koinos-proto-js-0.0.3.tgz#16862189022c1ccafa6ad4825c2565c3acbdae16"
   integrity sha512-gx5ZPuH3PFEoFeL3o+9rrBt2E5BnJ0997U4l1HVyZavlTtTWe2Uj1+XEcgsS9oBmXDoTC/ELH3N22+r+bgnvng==
-
-koinos-sdk-as-cli@^0.1.16:
-  version "0.1.16"
-  resolved "https://registry.yarnpkg.com/koinos-sdk-as-cli/-/koinos-sdk-as-cli-0.1.16.tgz#453a2cd4484682701ace16c0184141a6fd6dbfd6"
-  integrity sha512-esWnjS/t/APHHHRu4ggSVBLfx1QHov5r1ji0WmexjfbeK43Ze0JnALLAQ0wKXvCNlIBiunrRzLXhYKzxTHb8tQ==
-  dependencies:
-    chalk "4.1.2"
-    commander "^9.0.0"
-
-"koinos-sdk-as@https://github.com/koinos/koinos-sdk-as#testnet-4":
-  version "0.4.3"
-  resolved "https://github.com/koinos/koinos-sdk-as#56fc802ea250f7c73584a85bf4be25a4a5351626"
-  dependencies:
-    "@as-covers/core" "^0.2.1"
-    "@as-pect/cli" "^6.2.4"
-    "@koinos/abi-proto-gen" "^0.4.0"
-    "@koinos/as-gen" "^0.4.0"
-    "@koinos/as-proto-gen" "^0.4.3"
-    "@koinos/mock-vm" "^0.4.1"
-    "@koinos/proto-as" "^0.4.3"
-    "@koinos/sdk-as-cli" "^0.4.1"
-    "@roaminroe/protoc" "^2.4.0"
-    as-bignum "^0.2.18"
-    as-proto "npm:@koinos/as-proto"
-    assemblyscript "^0.19.22"
 
 latest-version@^3.0.0:
   version "3.1.0"
@@ -5138,11 +4907,6 @@ long@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/long/-/long-4.0.0.tgz#9a7b71cfb7d361a194ea555241c92f7468d5bf28"
   integrity sha512-XsP+KhQif4bjX1kbuSiySJFNAehNxgLb6hPRGJ9QsUr8ajHkuXGdrHmFUTUUXhDwVX2R5bY4JNZEwbUiMhV+MA==
-
-long@^5.2.0:
-  version "5.2.0"
-  resolved "https://registry.yarnpkg.com/long/-/long-5.2.0.tgz#2696dadf4b4da2ce3f6f6b89186085d94d52fd61"
-  integrity sha512-9RTUNjK60eJbx3uz+TEGF7fUr29ZDxR5QzXcyDpeSfeH28S9ycINflOgOlppit5U+4kNTe83KQnMEerw7GmE8w==
 
 long@^5.2.1:
   version "5.2.3"
@@ -7053,14 +6817,6 @@ source-map-support@0.5.13:
     buffer-from "^1.0.0"
     source-map "^0.6.0"
 
-source-map-support@^0.5.20:
-  version "0.5.21"
-  resolved "https://registry.yarnpkg.com/source-map-support/-/source-map-support-0.5.21.tgz#04fe7c7f9e1ed2d662233c28cb2b35b9f63f6e4f"
-  integrity sha512-uBHU3L3czsIyYXKX88fdrGovxdSCoTGDRZ6SYXtSRxLZUzHg5P/66Ht6uoUlHu9EZod+inXhKo3qQgwXUT/y1w==
-  dependencies:
-    buffer-from "^1.0.0"
-    source-map "^0.6.0"
-
 source-map@^0.6.0, source-map@^0.6.1:
   version "0.6.1"
   resolved "https://registry.yarnpkg.com/source-map/-/source-map-0.6.1.tgz#74722af32e9614e9c287a8d0bbde48b5e2f1a263"
@@ -7351,17 +7107,6 @@ supports-preserve-symlinks-flag@^1.0.0:
   resolved "https://registry.yarnpkg.com/supports-preserve-symlinks-flag/-/supports-preserve-symlinks-flag-1.0.0.tgz#6eda4bd344a3c94aea376d4cc31bc77311039e09"
   integrity sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==
 
-table@^6.7.1:
-  version "6.8.0"
-  resolved "https://registry.yarnpkg.com/table/-/table-6.8.0.tgz#87e28f14fa4321c3377ba286f07b79b281a3b3ca"
-  integrity sha512-s/fitrbVeEyHKFa7mFdkuQMWlH1Wgw/yEXMt5xACT4ZpzWFluehAxRtUUQKPuWhaLAWhFcVx6w3oC8VKaUfPGA==
-  dependencies:
-    ajv "^8.0.1"
-    lodash.truncate "^4.4.2"
-    slice-ansi "^4.0.0"
-    string-width "^4.2.3"
-    strip-ansi "^6.0.1"
-
 table@^6.8.1:
   version "6.8.2"
   resolved "https://registry.yarnpkg.com/table/-/table-6.8.2.tgz#c5504ccf201213fa227248bdc8c5569716ac6c58"
@@ -7503,11 +7248,6 @@ ts-jest@^28.0.2:
     make-error "1.x"
     semver "7.x"
     yargs-parser "^21.0.1"
-
-ts-mixer@^5.4.1:
-  version "5.4.1"
-  resolved "https://registry.yarnpkg.com/ts-mixer/-/ts-mixer-5.4.1.tgz#b90db9ced48531aa17ce9184a2890d1e3c99b1e5"
-  integrity sha512-Zo9HgPCtNouDgJ+LGtrzVOjSg8+7WGQktIKLwAfaNrlOK1mWGlz1ejsAF/YqUEqAGjUTeB5fEg8gH9Aui6w9xA==
 
 ts-mixer@^6.0.2:
   version "6.0.4"
@@ -7817,14 +7557,6 @@ visitor-as@^0.11.4:
   dependencies:
     lodash.clonedeep "^4.5.0"
     ts-mixer "^6.0.2"
-
-visitor-as@^0.6.0:
-  version "0.6.0"
-  resolved "https://registry.yarnpkg.com/visitor-as/-/visitor-as-0.6.0.tgz#b0cca3c918bd9d396545faf08529d2b9ba968a40"
-  integrity sha512-4WcnwCLXWjhNkwJj9gSqh46sdIv9CyIvnSuwr61OOfrGCtN2mKcW5KE828OeEr1rYjEy0Z/CIdPBJKJRLsUgDA==
-  dependencies:
-    lodash.clonedeep "^4.5.0"
-    ts-mixer "^5.4.1"
 
 walk-up-path@^1.0.0:
   version "1.0.0"
