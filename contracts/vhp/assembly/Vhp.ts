@@ -244,8 +244,8 @@ export class Vhp {
     this.decrease_balance_by(fromBalanceObj, blockHeight, args.value);
     this.increase_balance_by(toBalanceObj, blockHeight, args.value);
 
-    System.putObject(State.Space.Balance(), args.from, fromBalanceObj, vhp.effective_balance_object.encode);
-    System.putObject(State.Space.Balance(), args.to, toBalanceObj, vhp.effective_balance_object.encode);
+    System.putObject< Uint8Array, vhp.effective_balance_object >(State.Space.Balance(), args.from, fromBalanceObj, vhp.effective_balance_object.encode);
+    System.putObject< Uint8Array, vhp.effective_balance_object >(State.Space.Balance(), args.to, toBalanceObj, vhp.effective_balance_object.encode);
 
     let event = new token.transfer_event();
     event.from = args.from;
@@ -293,8 +293,8 @@ export class Vhp {
     this.increase_balance_by(balanceObject, System.getBlockField("header.height")!.uint64_value, args.value);
     supplyObject.value += args.value;
 
-    System.putObject(State.Space.Supply(), Constants.SUPPLY_KEY, supplyObject, token.balance_object.encode);
-    System.putObject(State.Space.Balance(), args.to, balanceObject, vhp.effective_balance_object.encode);
+    System.putObject< Uint8Array, token.balance_object >(State.Space.Supply(), Constants.SUPPLY_KEY, supplyObject, token.balance_object.encode);
+    System.putObject< Uint8Array, vhp.effective_balance_object >(State.Space.Balance(), args.to, balanceObject, vhp.effective_balance_object.encode);
 
     let event = new token.mint_event();
     event.to = args.to;
@@ -339,8 +339,8 @@ export class Vhp {
     supplyObject.value -= args.value;
     this.decrease_balance_by(fromBalanceObject, System.getBlockField("header.height")!.uint64_value, args.value);
 
-    System.putObject(State.Space.Supply(), Constants.SUPPLY_KEY, supplyObject, token.balance_object.encode);
-    System.putObject(State.Space.Balance(), args.from, fromBalanceObject, vhp.effective_balance_object.encode);
+    System.putObject< Uint8Array, token.balance_object >(State.Space.Supply(), Constants.SUPPLY_KEY, supplyObject, token.balance_object.encode);
+    System.putObject< Uint8Array, vhp.effective_balance_object >(State.Space.Balance(), args.from, fromBalanceObject, vhp.effective_balance_object.encode);
 
     let event = new token.burn_event();
     event.from = args.from;
