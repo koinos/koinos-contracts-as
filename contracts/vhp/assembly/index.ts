@@ -1,5 +1,6 @@
-import { System, Protobuf, authority, token, vhp} from "@koinos/sdk-as";
-import { Vhp as ContractClass } from "../../vhp/assembly/Vhp";
+import { System, Protobuf, authority, kcs4} from "@koinos/sdk-as";
+import { vhp } from "./proto/vhp";
+import { Vhp as ContractClass } from "./Vhp";
 
 export function main(): i32 {
   const contractArgs = System.getArguments();
@@ -12,56 +13,43 @@ export function main(): i32 {
       const res = c.name();
       retbuf = Protobuf.encode(
         res,
-        token.name_result.encode
+        kcs4.name_result.encode
       );
       break;
     }
 
     case 0xb76a7ca1: {
-      const args = Protobuf.decode<token.symbol_arguments>(
-        contractArgs.args,
-        token.symbol_arguments.decode
-      );
-      const res = c.symbol(args);
+      const res = c.symbol();
       retbuf = Protobuf.encode(
         res,
-        token.symbol_result.encode
+        kcs4.symbol_result.encode
       );
       break;
     }
 
     case 0xee80fd2f: {
-      const args =
-        Protobuf.decode<token.decimals_arguments>(
-          contractArgs.args,
-          token.decimals_arguments.decode
-        );
-      const res = c.decimals(args);
+      const res = c.decimals();
       retbuf = Protobuf.encode(
         res,
-        token.decimals_result.encode
+        kcs4.decimals_result.encode
       );
       break;
     }
 
     case 0xb0da3934: {
-      const args = Protobuf.decode<token.total_supply_arguments>(
-        contractArgs.args,
-        token.total_supply_arguments.decode
-      );
-      const res = c.total_supply(args);
-      retbuf = Protobuf.encode(res, token.total_supply_result.encode);
+      const res = c.total_supply();
+      retbuf = Protobuf.encode(res, kcs4.total_supply_result.encode);
       break;
     }
     case 0x5c721497: {
-      const args = Protobuf.decode<token.balance_of_arguments>(
+      const args = Protobuf.decode<kcs4.balance_of_arguments>(
         contractArgs.args,
-        token.balance_of_arguments.decode
+        kcs4.balance_of_arguments.decode
       );
       const res = c.balance_of(args);
       retbuf = Protobuf.encode(
         res,
-        token.balance_of_result.encode
+        kcs4.balance_of_result.encode
       );
       break;
     }
@@ -78,38 +66,38 @@ export function main(): i32 {
       break;
     }
     case 0x27f576ca: {
-      const args = Protobuf.decode<token.transfer_arguments>(
+      const args = Protobuf.decode<kcs4.transfer_arguments>(
         contractArgs.args,
-        token.transfer_arguments.decode
+        kcs4.transfer_arguments.decode
       );
       const res = c.transfer(args);
       retbuf = Protobuf.encode(
         res,
-        token.transfer_result.encode
+        kcs4.transfer_result.encode
       );
       break;
     }
     case 0xdc6f17bb: {
-      const args = Protobuf.decode<token.mint_arguments>(
+      const args = Protobuf.decode<kcs4.mint_arguments>(
         contractArgs.args,
-        token.mint_arguments.decode
+        kcs4.mint_arguments.decode
       );
       const res = c.mint(args);
       retbuf = Protobuf.encode(
         res,
-        token.mint_result.encode
+        kcs4.mint_result.encode
       );
       break;
     }
     case 0x859facc5: {
-      const args = Protobuf.decode<token.burn_arguments>(
+      const args = Protobuf.decode<kcs4.burn_arguments>(
         contractArgs.args,
-        token.burn_arguments.decode
+        kcs4.burn_arguments.decode
       );
       const res = c.burn(args);
       retbuf = Protobuf.encode(
         res,
-        token.burn_result.encode
+        kcs4.burn_result.encode
       );
       break;
     }

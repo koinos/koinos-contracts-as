@@ -3,7 +3,8 @@
 // Julian Gonzalez (joticajulian@gmail.com)
 // Koinos Group, Inc. (contact@koinos.group)
 
-import { Arrays, authority, chain, error, kcs4, Protobuf, Storage, System, token, vhp } from "@koinos/sdk-as";
+import { Arrays, authority, chain, error, kcs4, Protobuf, Storage, System, } from "@koinos/sdk-as";
+import { vhp } from "./proto/vhp";
 
 /**
  * To prevent exploiting the PoB algorithm, the VHP has a "delayed" transfer system built in.
@@ -55,12 +56,12 @@ export class Vhp {
 
   contractId: Uint8Array = System.getContractId();
 
-  supply: Storage.Obj< kcs4.balance_object > = new Storage.Obj(
+  supply: Storage.Obj< vhp.balance_object > = new Storage.Obj(
     Detail.Zone(),
     SUPPLY_SPACE_ID,
-    kcs4.balance_object.decode,
-    kcs4.balance_object.encode,
-    () => new kcs4.balance_object(),
+    vhp.balance_object.decode,
+    vhp.balance_object.encode,
+    () => new vhp.balance_object(),
     true
   );
 
@@ -73,12 +74,12 @@ export class Vhp {
     true
   );
 
-  allowances: Storage.Map< Uint8Array, kcs4.allowance_object > = new Storage.Map(
+  allowances: Storage.Map< Uint8Array, vhp.balance_object > = new Storage.Map(
     Detail.Zone(),
     ALLOWANCES_SPACE_ID,
-    kcs4.allowance_object.decode,
-    kcs4.allowance_object.encode,
-    () => new kcs4.allowance_object(),
+    vhp.balance_object.decode,
+    vhp.balance_object.encode,
+    () => new vhp.balance_object(),
     true
   );
 
@@ -99,15 +100,16 @@ export class Vhp {
   }
 
   total_supply(): kcs4.total_supply_result {
-    return new kcs4.total_supply_result(this.supply.get());
+    return new kcs4.total_supply_result(this.supply.get()!.value);
   }
 
   balance_of(args: kcs4.balance_of_arguments): kcs4.balance_of_result {
-    return new kcs4.balance_object(this.balances.get(args.owner).current_balance);
+    return new kcs4.balance_of_result(this.balances.get(args.owner)!.current_balance);
   }
 
   effective_balance_of(args: vhp.effective_balance_of_arguments): vhp.effective_balance_of_result {
-    let effectiveBalances = this.balances.get(args.owner);
+    System.require(args.owner != null, "effective_balance_of argument 'owner' cannot be null");
+    let effectiveBalances = this.balances.get(args.owner!)!;
 
     if (effectiveBalances.past_balances.length == 0) {
       return new vhp.effective_balance_of_result(effectiveBalances.current_balance);
@@ -121,16 +123,15 @@ export class Vhp {
     System.require(args.owner != null, "allowance argument 'owner' cannot be null");
     System.require(args.spender != null, "allowance argument 'spender' cannot be null");
 
-    let allowanceKey = new kcs4.allowance_key(args.owner!, args.spender!);
-    let allowanceKeyBytes = Protobuf.encode(allowanceKey, kcs4.allowance_key.encode);
+    let allowanceKeyBytes = Protobuf.encode(args, kcs4.allowance_args.encode);
     return new kcs4.allowance_result(this.allowances.get(allowanceKeyBytes).value);
   }
 
   get_allowances(args: kcs4.get_allowances_args): kcs4.get_allowances_result {
     System.require(args.owner != null, 'owner cannot be null');
 
-    let allowanceKey = new kcs4.allowance_key(args.owner, args.spender);
-    let allowanceKeyBytes = Protobuf.encode(allowanceKey, kcs4.allowance_key.encode);
+    let allowanceKey = new kcs4.allowance_arguments(args.owner, args.spender);
+    let allowanceKeyBytes = Protobuf.encode(allowanceKey, kcs4.allowance_arguments.encode);
     let result = new kcs4.get_allownaces_return(args.owner, []);
 
     for (let i = 0; i < args.limit; i++) {
@@ -142,7 +143,7 @@ export class Vhp {
         break;
       }
 
-      allowanceKey = Protobuf.decode(nextAllowance.key!, kcs4.allowance_key.decode);
+      allowanceKey = Protobuf.decode(nextAllowance.key!, kcs4.allowance_arguments.decode);
 
       if (!Arrays.equal(allowanceKey.owner, args.owner)) {
         break;
@@ -168,11 +169,10 @@ export class Vhp {
       error.error_code.authorization_failure
     );
 
-    let fromBalance = this.balances.get(args.from);
+    let fromBalance = this.balances.get(args.from)!;
     System.require(fromBalance.current_balance >= args.value, "account 'from' has insufficient balance", error.error_code.failure);
 
-    let toBalance = this.balances.get(args.to);
-
+    let toBalance = this.balances.get(args.to)!;
     let blockHeight = System.getBlockField("header.height")!.uint64_value;
     this._decrease_balance_by(fromBalance, blockHeight, args.value);
     this._increase_balance_by(toBalance, blockHeight, args.value);
@@ -202,10 +202,10 @@ export class Vhp {
       }
     }
 
-    let supply = this.supply.get();
+    let supply = this.supply.get()!;
     System.require(supply.value <= u64.MAX_VALUE - args.value, 'mint would overflow supply', error.error_code.failure);
 
-    let balance = this.balances.get(args.to);
+    let balance = this.balances.get(args.to)!;
 
     this._increase_balance_by(balance, System.getBlockField("header.height")!.uint64_value, args.value);
     supply.value += args.value;
@@ -232,10 +232,10 @@ export class Vhp {
       error.error_code.authorization_failure
     );
 
-    let fromBalance = this.balances.get(args.from);
+    let fromBalance = this.balances.get(args.from)!;
     System.require(fromBalance.current_balance >= args.value, "account 'from' has insufficient balance", error.error_code.failure);
 
-    let supply = this.supply.get()
+    let supply = this.supply.get()!;
     System.require(supply.value >= args.value, 'burn would underflow supply', error.error_code.failure);
 
     supply.value -= args.value;
@@ -262,9 +262,9 @@ export class Vhp {
       error.error_code.authorization_failure
     );
 
-    let allowanceKey = new kcs4.allowance_key(args.owner!, args.spender!);
-    let allowanceKeyBytes = Protobuf.encode(allowanceKey, kcs4.allowance_key.encode);
-    this.allowances.put(allowanceKeyBytes, new kcs4.allowance_object(args.value));
+    let allowanceKey = new kcs4.allowance_arguments(args.owner!, args.spender!);
+    let allowanceKeyBytes = Protobuf.encode(allowanceKey, kcs4.allowance_arguments.encode);
+    this.allowances.put(allowanceKeyBytes, new vhp.balance_object(args.value));
 
     System.event(
       "koinos.contracts.kcs4.approve",
@@ -276,9 +276,9 @@ export class Vhp {
   _check_authority(account: Uint8Array, amount: u64): boolean {
     const caller = System.getCaller().caller;
     if (caller && caller.length > 0) {
-      let allowanceKey = new kcs4.allowance_key(account, caller);
-      let allowanceKeyBytes = Protobuf.encode(allowanceKey, kcs4.allowance_key.encode);
-      const allowance = this.allowances.get(allowanceKeyBytes);
+      let allowanceKey = new kcs4.allowance_arguments(account, caller);
+      let allowanceKeyBytes = Protobuf.encode(allowanceKey, kcs4.allowance_arguments.encode);
+      const allowance = this.allowances.get(allowanceKeyBytes)!;
       if (allowance.value >= amount) {
         allowance.value -= amount;
         this.allowances.put(allowanceKeyBytes, allowance);
