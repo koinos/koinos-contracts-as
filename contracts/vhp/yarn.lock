@@ -792,7 +792,7 @@
 
 "@koinos/sdk-as@https://github.com/koinos/koinos-sdk-as#check-authority":
   version "1.1.0"
-  resolved "https://github.com/koinos/koinos-sdk-as#337fcedbb9249eacac7f1f5c31a781b0acdac6fd"
+  resolved "https://github.com/koinos/koinos-sdk-as#2d5402bf1207abff379652fa1e84d04b89999920"
   dependencies:
     "@as-covers/core" "^0.4.2"
     "@as-pect/cli" "^8.0.1"

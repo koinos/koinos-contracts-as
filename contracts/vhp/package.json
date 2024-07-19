@@ -2,6 +2,7 @@
   "name": "vhp",
   "version": "1.0.0",
   "license": "MIT",
+  "type": "module",
   "devDependencies": {
     "@koinos/sdk-as": "https://github.com/koinos/koinos-sdk-as#check-authority",
     "@types/jest": "^27.5.1",
