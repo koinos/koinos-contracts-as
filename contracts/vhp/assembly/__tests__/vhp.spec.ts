@@ -6,6 +6,7 @@ const CONTRACT_ID = Base58.decode("1DQzuCcTKacbs9GGScRTU1Hc8BsyARTPqe");
 
 const MOCK_ACCT1 = Base58.decode("1DQzuCcTKacbs9GGScRTU1Hc8BsyARTPqG");
 const MOCK_ACCT2 = Base58.decode("1DQzuCcTKacbs9GGScRTU1Hc8BsyARTPqK");
+const MOCK_ACCT3 = Base58.decode("1DQzuCcTKacbs9GGScRTU1Hc8BsyARTPqP");
 
 const headBlock = new protocol.block(new Uint8Array(0), new protocol.block_header(new Uint8Array(0), 10));
 
@@ -38,6 +39,14 @@ describe("vhp", () => {
     const vhpContract = new Vhp();
     const res = vhpContract.decimals();
     expect(res.value).toBe(8);
+  });
+
+  it("should get token info", () => {
+    const vhpContract = new Vhp();
+    const res = vhpContract.get_info();
+    expect(res.name).toBe("Virtual Hash Power");
+    expect(res.symbol).toBe("VHP");
+    expect(res.decimals).toBe(8);
   });
 
   it("should/not burn tokens", () => {
@@ -577,5 +586,100 @@ describe("vhp", () => {
     expect(Arrays.equal(transferEvent.from, MOCK_ACCT1)).toBe(true);
     expect(Arrays.equal(transferEvent.to, MOCK_ACCT2)).toBe(true);
     expect(transferEvent.value).toBe(10);
+  });
+
+  it("should approve", () => {
+    const vhpContract = new Vhp();
+
+    expect(vhpContract.allowance(new kcs4.allowance_arguments(MOCK_ACCT1, MOCK_ACCT2)).value).toBe(0);
+
+    const mockAcc1Auth = new MockVM.MockAuthority(authority.authorization_type.contract_call, MOCK_ACCT1, true);
+    MockVM.setAuthorities([mockAcc1Auth]);
+    vhpContract.approve(new kcs4.approve_arguments(MOCK_ACCT1, MOCK_ACCT2, 10));
+
+    expect(vhpContract.allowance(new kcs4.allowance_arguments(MOCK_ACCT1, MOCK_ACCT2)).value).toBe(10);
+
+    MockVM.setAuthorities([mockAcc1Auth]);
+    vhpContract.approve(new kcs4.approve_arguments(MOCK_ACCT1, MOCK_ACCT3, 20));
+
+    expect(vhpContract.allowance(new kcs4.allowance_arguments(MOCK_ACCT1, MOCK_ACCT3)).value).toBe(20);
+
+    MockVM.setAuthorities([new MockVM.MockAuthority(authority.authorization_type.contract_call, MOCK_ACCT2, true)]);
+    vhpContract.approve(new kcs4.approve_arguments(MOCK_ACCT2, MOCK_ACCT3, 30));
+
+    expect(vhpContract.allowance(new kcs4.allowance_arguments(MOCK_ACCT2, MOCK_ACCT3)).value).toBe(30);
+
+    // Tests basic allowances return
+    let allowances = vhpContract.get_allowances(new kcs4.get_allowances_arguments(MOCK_ACCT1, new Uint8Array(0), 10));
+    expect(Arrays.equal(allowances.owner, MOCK_ACCT1)).toBe(true);
+    expect(allowances.allowances.length).toBe(2);
+    expect(Arrays.equal(allowances.allowances[0].spender, MOCK_ACCT2)).toBe(true);
+    expect(allowances.allowances[0].value).toBe(10);
+    expect(Arrays.equal(allowances.allowances[1].spender, MOCK_ACCT3)).toBe(true);
+    expect(allowances.allowances[1].value).toBe(20);
+
+    // Tests allowances descending
+    allowances = vhpContract.get_allowances(new kcs4.get_allowances_arguments(MOCK_ACCT1, MOCK_ACCT3, 10, true));
+    expect(Arrays.equal(allowances.owner, MOCK_ACCT1)).toBe(true);
+    expect(allowances.allowances.length).toBe(1);
+    expect(Arrays.equal(allowances.allowances[0].spender, MOCK_ACCT2)).toBe(true);
+    expect(allowances.allowances[0].value).toBe(10);
+
+    // Tests allowances limit
+    allowances = vhpContract.get_allowances(new kcs4.get_allowances_arguments(MOCK_ACCT1, new Uint8Array(0), 1));
+    expect(Arrays.equal(allowances.owner, MOCK_ACCT1)).toBe(true);
+    expect(allowances.allowances.length).toBe(1);
+    expect(Arrays.equal(allowances.allowances[0].spender, MOCK_ACCT2)).toBe(true);
+    expect(allowances.allowances[0].value).toBe(10);
+
+    // Tests allowances pagination
+    allowances = vhpContract.get_allowances(new kcs4.get_allowances_arguments(MOCK_ACCT1, MOCK_ACCT2, 10));
+    expect(Arrays.equal(allowances.owner, MOCK_ACCT1)).toBe(true);
+    expect(allowances.allowances.length).toBe(1);
+    expect(Arrays.equal(allowances.allowances[0].spender, MOCK_ACCT3)).toBe(true);
+    expect(allowances.allowances[0].value).toBe(20);
+
+    // Tests another owner's allowances
+    allowances = vhpContract.get_allowances(new kcs4.get_allowances_arguments(MOCK_ACCT2, new Uint8Array(0), 10));
+    expect(Arrays.equal(allowances.owner, MOCK_ACCT2)).toBe(true);
+    expect(allowances.allowances.length).toBe(1);
+    expect(Arrays.equal(allowances.allowances[0].spender, MOCK_ACCT3)).toBe(true);
+    expect(allowances.allowances[0].value).toBe(30);
+  });
+
+  it("should require an approval", () => {
+    const vhpContract = new Vhp();
+
+    MockVM.setCaller(new chain.caller_data(MOCK_ACCT2, chain.privilege.kernel_mode));
+    vhpContract.mint(new kcs4.mint_arguments(MOCK_ACCT1, 100));
+
+    MockVM.setCaller(new chain.caller_data(MOCK_ACCT2, chain.privilege.user_mode));
+
+    // should not transfer because allowance does not exist
+    expect(() => {
+      const vhpContract = new Vhp();
+      vhpContract.transfer(new kcs4.transfer_arguments(MOCK_ACCT1, MOCK_ACCT2, 10));
+    }).toThrow();
+
+    expect(MockVM.getErrorMessage()).toBe("from has not authorized transfer");
+
+    // create allowance for 20 tokens
+    MockVM.setCaller(new chain.caller_data(new Uint8Array(0), chain.privilege.kernel_mode));
+    MockVM.setAuthorities([new MockVM.MockAuthority(authority.authorization_type.contract_call, MOCK_ACCT1, true)]);
+    vhpContract.approve(new kcs4.approve_arguments(MOCK_ACCT1, MOCK_ACCT2, 20));
+
+    MockVM.setCaller(new chain.caller_data(MOCK_ACCT2, chain.privilege.user_mode));
+
+    // should not transfer because allowance is too small
+    expect(() => {
+      const vhpContract = new Vhp();
+      vhpContract.transfer(new kcs4.transfer_arguments(MOCK_ACCT1, MOCK_ACCT2, 25));
+    }).toThrow();
+
+    // should transfer partial amount of allowance
+    vhpContract.transfer(new kcs4.transfer_arguments(MOCK_ACCT1, MOCK_ACCT2, 10));
+    expect(vhpContract.balance_of(new kcs4.balance_of_arguments(MOCK_ACCT1)).value).toBe(90);
+    expect(vhpContract.balance_of(new kcs4.balance_of_arguments(MOCK_ACCT2)).value).toBe(10);
+    expect(vhpContract.allowance(new kcs4.allowance_arguments(MOCK_ACCT1, MOCK_ACCT2)).value).toBe(10);
   });
 });

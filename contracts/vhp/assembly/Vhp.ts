@@ -3,7 +3,7 @@
 // Julian Gonzalez (joticajulian@gmail.com)
 // Koinos Group, Inc. (contact@koinos.group)
 
-import { Arrays, authority, chain, error, kcs4, Protobuf, Storage, System, } from "@koinos/sdk-as";
+import { Arrays, authority, Base58, chain, error, kcs4, Protobuf, Storage, System, } from "@koinos/sdk-as";
 import { vhp } from "./proto/vhp";
 
 /**
@@ -119,40 +119,44 @@ export class Vhp {
     return new vhp.effective_balance_of_result(effectiveBalances.past_balances[0].balance);
   }
 
-  allowance(args: kcs4.allowance_args): kcs4.allowance_result {
+  allowance(args: kcs4.allowance_arguments): kcs4.allowance_result {
     System.require(args.owner != null, "allowance argument 'owner' cannot be null");
     System.require(args.spender != null, "allowance argument 'spender' cannot be null");
 
-    let allowanceKeyBytes = Protobuf.encode(args, kcs4.allowance_args.encode);
-    return new kcs4.allowance_result(this.allowances.get(allowanceKeyBytes).value);
+    const key = new Uint8Array(50);
+    key.set(args.owner, 0);
+    key.set(args.spender, 25);
+
+    return new kcs4.allowance_result(this.allowances.get(key)!.value);
   }
 
-  get_allowances(args: kcs4.get_allowances_args): kcs4.get_allowances_result {
+  get_allowances(args: kcs4.get_allowances_arguments): kcs4.get_allowances_result {
     System.require(args.owner != null, 'owner cannot be null');
 
-    let allowanceKey = new kcs4.allowance_arguments(args.owner, args.spender);
-    let allowanceKeyBytes = Protobuf.encode(allowanceKey, kcs4.allowance_arguments.encode);
-    let result = new kcs4.get_allownaces_return(args.owner, []);
+    let key = new Uint8Array(50);
+    key.set(args.owner, 0);
+    key.set(args.start ? args.start : new Uint8Array(0), 25);
+
+    let result = new kcs4.get_allowances_result(args.owner, []);
 
     for (let i = 0; i < args.limit; i++) {
       const nextAllowance = args.descending
-        ? this.allowances.getPrev(allowanceKeyBytes)
-        : this.allowances.getNext(allowanceKeyBytes);
+        ? this.allowances.getPrev(key)
+        : this.allowances.getNext(key);
 
       if (!nextAllowance) {
         break;
       }
 
-      allowanceKey = Protobuf.decode(nextAllowance.key!, kcs4.allowance_arguments.decode);
-
-      if (!Arrays.equal(allowanceKey.owner, args.owner)) {
+      if (!Arrays.equal(args.owner, nextAllowance.key!.slice(0, 25))) {
         break;
       }
 
       result.allowances.push(
-        new kcs4.spender_value(allowanceKey.spender, nextAllowance.value)
+        new kcs4.spender_value(nextAllowance.key!.slice(25), nextAllowance.value.value)
       );
-      allowanceKeyBytes = nextAllowance.key!;
+
+      key = nextAllowance.key!;
     }
 
     return result;
@@ -256,37 +260,37 @@ export class Vhp {
   approve(args: kcs4.approve_arguments): kcs4.approve_result {
     System.require(args.owner != null, "approve argument 'owner' cannot be null");
     System.require(args.spender != null, "approve argument 'spender' cannot be null");
-    System.require(
-      System.checkAuthority(authority.authorization_type.contract_call, args.owner!),
-      'owner has not authorized approval',
-      error.error_code.authorization_failure
-    );
+    System.requireAuthority(authority.authorization_type.contract_call, args.owner);
 
-    let allowanceKey = new kcs4.allowance_arguments(args.owner!, args.spender!);
-    let allowanceKeyBytes = Protobuf.encode(allowanceKey, kcs4.allowance_arguments.encode);
-    this.allowances.put(allowanceKeyBytes, new vhp.balance_object(args.value));
+    const key = new Uint8Array(50);
+    key.set(args.owner, 0);
+    key.set(args.spender, 25);
+    this.allowances.put(key, new vhp.balance_object(args.value));
 
     System.event(
       "koinos.contracts.kcs4.approve",
       Protobuf.encode(new kcs4.approve_event(args.owner, args.spender, args.value), kcs4.approve_event.encode),
       [args.owner, args.spender]
     );
+
+    return new kcs4.approve_result();
   }
 
   _check_authority(account: Uint8Array, amount: u64): boolean {
     const caller = System.getCaller().caller;
     if (caller && caller.length > 0) {
-      let allowanceKey = new kcs4.allowance_arguments(account, caller);
-      let allowanceKeyBytes = Protobuf.encode(allowanceKey, kcs4.allowance_arguments.encode);
-      const allowance = this.allowances.get(allowanceKeyBytes)!;
+      let key = new Uint8Array(50);
+      key.set(account, 0);
+      key.set(caller, 25);
+      const allowance = this.allowances.get(key)!;
       if (allowance.value >= amount) {
         allowance.value -= amount;
-        this.allowances.put(allowanceKeyBytes, allowance);
+        this.allowances.put(key, allowance);
         return true;
       }
     }
 
-    return System.checkAuthority(authority.authorization_type.contract_call, account);
+    return System.checkAccountAuthority(account);
   }
 
   _increase_balance_by(balanceObj: vhp.effective_balance_object, blockHeight: u64, value: u64): void {
