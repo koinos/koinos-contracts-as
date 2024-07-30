@@ -36,11 +36,20 @@ export function main(): i32 {
       break;
     }
 
+    case 0xbd7f6850: {
+      const res = c.get_info();
+      retbuf = Protobuf.encode(
+        res,
+        kcs4.get_info_result.encode
+      );
+    }
+
     case 0xb0da3934: {
       const res = c.total_supply();
       retbuf = Protobuf.encode(res, kcs4.total_supply_result.encode);
       break;
     }
+
     case 0x5c721497: {
       const args = Protobuf.decode<kcs4.balance_of_arguments>(
         contractArgs.args,
@@ -53,6 +62,7 @@ export function main(): i32 {
       );
       break;
     }
+
     case 0x629f31e6: {
       const args = Protobuf.decode<vhp.effective_balance_of_arguments>(
         contractArgs.args,
@@ -65,6 +75,33 @@ export function main(): i32 {
       );
       break;
     }
+
+    case 0x32f09fa1: {
+      const args = Protobuf.decode<kcs4.allownace_arguments>(
+        contractArgs.args,
+        kcs4.allowance_arguments.decode
+      );
+      const res = c.allowance(args);
+      retbuf = Protobuf.encode(
+        res,
+        kcs4.allowance_result.encode
+      );
+      break;
+    }
+
+    case 0x8fa16456: {
+      const args = Protobuf.decode<kcs4.get_allownaces_arguments>(
+        contractArgs.args,
+        kcs4.get_allowances_arguments.decode
+      );
+      const res = c.get_allowances(args);
+      retbuf = Protobuf.encode(
+        res,
+        kcs4.get_allowances_result.encode
+      );
+      break;
+    }
+
     case 0x27f576ca: {
       const args = Protobuf.decode<kcs4.transfer_arguments>(
         contractArgs.args,
@@ -77,6 +114,7 @@ export function main(): i32 {
       );
       break;
     }
+
     case 0xdc6f17bb: {
       const args = Protobuf.decode<kcs4.mint_arguments>(
         contractArgs.args,
@@ -89,6 +127,7 @@ export function main(): i32 {
       );
       break;
     }
+
     case 0x859facc5: {
       const args = Protobuf.decode<kcs4.burn_arguments>(
         contractArgs.args,
@@ -101,6 +140,20 @@ export function main(): i32 {
       );
       break;
     }
+
+    case 0x74e21680: {
+      const args = Protobuf.decode<kcs4.approve_arguments>(
+        contractArgs.args,
+        kcs4.approve_arguments.decode
+      );
+      const res = c.approve(args);
+      retbuf = Protobuf.encode(
+        res,
+        kcs4.approve_result.encode
+      );
+      break;
+    }
+
     case 0x4a2dbd90: {
       retbuf = Protobuf.encode(
         new authority.authorize_result(System.checkSystemAuthority()),
