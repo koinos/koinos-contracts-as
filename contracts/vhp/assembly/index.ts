@@ -77,7 +77,7 @@ export function main(): i32 {
     }
 
     case 0x32f09fa1: {
-      const args = Protobuf.decode<kcs4.allownace_arguments>(
+      const args = Protobuf.decode<kcs4.allowance_arguments>(
         contractArgs.args,
         kcs4.allowance_arguments.decode
       );
@@ -90,7 +90,7 @@ export function main(): i32 {
     }
 
     case 0x8fa16456: {
-      const args = Protobuf.decode<kcs4.get_allownaces_arguments>(
+      const args = Protobuf.decode<kcs4.get_allowances_arguments>(
         contractArgs.args,
         kcs4.get_allowances_arguments.decode
       );
