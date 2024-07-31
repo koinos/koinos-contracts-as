@@ -1,0 +1,403 @@
+// SPDX-License-Identifier: MIT
+// Token Contract {{ version }}
+// Julian Gonzalez (joticajulian@gmail.com)
+// Koinos Group, Inc. (contact@koinos.group)
+
+import { Arrays, authority, Base58, chain, error, kcs4, Protobuf, Storage, System, u128Safe } from "@koinos/sdk-as";
+import { koin } from "./proto/koin";
+
+/**
+ * To prevent exploiting the PoB algorithm, the VHP has a "delayed" transfer system built in.
+ * Rather, this system does not delay property rights transferral, but delays the VHP from
+ * being counted towards an address for block production. Increases the balance are delayed
+ * while decreases are instantaneous.
+ *
+ * Calculating and storing this information uses rolling snapshots. This approach only works
+ * because we are only interested in a short period of history (20 blocks). Each balance has a
+ * list of previous snapshots by block height and balance. When we increase the balance, we
+ * store the new balance as a snapshot with the current head block height. When we decrease
+ * the balance on all snapshots.
+ *
+ * We also need to clean up the snapshots. We want at most one snapshot earlier than 20 blocks.
+ * So we trim all but the most recent snapshot older than 20 blocks. Then, when we want to
+ * retrieve the effective balance, we just have to find the most recent snapshot older than
+ * 20 blocks.
+ *
+ * All balance objects will "decay" back to the current balance and the snapshot equal to the
+ * current balance.
+ *
+ * The trick to making the algorithms on the snapshots efficient is that new snapshots are
+ * pushed to the back of the array and old snapshots are removed from the front.
+ */
+
+const SUPPLY_SPACE_ID = 0;
+const BALANCES_SPACE_ID = 1;
+const ALLOWANCES_SPACE_ID = 2;
+
+namespace Detail {
+  let zone: Uint8Array = new Uint8Array(0);
+
+  export function Zone(): Uint8Array {
+    if (zone.length == 0) {
+
+      zone = new Uint8Array(25);
+      if (BUILD_FOR_TESTING) {
+        // 1FaSvLjQJsCJKq5ybmGsMMQs8RQYyVv8ju
+        zone.set([0x00, 0x9f, 0xe5, 0x1f, 0xd5, 0x9c, 0x8c, 0x93, 0x10, 0x98, 0x10, 0x83, 0x09, 0x7d, 0x02, 0x5e, 0x1d, 0x4d, 0x75, 0x38, 0x0f, 0x2e, 0x9f, 0x99, 0xfc]);
+      } else {
+        // 15DJN4a8SgrbGhhGksSBASiSYjGnMU8dGL
+        zone.set([0x00, 0x2e, 0x33, 0xfd, 0x1a, 0xa9, 0x07, 0xb2, 0x24, 0xce, 0x9c, 0xe6, 0xc9, 0x42, 0x28, 0x90, 0x1d, 0x28, 0x3a, 0x02, 0xda, 0x95, 0x6d, 0xa7, 0x91]);
+      }
+
+    }
+
+    return zone;
+  }
+}
+
+export class Koin {
+  _name: string = BUILD_FOR_TESTING ? "Test Koin" : "Koin";
+  _symbol: string = BUILD_FOR_TESTING ? "tKOIN" : "KOIN";
+  _decimals: u32 = 8;
+  _mana_regen_time_ms: u64 = 432000000; // 5 days
+
+  contractId: Uint8Array = System.getContractId();
+
+  supply: Storage.Obj< koin.balance_object > = new Storage.Obj(
+    Detail.Zone(),
+    SUPPLY_SPACE_ID,
+    koin.balance_object.decode,
+    koin.balance_object.encode,
+    () => new koin.balance_object(),
+    true
+  );
+
+  balances: Storage.Map< Uint8Array, koin.balance_object > = new Storage.Map(
+    Detail.Zone(),
+    BALANCES_SPACE_ID,
+    koin.balance_object.decode,
+    koin.balance_object.encode,
+    () => new koin.balance_object(),
+    true
+  );
+
+  allowances: Storage.Map< Uint8Array, koin.balance_object > = new Storage.Map(
+    Detail.Zone(),
+    ALLOWANCES_SPACE_ID,
+    koin.balance_object.decode,
+    koin.balance_object.encode,
+    () => new koin.balance_object(),
+    true
+  );
+
+  name(): kcs4.name_result {
+    return new kcs4.name_result(this._name);
+  }
+
+  symbol(): kcs4.symbol_result {
+    return new kcs4.symbol_result(this._symbol);
+  }
+
+  decimals(): kcs4.decimals_result {
+    return new kcs4.decimals_result(this._decimals);
+  }
+
+  get_info(): kcs4.get_info_result {
+    return new kcs4.get_info_result(this._name, this._symbol, this._decimals);
+  }
+
+  total_supply(): kcs4.total_supply_result {
+    return new kcs4.total_supply_result(this.supply.get()!.value);
+  }
+
+  balance_of(args: kcs4.balance_of_arguments): kcs4.balance_of_result {
+    return new kcs4.balance_of_result(this.balances.get(args.owner)!.current_balance);
+  }
+
+  allowance(args: kcs4.allowance_arguments): kcs4.allowance_result {
+    System.require(args.owner != null, "allowance argument 'owner' cannot be null");
+    System.require(args.spender != null, "allowance argument 'spender' cannot be null");
+
+    const key = new Uint8Array(50);
+    key.set(args.owner, 0);
+    key.set(args.spender, 25);
+
+    return new kcs4.allowance_result(this.allowances.get(key)!.value);
+  }
+
+  get_allowances(args: kcs4.get_allowances_arguments): kcs4.get_allowances_result {
+    System.require(args.owner != null, 'owner cannot be null');
+
+    let key = new Uint8Array(50);
+    key.set(args.owner, 0);
+    key.set(args.start ? args.start : new Uint8Array(0), 25);
+
+    let result = new kcs4.get_allowances_result(args.owner, []);
+
+    for (let i = 0; i < args.limit; i++) {
+      const nextAllowance = args.descending
+        ? this.allowances.getPrev(key)
+        : this.allowances.getNext(key);
+
+      if (!nextAllowance) {
+        break;
+      }
+
+      if (!Arrays.equal(args.owner, nextAllowance.key!.slice(0, 25))) {
+        break;
+      }
+
+      result.allowances.push(
+        new kcs4.spender_value(nextAllowance.key!.slice(25), nextAllowance.value.value)
+      );
+
+      key = nextAllowance.key!;
+    }
+
+    return result;
+  }
+
+  get_account_rc(args: chain.get_account_rc_arguments): chain.get_account_rc_result {
+    const governanceAddress = System.getContractAddress("governance");
+
+    if (Arrays.equal(args.owner!, governanceAddress)) {
+      return new chain.get_account_rc_result(u64.MAX_VALUE);
+    }
+
+    const balanceObj = this.balances.get(args.owner!);
+    this._regenerate_mana(balanceObj);
+    return new chain.get_account_rc_result(balanceObj.mana);
+  }
+
+  transfer(args: kcs4.transfer_arguments): kcs4.transfer_result {
+    System.require(args.to != null, "transfer argument 'to' cannot be null");
+    System.require(args.from != null, "transfer argument 'from' cannot be null");
+    System.require(!Arrays.equal(args.from, args.to), 'cannot transfer to yourself');
+
+    System.require(
+      this._check_authority(args.from, args.value),
+      'from has not authorized transfer',
+      error.error_code.authorization_failure
+    );
+
+    let fromBalance = this.balances.get(args.from)!;
+    System.require(fromBalance.current_balance >= args.value, "account 'from' has insufficient balance", error.error_code.failure);
+
+    let toBalance = this.balances.get(args.to)!;
+    let blockHeight = System.getBlockField("header.height")!.uint64_value;
+    this._decrease_balance_by(fromBalance, blockHeight, args.value);
+    this._increase_balance_by(toBalance, blockHeight, args.value);
+
+    this.balances.put(args.from, fromBalance);
+    this.balances.put(args.to, toBalance);
+
+    System.event(
+      'koinos.contracts.kcs4.transfer_event',
+      Protobuf.encode(new kcs4.transfer_event(args.from, args.to, args.value, args.memo), kcs4.transfer_event.encode),
+      [args.to, args.from]
+    );
+
+    return new kcs4.transfer_result();
+  }
+
+  mint(args: kcs4.mint_arguments): kcs4.mint_result {
+    System.require(args.to != null, "mint argument 'to' cannot be null");
+    System.require(args.value != 0, "mint argument 'value' cannot be zero");
+
+    if (System.getCaller().caller_privilege != chain.privilege.kernel_mode) {
+      if (BUILD_FOR_TESTING) {
+        System.requireAuthority(authority.authorization_type.contract_call, System.getContractId());
+      }
+      else {
+        System.fail('insufficient privileges to mint', error.error_code.authorization_failure);
+      }
+    }
+
+    let supply = this.supply.get()!;
+    System.require(supply.value <= u64.MAX_VALUE - args.value, 'mint would overflow supply', error.error_code.failure);
+
+    let balance = this.balances.get(args.to)!;
+
+    this._increase_balance_by(balance, System.getBlockField("header.height")!.uint64_value, args.value);
+    supply.value += args.value;
+
+    this.supply.put(supply);
+    this.balances.put(args.to, balance);
+
+    System.event(
+      'koinos.contracts.kcs4.mint_event',
+      Protobuf.encode(new kcs4.mint_event(args.to, args.value), kcs4.mint_event.encode),
+      [args.to]
+    );
+
+    return new kcs4.mint_result();
+  }
+
+  burn(args: kcs4.burn_arguments): kcs4.burn_result {
+    System.require(args.from != null, "burn argument 'from' cannot be null");
+
+    let callerData = System.getCaller();
+    System.require(
+      callerData.caller_privilege == chain.privilege.kernel_mode || this._check_authority(args.from, args.value),
+      'from has not authorized burn',
+      error.error_code.authorization_failure
+    );
+
+    let fromBalance = this.balances.get(args.from)!;
+    System.require(fromBalance.current_balance >= args.value, "account 'from' has insufficient balance", error.error_code.failure);
+
+    let supply = this.supply.get()!;
+    System.require(supply.value >= args.value, 'burn would underflow supply', error.error_code.failure);
+
+    supply.value -= args.value;
+    this._decrease_balance_by(fromBalance, System.getBlockField("header.height")!.uint64_value, args.value);
+
+    this.supply.put(supply);
+    this.balances.put(args.from, fromBalance);
+
+    System.event(
+      'koinos.contracts.kcs4.burn_event',
+      Protobuf.encode(new kcs4.burn_event(args.from, args.value), kcs4.burn_event.encode),
+      [args.from]
+    );
+
+    return new kcs4.burn_result();
+  }
+
+  approve(args: kcs4.approve_arguments): kcs4.approve_result {
+    System.require(args.owner != null, "approve argument 'owner' cannot be null");
+    System.require(args.spender != null, "approve argument 'spender' cannot be null");
+    System.requireAuthority(authority.authorization_type.contract_call, args.owner);
+
+    const key = new Uint8Array(50);
+    key.set(args.owner, 0);
+    key.set(args.spender, 25);
+    this.allowances.put(key, new koin.balance_object(args.value));
+
+    System.event(
+      "koinos.contracts.kcs4.approve",
+      Protobuf.encode(new kcs4.approve_event(args.owner, args.spender, args.value), kcs4.approve_event.encode),
+      [args.owner, args.spender]
+    );
+
+    return new kcs4.approve_result();
+  }
+
+  _check_authority(account: Uint8Array, amount: u64): boolean {
+    const caller = System.getCaller().caller;
+    if (caller && caller.length > 0) {
+      let key = new Uint8Array(50);
+      key.set(account, 0);
+      key.set(caller, 25);
+      const allowance = this.allowances.get(key)!;
+      if (allowance.value >= amount) {
+        allowance.value -= amount;
+        this.allowances.put(key, allowance);
+        return true;
+      }
+    }
+
+    return System.checkAccountAuthority(account);
+  }
+
+  consume_account_rc(args: chain.consume_account_rc_arguments): chain.consume_account_rc_result {
+    const callerData = System.getCaller();
+
+    if (callerData.caller_privilege != chain.privilege.kernel_mode) {
+      System.log( "The system call 'consume_account_rc' must be called from kernel context" );
+      return new chain.consume_account_rc_result(false);
+    }
+
+    const balanceObj = this.balances.get(args.owner!);
+    this._regenerate_mana(balanceObj);
+
+    // Mana cannot go negative
+    if (balanceObj.mana < args.value) {
+      // TODO: Improve log message?
+      System.log( "Account has insufficient mana for consumption" );
+      return new chain.consume_account_rc_result(false);
+    }
+
+    balanceObj.mana -= args.value;
+    this.balances.put(args.owner!, balanceObj);
+
+    return new chain.consume_account_rc_result(true);
+  }
+
+  _increase_balance_by(balanceObj: koin.effective_balance_object, blockHeight: u64, value: u64): void {
+    this._trim_balances(balanceObj, blockHeight);
+
+    let snapshotLength = balanceObj.past_balances.length;
+
+    if (snapshotLength == 0) {
+      balanceObj.past_balances.push(new koin.balance_entry(blockHeight - 1, balanceObj.current_balance));
+      snapshotLength = 1;
+    }
+
+    let newBalance = balanceObj.current_balance + value;
+    balanceObj.current_balance = newBalance;
+
+    // If there is no entry for this block's balance, set it.
+    // Otherwise, push it to the back
+    if (balanceObj.past_balances[snapshotLength - 1].block_height != blockHeight ) {
+      balanceObj.past_balances.push(new koin.balance_entry(blockHeight, newBalance));
+    }
+    else {
+      balanceObj.past_balances[snapshotLength - 1].balance = newBalance;
+    }
+  }
+
+  _decrease_balance_by(balanceObj: koin.effective_balance_object, blockHeight: u64, value: u64): void {
+    this._trim_balances(balanceObj, blockHeight);
+
+    balanceObj.current_balance -= value;
+
+    for (let i = 0; i < balanceObj.past_balances.length; i++ ) {
+      if (balanceObj.past_balances[i].balance < value) {
+        balanceObj.past_balances[i].balance = 0;
+      } else {
+        balanceObj.past_balances[i].balance -= value;
+      }
+    }
+  }
+
+  _regenerate_mana(balanceObj: koin.mana_balance_object): void {
+    /* THIS FUNCTION IS CRITICAL!!!
+     *
+     * Below is the original c++ implementation for reference:
+     *
+     * auto head_block_time = system::get_head_info().head_block_time();
+     * auto delta = std::min( head_block_time - bal.last_mana_update(), constants::mana_regen_time_ms );
+     * if ( delta )
+     * {
+     *   auto new_mana = bal.mana() + ( ( int128_t( delta ) * int128_t( bal.balance() ) ) / constants::mana_regen_time_ms ).convert_to< uint64_t >() ;
+     *   bal.set_mana( std::min( new_mana, bal.balance() ) );
+     *   bal.set_last_mana_update( head_block_time );
+     *  }
+     */
+
+    const head_block_time = System.getHeadInfo().head_block_time;
+    const delta = Math.min(head_block_time - balanceObj.last_mana_update, this._mana_regen_time_ms);
+
+    if (delta > 0) {
+      const new_mana = balanceObj.mana() + ( ( u128Safe.from( delta ) * u128Safe.from( balanceObj.balance ) ) / u128Safe.from( this._mana_regen_time_ms ) ).as<u64>();
+      balanceObj.mana = Math.min( new_mana, balanceObj.balance() );
+      balanceObj.last_mana_update = head_block_time;
+    }
+  }
+
+  _trim_balances(balanceObj: koin.effective_balance_object, blockHeight: u64): void {
+    if (balanceObj.past_balances.length <= 1)
+      return;
+
+    let limitBlock = blockHeight - this._delay_blocks;
+
+    if (blockHeight < this._delay_blocks) {
+      limitBlock = 0;
+    }
+
+    while( balanceObj.past_balances.length > 1 && balanceObj.past_balances[1].block_height <= limitBlock ) {
+      balanceObj.past_balances.shift();
+    }
+  }
+}

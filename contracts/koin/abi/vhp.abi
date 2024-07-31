@@ -1,0 +1,96 @@
+{
+   "methods" : {
+      "name": {
+         "argument"    : "koinos.standards.kcs4.name_arguments",
+         "return"      : "koinos.standards.kcs4.name_result",
+         "entry-point" : "0x82a3537f",
+         "description" : "Returns the token name",
+         "read-only"   : true
+      },
+      "symbol": {
+         "argument"    : "koinos.standards.kcs4.symbol_arguments",
+         "return"      : "koinos.standards.kcs4.symbol_result",
+         "entry-point" : "0xb76a7ca1",
+         "description" : "Returns the token symbol",
+         "read-only"   : true
+      },
+      "decimals": {
+         "argument"    : "koinos.standards.kcs4.decimals_arguments",
+         "return"      : "koinos.standards.kcs4.decimals_result",
+         "entry-point" : "0xee80fd2f",
+         "description" : "Returns the token decimal precision",
+         "read-only"   : true
+      },
+      "get_info": {
+         "argument"    : "koinos.standards.kcs4.get_info_arguments",
+         "return"      : "koinos.standards.kcs4.get_info_result",
+         "entry-point" : "0xbd7f6850",
+         "description" : "Returns the token info",
+         "read-only"   : true
+      },
+      "total_supply": {
+         "argument"    : "koinos.standards.kcs4.total_supply_arguments",
+         "return"      : "koinos.standards.kcs4.total_supply_result",
+         "entry-point" : "0xb0da3934",
+         "description" : "Returns the token total supply",
+         "read-only"   : true
+      },
+      "balance_of": {
+         "argument"    : "koinos.standards.kcs4.balance_of_arguments",
+         "return"      : "koinos.standards.kcs4.balance_of_result",
+         "entry-point" : "0x5c721497",
+         "description" : "Checks the balance at an address",
+         "read-only"   : true
+      },
+      "effective_balance_of": {
+         "argument"    : "koinos.contracts.vhp.effective_balance_of_arguments",
+         "return"      : "koinos.contracts.vhp.effective_balance_of_result",
+         "entry-point" : "0x629f31e6",
+         "description" : "Checks the effective balance at an address",
+         "read-only"   : true
+      },
+      "allownace": {
+         "argument"    : "koinos.standards.kcs4.allowance_arguments",
+         "return"      : "koinos.standards.kcs4.allowance_result",
+         "entry-point" : "0x32f09fa1",
+         "description" : "Checks the allowance for a owner and spender",
+         "read-only"   : true
+      },
+      "get_allownaces": {
+         "argument"    : "koinos.standards.kcs4.get_allowances_arguments",
+         "return"      : "koinos.standards.kcs4.get_allowances_result",
+         "entry-point" : "0x8fa16456",
+         "description" : "Gets allowances for an address",
+         "read-only"   : true
+      },
+      "transfer": {
+         "argument"    : "koinos.standards.kcs4.transfer_arguments",
+         "return"      : "koinos.standards.kcs4.transfer_result",
+         "entry-point" : "0x27f576ca",
+         "description" : "Transfers the token",
+         "read-only"   : false
+      },
+      "mint": {
+         "argument"    : "koinos.standards.kcs4.mint_arguments",
+         "return"      : "koinos.standards.kcs4.mint_result",
+         "entry-point" : "0xdc6f17bb",
+         "description" : "Mints the token",
+         "read-only"   : false
+      },
+      "burn": {
+         "argument"    : "koinos.standards.kcs4.burn_arguments",
+         "return"      : "koinos.standards.kcs4.burn_result",
+         "entry-point" : "0x859facc5",
+         "description" : "Burns the token",
+         "read-only"   : false
+      },
+      "approve": {
+         "argument"    : "koinos.standards.kcs4.approve_arguments",
+         "return"      : "koinos.standards.kcs4.approve_result",
+         "entry-point" : "0x74e21680",
+         "description" : "Approves a spender for the token",
+         "read-only"   : false
+      }
+   },
+   "types" : "CrcOChtrb2lub3Mvc3RhbmRhcmRzL2tjczQucHJvdG8SFWtvaW5vcy5zdGFuZGFyZHMua2NzNBoUa29pbm9zL29wdGlvbnMucHJvdG8iEAoObmFtZV9hcmd1bWVudHMiIwoLbmFtZV9yZXN1bHQSFAoFdmFsdWUYASABKAlSBXZhbHVlIhIKEHN5bWJvbF9hcmd1bWVudHMiJQoNc3ltYm9sX3Jlc3VsdBIUCgV2YWx1ZRgBIAEoCVIFdmFsdWUiFAoSZGVjaW1hbHNfYXJndW1lbnRzIicKD2RlY2ltYWxzX3Jlc3VsdBIUCgV2YWx1ZRgBIAEoDVIFdmFsdWUiGAoWdG90YWxfc3VwcGx5X2FyZ3VtZW50cyIvChN0b3RhbF9zdXBwbHlfcmVzdWx0EhgKBXZhbHVlGAEgASgEQgIwAVIFdmFsdWUiMgoUYmFsYW5jZV9vZl9hcmd1bWVudHMSGgoFb3duZXIYASABKAxCBIC1GAZSBW93bmVyIi0KEWJhbGFuY2Vfb2ZfcmVzdWx0EhgKBXZhbHVlGAEgASgEQgIwAVIFdmFsdWUiFAoSZ2V0X2luZm9fYXJndW1lbnRzIlkKD2dldF9pbmZvX3Jlc3VsdBISCgRuYW1lGAEgASgJUgRuYW1lEhYKBnN5bWJvbBgCIAEoCVIGc3ltYm9sEhoKCGRlY2ltYWxzGAMgASgNUghkZWNpbWFscyJRChNhbGxvd2FuY2VfYXJndW1lbnRzEhoKBW93bmVyGAEgASgMQgSAtRgGUgVvd25lchIeCgdzcGVuZGVyGAIgASgMQgSAtRgGUgdzcGVuZGVyIiwKEGFsbG93YW5jZV9yZXN1bHQSGAoFdmFsdWUYASABKARCAjABUgV2YWx1ZSJJCg1zcGVuZGVyX3ZhbHVlEh4KB3NwZW5kZXIYASABKAxCBIC1GAZSB3NwZW5kZXISGAoFdmFsdWUYAiABKARCAjABUgV2YWx1ZSKIAQoYZ2V0X2FsbG93YW5jZXNfYXJndW1lbnRzEhoKBW93bmVyGAEgASgMQgSAtRgGUgVvd25lchIaCgVzdGFydBgCIAEoDEIEgLUYBlIFc3RhcnQSFAoFbGltaXQYAyABKAVSBWxpbWl0Eh4KCmRlc2NlbmRpbmcYBCABKAhSCmRlc2NlbmRpbmcieQoVZ2V0X2FsbG93YW5jZXNfcmVzdWx0EhoKBW93bmVyGAEgASgMQgSAtRgGUgVvd25lchJECgphbGxvd2FuY2VzGAIgAygLMiQua29pbm9zLnN0YW5kYXJkcy5rY3M0LnNwZW5kZXJfdmFsdWVSCmFsbG93YW5jZXMicgoSdHJhbnNmZXJfYXJndW1lbnRzEhgKBGZyb20YASABKAxCBIC1GAZSBGZyb20SFAoCdG8YAiABKAxCBIC1GAZSAnRvEhgKBXZhbHVlGAMgASgEQgIwAVIFdmFsdWUSEgoEbWVtbxgEIAEoCVIEbWVtbyIRCg90cmFuc2Zlcl9yZXN1bHQiQAoObWludF9hcmd1bWVudHMSFAoCdG8YASABKAxCBIC1GAZSAnRvEhgKBXZhbHVlGAIgASgEQgIwAVIFdmFsdWUiDQoLbWludF9yZXN1bHQiRAoOYnVybl9hcmd1bWVudHMSGAoEZnJvbRgBIAEoDEIEgLUYBlIEZnJvbRIYCgV2YWx1ZRgCIAEoBEICMAFSBXZhbHVlIg0KC2J1cm5fcmVzdWx0ImkKEWFwcHJvdmVfYXJndW1lbnRzEhoKBW93bmVyGAEgASgMQgSAtRgGUgVvd25lchIeCgdzcGVuZGVyGAIgASgMQgSAtRgGUgdzcGVuZGVyEhgKBXZhbHVlGAMgASgEQgIwAVIFdmFsdWUiEAoOYXBwcm92ZV9yZXN1bHQiQAoKYnVybl9ldmVudBIYCgRmcm9tGAEgASgMQgSAtRgGUgRmcm9tEhgKBXZhbHVlGAIgASgEQgIwAVIFdmFsdWUiPAoKbWludF9ldmVudBIUCgJ0bxgBIAEoDEIEgLUYBlICdG8SGAoFdmFsdWUYAiABKARCAjABUgV2YWx1ZSJuCg50cmFuc2Zlcl9ldmVudBIYCgRmcm9tGAEgASgMQgSAtRgGUgRmcm9tEhQKAnRvGAIgASgMQgSAtRgGUgJ0bxIYCgV2YWx1ZRgDIAEoBEICMAFSBXZhbHVlEhIKBG1lbW8YBCABKAlSBG1lbW8iZQoNYXBwcm92ZV9ldmVudBIaCgVvd25lchgBIAEoDEIEgLUYBlIFb3duZXISHgoHc3BlbmRlchgCIAEoDEIEgLUYBlIHc3BlbmRlchIYCgV2YWx1ZRgDIAEoBEICMAFSBXZhbHVlQkBaPmdpdGh1Yi5jb20va29pbm9zL2tvaW5vcy1wcm90by1nb2xhbmcvdjIva29pbm9zL3N0YW5kYXJkcy9rY3M0YgZwcm90bzM="
+}
