@@ -609,6 +609,24 @@ describe("vhp", () => {
 
     expect(vhpContract.allowance(new kcs4.allowance_arguments(MOCK_ACCT2, MOCK_ACCT3)).value).toBe(30);
 
+    // check events
+    const events = MockVM.getEvents();
+    expect(events.length).toBe(3);
+    expect(events[0].name).toBe('koinos.contracts.kcs4.approve');
+    expect(events[0].impacted.length).toBe(2);
+    expect(Arrays.equal(events[0].impacted[0], MOCK_ACCT1)).toBe(true);
+    expect(Arrays.equal(events[0].impacted[1], MOCK_ACCT2)).toBe(true);
+
+    expect(events[1].name).toBe('koinos.contracts.kcs4.approve');
+    expect(events[1].impacted.length).toBe(2);
+    expect(Arrays.equal(events[1].impacted[0], MOCK_ACCT1)).toBe(true);
+    expect(Arrays.equal(events[1].impacted[1], MOCK_ACCT3)).toBe(true);
+
+    expect(events[2].name).toBe('koinos.contracts.kcs4.approve');
+    expect(events[2].impacted.length).toBe(2);
+    expect(Arrays.equal(events[2].impacted[0], MOCK_ACCT2)).toBe(true);
+    expect(Arrays.equal(events[2].impacted[1], MOCK_ACCT3)).toBe(true);
+
     // Tests basic allowances return
     let allowances = vhpContract.get_allowances(new kcs4.get_allowances_arguments(MOCK_ACCT1, new Uint8Array(0), 10));
     expect(Arrays.equal(allowances.owner, MOCK_ACCT1)).toBe(true);
