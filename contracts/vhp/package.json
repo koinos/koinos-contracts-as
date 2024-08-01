@@ -4,7 +4,7 @@
   "license": "MIT",
   "type": "module",
   "devDependencies": {
-    "@koinos/sdk-as": "1.2.0",
+    "@koinos/sdk-as": "https://github.com/koinos/koinos-sdk-as#nameservice",
     "@types/jest": "^27.5.1",
     "@typescript-eslint/eslint-plugin": "^5.10.0",
     "@typescript-eslint/parser": "^5.10.0",
