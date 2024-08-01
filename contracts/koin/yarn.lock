@@ -768,8 +768,8 @@
     typescript "^4.6.4"
 
 "@koinos/mock-vm@https://github.com/koinos/koinos-mock-vm#22-nameservice":
-  version "1.1.0"
-  resolved "https://github.com/koinos/koinos-mock-vm#c5330cd1bbecac864ebca911b0ebf6345301327f"
+  version "1.2.0"
+  resolved "https://github.com/koinos/koinos-mock-vm#15fb4e655ccbe051a9383d4c8aa84618299c2ea0"
   dependencies:
     "@koinos/proto-js" "2.1.0"
     "@noble/hashes" "^1.0.0"
@@ -791,9 +791,17 @@
   resolved "https://registry.yarnpkg.com/@koinos/proto-js/-/proto-js-2.1.0.tgz#38fdbd01519ad1706b5f7edcf697a6ebbbd3db76"
   integrity sha512-mp2JmNhp7db6TixVqXF4VrhCW6lRXf6JCojY3c6jyByPyysQgAVJLLx2sUZlPzeUdP6Bnqt23485FMIo46TQ9g==
 
+"@koinos/sdk-as-cli@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@koinos/sdk-as-cli/-/sdk-as-cli-1.0.2.tgz#83fe031dca9a446254096fada278d3f523204c0c"
+  integrity sha512-ggbPz/LXozvb54G0dVZ9VkgPPmjKlwCI8LamSJXA+MZ8KOggfr2lgKMHT3AcMd0CtmmRN0JzHSM+cgk8sNYltg==
+  dependencies:
+    chalk "4.1.2"
+    commander "^9.0.0"
+
 "@koinos/sdk-as@https://github.com/koinos/koinos-sdk-as#nameservice":
   version "1.2.0"
-  resolved "https://github.com/koinos/koinos-sdk-as#9ac999419b5e36a6fca2ab3f7413fcea78718ca6"
+  resolved "https://github.com/koinos/koinos-sdk-as#451da2927ae66eabac3ee5ca6ccd62d7681807ea"
   dependencies:
     "@as-covers/core" "^0.4.2"
     "@as-pect/cli" "^8.0.1"
@@ -802,6 +810,7 @@
     "@koinos/as-proto-gen" "1.0.0"
     "@koinos/mock-vm" "https://github.com/koinos/koinos-mock-vm#22-nameservice"
     "@koinos/proto-as" "2.2.0"
+    "@koinos/sdk-as-cli" "^1.0.2"
     "@roamin/protoc" "^2.4.0"
     as-bignum "^0.2.18"
     as-proto "npm:@koinos/as-proto@1.0.1"

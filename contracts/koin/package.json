@@ -4,7 +4,6 @@
   "license": "MIT",
   "type": "module",
   "devDependencies": {
-    "@koinos/sdk-as": "https://github.com/koinos/koinos-sdk-as#nameservice",
     "@types/jest": "^27.5.1",
     "@typescript-eslint/eslint-plugin": "^5.10.0",
     "@typescript-eslint/parser": "^5.10.0",
@@ -25,5 +24,8 @@
     "local-koinos-auto": "local-koinos start -i 5000",
     "local-koinos:start": "local-koinos start",
     "local-koinos:stop": "local-koinos stop"
+  },
+  "dependencies": {
+    "@koinos/sdk-as": "https://github.com/koinos/koinos-sdk-as#nameservice"
   }
 }
