@@ -1,6 +1,6 @@
-import { Base58, MockVM, authority, Arrays, Protobuf, System, chain, kcs4, protocol } from "@koinos/sdk-as";
-import { vhp } from "../proto/vhp";
-import { Vhp } from "../Koin";
+import { Base58, MockVM, authority, Arrays, chain, Protobuf, System, kcs4, protocol, system_calls } from "@koinos/sdk-as";
+import { koin } from "../proto/koin";
+import { Koin } from "../Koin";
 
 const CONTRACT_ID = Base58.decode("1DQzuCcTKacbs9GGScRTU1Hc8BsyARTPqe");
 
@@ -10,7 +10,7 @@ const MOCK_ACCT3 = Base58.decode("1DQzuCcTKacbs9GGScRTU1Hc8BsyARTPqP");
 
 const headBlock = new protocol.block(new Uint8Array(0), new protocol.block_header(new Uint8Array(0), 10));
 
-describe("vhp", () => {
+describe("koin", () => {
   beforeEach(() => {
     MockVM.reset();
     MockVM.setContractId(CONTRACT_ID);
@@ -19,38 +19,39 @@ describe("vhp", () => {
     MockVM.setCaller(new chain.caller_data(new Uint8Array(0), chain.privilege.user_mode));
     MockVM.setBlock(headBlock);
     MockVM.setContractMetadata(new chain.contract_metadata_object(new Uint8Array(0), false, false, false, false));
+    MockVM.setHeadInfo(new chain.head_info(null, 0, 1));
 
     System.resetCache();
   });
 
   it("should get the name", () => {
-    const vhpContract = new Vhp();
-    const res = vhpContract.name();
-    expect(res.value).toBe("Virtual Hash Power");
+    const koinContract = new Koin();
+    const res = koinContract.name();
+    expect(res.value).toBe("Koin");
   });
 
   it("should get the symbol", () => {
-    const vhpContract = new Vhp();
-    const res = vhpContract.symbol();
-    expect(res.value).toBe("VHP");
+    const koinContract = new Koin();
+    const res = koinContract.symbol();
+    expect(res.value).toBe("KOIN");
   });
 
   it("should get the decimals", () => {
-    const vhpContract = new Vhp();
-    const res = vhpContract.decimals();
+    const koinContract = new Koin();
+    const res = koinContract.decimals();
     expect(res.value).toBe(8);
   });
 
   it("should get token info", () => {
-    const vhpContract = new Vhp();
-    const res = vhpContract.get_info();
-    expect(res.name).toBe("Virtual Hash Power");
-    expect(res.symbol).toBe("VHP");
+    const koinContract = new Koin();
+    const res = koinContract.get_info();
+    expect(res.name).toBe("Koin");
+    expect(res.symbol).toBe("KOIN");
     expect(res.decimals).toBe(8);
   });
 
   it("should/not burn tokens", () => {
-    const vhpContract = new Vhp();
+    const koinContract = new Koin();
     let callerData = new chain.caller_data();
     callerData.caller = CONTRACT_ID;
     callerData.caller_privilege = chain.privilege.kernel_mode;
@@ -61,25 +62,25 @@ describe("vhp", () => {
     MockVM.setAuthorities([auth]);
 
     // check total supply
-    let totalSupplyRes = vhpContract.total_supply();
+    let totalSupplyRes = koinContract.total_supply();
     expect(totalSupplyRes.value).toBe(0);
 
     // mint tokens
     const mintArgs = new kcs4.mint_arguments(MOCK_ACCT1, 123);
-    vhpContract.mint(mintArgs);
+    koinContract.mint(mintArgs);
 
-    totalSupplyRes = vhpContract.total_supply();
+    totalSupplyRes = koinContract.total_supply();
     expect(totalSupplyRes.value).toBe(123);
 
     let balanceArgs = new kcs4.balance_of_arguments(MOCK_ACCT1);
-    let balanceRes = vhpContract.balance_of(balanceArgs);
+    let balanceRes = koinContract.balance_of(balanceArgs);
     expect(balanceRes.value).toBe(123);
 
     auth = new MockVM.MockAuthority(authority.authorization_type.contract_call, MOCK_ACCT1, true);
     MockVM.setAuthorities([auth]);
 
     // burn tokens
-    vhpContract.burn(new kcs4.burn_arguments(MOCK_ACCT1, 10));
+    koinContract.burn(new kcs4.burn_arguments(MOCK_ACCT1, 10));
 
     // check events
     const events = MockVM.getEvents();
@@ -97,11 +98,11 @@ describe("vhp", () => {
 
     // check balance
     balanceArgs = new kcs4.balance_of_arguments(MOCK_ACCT1);
-    balanceRes = vhpContract.balance_of(balanceArgs);
+    balanceRes = koinContract.balance_of(balanceArgs);
     expect(balanceRes.value).toBe(113);
 
     // check total supply
-    totalSupplyRes = vhpContract.total_supply();
+    totalSupplyRes = koinContract.total_supply();
     expect(totalSupplyRes.value).toBe(113);
 
     // save the MockVM state because the burn is going to revert the transaction
@@ -109,9 +110,9 @@ describe("vhp", () => {
 
     // does not burn tokens
     expect(() => {
-      const vhpContract = new Vhp();
+      const koinContract = new Koin();
       const burnArgs = new kcs4.burn_arguments(MOCK_ACCT1, 200);
-      vhpContract.burn(burnArgs);
+      koinContract.burn(burnArgs);
     }).toThrow();
 
     // check error message
@@ -127,9 +128,9 @@ describe("vhp", () => {
 
     expect(() => {
       // try to burn tokens
-      const vhpContract = new Vhp();
+      const koinContract = new Koin();
       const burnArgs = new kcs4.burn_arguments(MOCK_ACCT1, 123);
-      vhpContract.burn(burnArgs);
+      koinContract.burn(burnArgs);
     }).toThrow();
 
     // check error message
@@ -137,31 +138,27 @@ describe("vhp", () => {
 
     // check balance
     balanceArgs = new kcs4.balance_of_arguments(MOCK_ACCT1);
-    balanceRes = vhpContract.balance_of(balanceArgs);
+    balanceRes = koinContract.balance_of(balanceArgs);
     expect(balanceRes.value).toBe(113);
 
     // check total supply
-    totalSupplyRes = vhpContract.total_supply();
+    totalSupplyRes = koinContract.total_supply();
     expect(totalSupplyRes.value).toBe(113);
   });
 
   it("should mint tokens", () => {
-    const vhpContract = new Vhp();
+    const koinContract = new Koin();
 
     // set kernel mode
     MockVM.setCaller(new chain.caller_data(new Uint8Array(0), chain.privilege.kernel_mode));
 
-    // set contract_call authority for CONTRACT_ID to true so that we can mint tokens
-    const auth = new MockVM.MockAuthority(authority.authorization_type.contract_call, CONTRACT_ID, true);
-    MockVM.setAuthorities([auth]);
-
     // check total supply
-    let totalSupplyRes = vhpContract.total_supply();
+    let totalSupplyRes = koinContract.total_supply();
     expect(totalSupplyRes.value).toBe(0);
 
     // mint tokens
     const mintArgs = new kcs4.mint_arguments(MOCK_ACCT1, 123);
-    vhpContract.mint(mintArgs);
+    koinContract.mint(mintArgs);
 
     // check events
     const events = MockVM.getEvents();
@@ -176,28 +173,28 @@ describe("vhp", () => {
 
     // check balance
     const balanceArgs = new kcs4.balance_of_arguments(MOCK_ACCT1);
-    const balanceRes = vhpContract.balance_of(balanceArgs);
+    const balanceRes = koinContract.balance_of(balanceArgs);
     expect(balanceRes.value).toBe(123);
 
     // check total supply
-    totalSupplyRes = vhpContract.total_supply();
+    totalSupplyRes = koinContract.total_supply();
     expect(totalSupplyRes.value).toBe(123);
   });
 
   it("should not mint tokens if not contract account", () => {
-    const vhpContract = new Vhp();
+    const koinContract = new Koin();
 
     // set contract_call authority for MOCK_ACCT1 to true so that we cannot mint tokens
     const auth = new MockVM.MockAuthority(authority.authorization_type.contract_call, MOCK_ACCT1, true);
     MockVM.setAuthorities([auth]);
 
     // check total supply
-    let totalSupplyRes = vhpContract.total_supply();
+    let totalSupplyRes = koinContract.total_supply();
     expect(totalSupplyRes.value).toBe(0);
 
     // check balance
     const balanceArgs = new kcs4.balance_of_arguments(MOCK_ACCT1);
-    let balanceRes = vhpContract.balance_of(balanceArgs);
+    let balanceRes = koinContract.balance_of(balanceArgs);
     expect(balanceRes.value).toBe(0);
 
     // save the MockVM state because the mint is going to revert the transaction
@@ -205,13 +202,13 @@ describe("vhp", () => {
 
     expect(() => {
       // try to mint tokens
-      const vhpContract = new Vhp();
+      const koinContract = new Koin();
       const mintArgs = new kcs4.mint_arguments(MOCK_ACCT2, 123);
-      vhpContract.mint(mintArgs);
+      koinContract.mint(mintArgs);
     }).toThrow();
 
     // check balance
-    balanceRes = vhpContract.balance_of(balanceArgs);
+    balanceRes = koinContract.balance_of(balanceArgs);
     expect(balanceRes.value).toBe(0);
 
     // check total supply
@@ -219,7 +216,7 @@ describe("vhp", () => {
   });
 
   it("should not mint tokens if new total supply overflows", () => {
-    const vhpContract = new Vhp();
+    const koinContract = new Koin();
 
     // set kernel mode
     MockVM.setCaller(new chain.caller_data(new Uint8Array(0), chain.privilege.kernel_mode));
@@ -229,23 +226,23 @@ describe("vhp", () => {
     MockVM.setAuthorities([auth]);
 
     let mintArgs = new kcs4.mint_arguments(MOCK_ACCT2, 123);
-    vhpContract.mint(mintArgs);
+    koinContract.mint(mintArgs);
 
     // check total supply
-    let totalSupplyRes = vhpContract.total_supply();
+    let totalSupplyRes = koinContract.total_supply();
     expect(totalSupplyRes.value).toBe(123);
 
     // save the MockVM state because the mint is going to revert the transaction
     MockVM.commitTransaction();
 
     expect(() => {
-      const vhpContract = new Vhp();
+      const koinContract = new Koin();
       const mintArgs = new kcs4.mint_arguments(MOCK_ACCT2, u64.MAX_VALUE);
-      vhpContract.mint(mintArgs);
+      koinContract.mint(mintArgs);
     }).toThrow();
 
     // check total supply
-    totalSupplyRes = vhpContract.total_supply();
+    totalSupplyRes = koinContract.total_supply();
     expect(totalSupplyRes.value).toBe(123);
 
     // check error message
@@ -253,7 +250,7 @@ describe("vhp", () => {
   });
 
   it("should transfer tokens", () => {
-    const vhpContract = new Vhp();
+    const koinContract = new Koin();
 
     // set kernel mode
     MockVM.setCaller(new chain.caller_data(new Uint8Array(0), chain.privilege.kernel_mode));
@@ -267,19 +264,19 @@ describe("vhp", () => {
 
     // mint tokens
     const mintArgs = new kcs4.mint_arguments(MOCK_ACCT1, 123);
-    vhpContract.mint(mintArgs);
+    koinContract.mint(mintArgs);
 
     // transfer tokens
     const transferArgs = new kcs4.transfer_arguments(MOCK_ACCT1, MOCK_ACCT2, 10);
-    vhpContract.transfer(transferArgs);
+    koinContract.transfer(transferArgs);
 
     // check balances
     let balanceArgs = new kcs4.balance_of_arguments(MOCK_ACCT1);
-    let balanceRes = vhpContract.balance_of(balanceArgs);
+    let balanceRes = koinContract.balance_of(balanceArgs);
     expect(balanceRes.value).toBe(113);
 
     balanceArgs = new kcs4.balance_of_arguments(MOCK_ACCT2);
-    balanceRes = vhpContract.balance_of(balanceArgs);
+    balanceRes = koinContract.balance_of(balanceArgs);
     expect(balanceRes.value).toBe(10);
 
     // check events
@@ -298,7 +295,7 @@ describe("vhp", () => {
   });
 
   it("should not transfer tokens without the proper authorizations", () => {
-    const vhpContract = new Vhp();
+    const koinContract = new Koin();
 
     // set kernel mode
     MockVM.setCaller(new chain.caller_data(new Uint8Array(0), chain.privilege.kernel_mode));
@@ -310,30 +307,30 @@ describe("vhp", () => {
 
     // mint tokens
     const mintArgs = new kcs4.mint_arguments(MOCK_ACCT1, 123);
-    vhpContract.mint(mintArgs);
+    koinContract.mint(mintArgs);
 
     // save the MockVM state because the transfer is going to revert the transaction
     MockVM.commitTransaction();
 
     expect(() => {
       // try to transfer tokens without the proper authorizations for MOCK_ACCT1
-      const vhpContract = new Vhp();
+      const koinContract = new Koin();
       const transferArgs = new kcs4.transfer_arguments(MOCK_ACCT1, MOCK_ACCT2, 10);
-      vhpContract.transfer(transferArgs);
+      koinContract.transfer(transferArgs);
     }).toThrow();
 
     // check balances
     let balanceArgs = new kcs4.balance_of_arguments(MOCK_ACCT1);
-    let balanceRes = vhpContract.balance_of(balanceArgs);
+    let balanceRes = koinContract.balance_of(balanceArgs);
     expect(balanceRes.value).toBe(123);
 
     balanceArgs = new kcs4.balance_of_arguments(MOCK_ACCT2);
-    balanceRes = vhpContract.balance_of(balanceArgs);
+    balanceRes = koinContract.balance_of(balanceArgs);
     expect(balanceRes.value).toBe(0);
   });
 
   it("should not transfer tokens to self", () => {
-    const vhpContract = new Vhp();
+    const koinContract = new Koin();
 
     // set kernel mode
     MockVM.setCaller(new chain.caller_data(new Uint8Array(0), chain.privilege.kernel_mode));
@@ -347,21 +344,21 @@ describe("vhp", () => {
 
     // mint tokens
     const mintArgs = new kcs4.mint_arguments(MOCK_ACCT1, 123);
-    vhpContract.mint(mintArgs);
+    koinContract.mint(mintArgs);
 
     // save the MockVM state because the transfer is going to revert the transaction
     MockVM.commitTransaction();
 
     // try to transfer tokens
     expect(() => {
-      const vhpContract = new Vhp();
+      const koinContract = new Koin();
       const transferArgs = new kcs4.transfer_arguments(Base58.decode("1DQzuCcTKacbs9GGScRTU1Hc8BsyARTPqG"), MOCK_ACCT1, 10);
-      vhpContract.transfer(transferArgs);
+      koinContract.transfer(transferArgs);
     }).toThrow();
 
     // check balances
     let balanceArgs = new kcs4.balance_of_arguments(MOCK_ACCT1);
-    let balanceRes = vhpContract.balance_of(balanceArgs);
+    let balanceRes = koinContract.balance_of(balanceArgs);
     expect(balanceRes.value).toBe(123);
 
     // check error message
@@ -369,7 +366,7 @@ describe("vhp", () => {
   });
 
   it("should not transfer if insufficient balance", () => {
-    const vhpContract = new Vhp();
+    const koinContract = new Koin();
 
     // set kernel mode
     MockVM.setCaller(new chain.caller_data(new Uint8Array(0), chain.privilege.kernel_mode));
@@ -383,167 +380,29 @@ describe("vhp", () => {
 
     // mint tokens
     const mintArgs = new kcs4.mint_arguments(MOCK_ACCT1, 123);
-    vhpContract.mint(mintArgs);
+    koinContract.mint(mintArgs);
 
     // save the MockVM state because the transfer is going to revert the transaction
     MockVM.commitTransaction();
 
     // try to transfer tokens
     expect(() => {
-      const vhpContract = new Vhp();
+      const koinContract = new Koin();
       const transferArgs = new kcs4.transfer_arguments(MOCK_ACCT1, MOCK_ACCT2, 456);
-      vhpContract.transfer(transferArgs);
+      koinContract.transfer(transferArgs);
     }).toThrow();
 
     // check balances
     let balanceArgs = new kcs4.balance_of_arguments(MOCK_ACCT1);
-    let balanceRes = vhpContract.balance_of(balanceArgs);
+    let balanceRes = koinContract.balance_of(balanceArgs);
     expect(balanceRes.value).toBe(123);
 
     // check error message
     expect(MockVM.getErrorMessage()).toBe("account 'from' has insufficient balance");
   });
 
-  it("should delay effective balance", () => {
-    const vhpContract = new Vhp();
-
-    // set kernel mode
-    MockVM.setCaller(new chain.caller_data(new Uint8Array(0), chain.privilege.kernel_mode));
-
-    // set contract_call authority for CONTRACT_ID to true so that we can mint tokens
-    const authContractId = new MockVM.MockAuthority(authority.authorization_type.contract_call, CONTRACT_ID, true);
-
-    // set contract_call authority for MOCK_ACCT1 to true so that we can transfer tokens
-    const authMockAcct1 = new MockVM.MockAuthority(authority.authorization_type.contract_call, MOCK_ACCT1, true);
-    const authMockAcct2 = new MockVM.MockAuthority(authority.authorization_type.contract_call, MOCK_ACCT2, true);
-
-    MockVM.setAuthorities([authContractId]);
-
-    const effectiveBalanceMockAcct1 = new vhp.effective_balance_of_arguments(MOCK_ACCT1);
-    const effectiveBalanceMockAcct2 = new vhp.effective_balance_of_arguments(MOCK_ACCT2);
-
-    expect(vhpContract.effective_balance_of(effectiveBalanceMockAcct1).value).toBe(0);
-
-    // mint tokens
-    const mintArgs = new kcs4.mint_arguments(MOCK_ACCT1, 100);
-    vhpContract.mint(mintArgs);
-
-    expect(vhpContract.effective_balance_of(effectiveBalanceMockAcct1).value).toBe(0);
-
-    headBlock.header!.height = 29;
-    MockVM.setBlock(headBlock);
-
-    expect(vhpContract.effective_balance_of(effectiveBalanceMockAcct1).value).toBe(0);
-
-    headBlock.header!.height = 30;
-    MockVM.setBlock(headBlock);
-
-    expect(vhpContract.effective_balance_of(effectiveBalanceMockAcct1).value).toBe(100);
-
-    const transferArgs = new kcs4.transfer_arguments(MOCK_ACCT1, MOCK_ACCT2, 1);
-    MockVM.setAuthorities([authMockAcct1, authMockAcct1, authMockAcct1, authMockAcct1]);
-
-    vhpContract.transfer(transferArgs);
-
-    expect(vhpContract.effective_balance_of(effectiveBalanceMockAcct1).value).toBe(99);
-    expect(vhpContract.effective_balance_of(effectiveBalanceMockAcct2).value).toBe(0);
-
-    vhpContract.transfer(transferArgs);
-
-    expect(vhpContract.effective_balance_of(effectiveBalanceMockAcct1).value).toBe(98);
-    expect(vhpContract.effective_balance_of(effectiveBalanceMockAcct2).value).toBe(0);
-
-    headBlock.header!.height = 31;
-    MockVM.setBlock(headBlock);
-
-    vhpContract.transfer(transferArgs);
-
-    expect(vhpContract.effective_balance_of(effectiveBalanceMockAcct1).value).toBe(97);
-    expect(vhpContract.effective_balance_of(effectiveBalanceMockAcct2).value).toBe(0);
-
-    headBlock.header!.height = 35;
-    MockVM.setBlock(headBlock);
-
-    vhpContract.transfer(transferArgs);
-
-    expect(vhpContract.effective_balance_of(effectiveBalanceMockAcct1).value).toBe(96);
-    expect(vhpContract.effective_balance_of(effectiveBalanceMockAcct2).value).toBe(0);
-
-    headBlock.header!.height = 49;
-    MockVM.setBlock(headBlock);
-
-    expect(vhpContract.effective_balance_of(effectiveBalanceMockAcct1).value).toBe(96);
-    expect(vhpContract.effective_balance_of(effectiveBalanceMockAcct2).value).toBe(0);
-
-    headBlock.header!.height = 50;
-    MockVM.setBlock(headBlock);
-
-    expect(vhpContract.effective_balance_of(effectiveBalanceMockAcct1).value).toBe(96);
-    expect(vhpContract.effective_balance_of(effectiveBalanceMockAcct2).value).toBe(2);
-
-    headBlock.header!.height = 51;
-    MockVM.setBlock(headBlock);
-
-    expect(vhpContract.effective_balance_of(effectiveBalanceMockAcct1).value).toBe(96);
-    expect(vhpContract.effective_balance_of(effectiveBalanceMockAcct2).value).toBe(3);
-
-    headBlock.header!.height = 54;
-    MockVM.setBlock(headBlock);
-
-    expect(vhpContract.effective_balance_of(effectiveBalanceMockAcct1).value).toBe(96);
-    expect(vhpContract.effective_balance_of(effectiveBalanceMockAcct2).value).toBe(3);
-
-    headBlock.header!.height = 55;
-    MockVM.setBlock(headBlock);
-
-    expect(vhpContract.effective_balance_of(effectiveBalanceMockAcct1).value).toBe(96);
-    expect(vhpContract.effective_balance_of(effectiveBalanceMockAcct2).value).toBe(4);
-
-    MockVM.setAuthorities([authMockAcct1, authMockAcct2]);
-
-    vhpContract.transfer(transferArgs);
-
-    expect(vhpContract.effective_balance_of(effectiveBalanceMockAcct1).value).toBe(95);
-    expect(vhpContract.effective_balance_of(effectiveBalanceMockAcct2).value).toBe(4);
-
-    headBlock.header!.height = 56;
-    MockVM.setBlock(headBlock);
-
-    transferArgs.from = MOCK_ACCT2;
-    transferArgs.to = MOCK_ACCT1;
-    transferArgs.value = 4;
-
-    vhpContract.transfer(transferArgs);
-
-    expect(vhpContract.effective_balance_of(effectiveBalanceMockAcct1).value).toBe(95);
-    expect(vhpContract.effective_balance_of(effectiveBalanceMockAcct2).value).toBe(0);
-
-    headBlock.header!.height = 74;
-    MockVM.setBlock(headBlock);
-
-    expect(vhpContract.effective_balance_of(effectiveBalanceMockAcct1).value).toBe(95);
-    expect(vhpContract.effective_balance_of(effectiveBalanceMockAcct2).value).toBe(0);
-
-    headBlock.header!.height = 75;
-    MockVM.setBlock(headBlock);
-
-    expect(vhpContract.effective_balance_of(effectiveBalanceMockAcct1).value).toBe(95);
-    expect(vhpContract.effective_balance_of(effectiveBalanceMockAcct2).value).toBe(1);
-
-    headBlock.header!.height = 76;
-    MockVM.setBlock(headBlock);
-
-    expect(vhpContract.effective_balance_of(effectiveBalanceMockAcct1).value).toBe(99);
-    expect(vhpContract.effective_balance_of(effectiveBalanceMockAcct2).value).toBe(1);
-
-    MockVM.setAuthorities([authMockAcct2]);
-    vhpContract.burn(new kcs4.burn_arguments(MOCK_ACCT2, 1));
-
-    expect(vhpContract.effective_balance_of(effectiveBalanceMockAcct2).value).toBe(0);
-  });
-
   it("should transfer tokens without authority", () => {
-    const vhpContract = new Vhp();
+    const koinContract = new Koin();
 
     // set kernel mode
     MockVM.setCaller(new chain.caller_data(new Uint8Array(0), chain.privilege.kernel_mode));
@@ -555,22 +414,22 @@ describe("vhp", () => {
 
     // mint tokens
     const mintArgs = new kcs4.mint_arguments(MOCK_ACCT1, 123);
-    vhpContract.mint(mintArgs);
+    koinContract.mint(mintArgs);
 
     // set caller with MOCK_ACCT1 to allow transfer if the caller is the same from
     MockVM.setCaller(new chain.caller_data(MOCK_ACCT1, chain.privilege.kernel_mode));
 
     // transfer tokens
     const transferArgs = new kcs4.transfer_arguments(MOCK_ACCT1, MOCK_ACCT2, 10);
-    vhpContract.transfer(transferArgs);
+    koinContract.transfer(transferArgs);
 
     // check balances
     let balanceArgs = new kcs4.balance_of_arguments(MOCK_ACCT1);
-    let balanceRes = vhpContract.balance_of(balanceArgs);
+    let balanceRes = koinContract.balance_of(balanceArgs);
     expect(balanceRes.value).toBe(113);
 
     balanceArgs = new kcs4.balance_of_arguments(MOCK_ACCT2);
-    balanceRes = vhpContract.balance_of(balanceArgs);
+    balanceRes = koinContract.balance_of(balanceArgs);
     expect(balanceRes.value).toBe(10);
 
     // check events
@@ -589,28 +448,46 @@ describe("vhp", () => {
   });
 
   it("should approve", () => {
-    const vhpContract = new Vhp();
+    const koinContract = new Koin();
 
-    expect(vhpContract.allowance(new kcs4.allowance_arguments(MOCK_ACCT1, MOCK_ACCT2)).value).toBe(0);
+    expect(koinContract.allowance(new kcs4.allowance_arguments(MOCK_ACCT1, MOCK_ACCT2)).value).toBe(0);
 
     const mockAcc1Auth = new MockVM.MockAuthority(authority.authorization_type.contract_call, MOCK_ACCT1, true);
     MockVM.setAuthorities([mockAcc1Auth]);
-    vhpContract.approve(new kcs4.approve_arguments(MOCK_ACCT1, MOCK_ACCT2, 10));
+    koinContract.approve(new kcs4.approve_arguments(MOCK_ACCT1, MOCK_ACCT2, 10));
 
-    expect(vhpContract.allowance(new kcs4.allowance_arguments(MOCK_ACCT1, MOCK_ACCT2)).value).toBe(10);
+    expect(koinContract.allowance(new kcs4.allowance_arguments(MOCK_ACCT1, MOCK_ACCT2)).value).toBe(10);
 
     MockVM.setAuthorities([mockAcc1Auth]);
-    vhpContract.approve(new kcs4.approve_arguments(MOCK_ACCT1, MOCK_ACCT3, 20));
+    koinContract.approve(new kcs4.approve_arguments(MOCK_ACCT1, MOCK_ACCT3, 20));
 
-    expect(vhpContract.allowance(new kcs4.allowance_arguments(MOCK_ACCT1, MOCK_ACCT3)).value).toBe(20);
+    expect(koinContract.allowance(new kcs4.allowance_arguments(MOCK_ACCT1, MOCK_ACCT3)).value).toBe(20);
 
     MockVM.setAuthorities([new MockVM.MockAuthority(authority.authorization_type.contract_call, MOCK_ACCT2, true)]);
-    vhpContract.approve(new kcs4.approve_arguments(MOCK_ACCT2, MOCK_ACCT3, 30));
+    koinContract.approve(new kcs4.approve_arguments(MOCK_ACCT2, MOCK_ACCT3, 30));
 
-    expect(vhpContract.allowance(new kcs4.allowance_arguments(MOCK_ACCT2, MOCK_ACCT3)).value).toBe(30);
+    expect(koinContract.allowance(new kcs4.allowance_arguments(MOCK_ACCT2, MOCK_ACCT3)).value).toBe(30);
+
+    // check events
+    const events = MockVM.getEvents();
+    expect(events.length).toBe(3);
+    expect(events[0].name).toBe('koinos.contracts.kcs4.approve');
+    expect(events[0].impacted.length).toBe(2);
+    expect(Arrays.equal(events[0].impacted[0], MOCK_ACCT1)).toBe(true);
+    expect(Arrays.equal(events[0].impacted[1], MOCK_ACCT2)).toBe(true);
+
+    expect(events[1].name).toBe('koinos.contracts.kcs4.approve');
+    expect(events[1].impacted.length).toBe(2);
+    expect(Arrays.equal(events[1].impacted[0], MOCK_ACCT1)).toBe(true);
+    expect(Arrays.equal(events[1].impacted[1], MOCK_ACCT3)).toBe(true);
+
+    expect(events[2].name).toBe('koinos.contracts.kcs4.approve');
+    expect(events[2].impacted.length).toBe(2);
+    expect(Arrays.equal(events[2].impacted[0], MOCK_ACCT2)).toBe(true);
+    expect(Arrays.equal(events[2].impacted[1], MOCK_ACCT3)).toBe(true);
 
     // Tests basic allowances return
-    let allowances = vhpContract.get_allowances(new kcs4.get_allowances_arguments(MOCK_ACCT1, new Uint8Array(0), 10));
+    let allowances = koinContract.get_allowances(new kcs4.get_allowances_arguments(MOCK_ACCT1, new Uint8Array(0), 10));
     expect(Arrays.equal(allowances.owner, MOCK_ACCT1)).toBe(true);
     expect(allowances.allowances.length).toBe(2);
     expect(Arrays.equal(allowances.allowances[0].spender, MOCK_ACCT2)).toBe(true);
@@ -619,28 +496,28 @@ describe("vhp", () => {
     expect(allowances.allowances[1].value).toBe(20);
 
     // Tests allowances descending
-    allowances = vhpContract.get_allowances(new kcs4.get_allowances_arguments(MOCK_ACCT1, MOCK_ACCT3, 10, true));
+    allowances = koinContract.get_allowances(new kcs4.get_allowances_arguments(MOCK_ACCT1, MOCK_ACCT3, 10, true));
     expect(Arrays.equal(allowances.owner, MOCK_ACCT1)).toBe(true);
     expect(allowances.allowances.length).toBe(1);
     expect(Arrays.equal(allowances.allowances[0].spender, MOCK_ACCT2)).toBe(true);
     expect(allowances.allowances[0].value).toBe(10);
 
     // Tests allowances limit
-    allowances = vhpContract.get_allowances(new kcs4.get_allowances_arguments(MOCK_ACCT1, new Uint8Array(0), 1));
+    allowances = koinContract.get_allowances(new kcs4.get_allowances_arguments(MOCK_ACCT1, new Uint8Array(0), 1));
     expect(Arrays.equal(allowances.owner, MOCK_ACCT1)).toBe(true);
     expect(allowances.allowances.length).toBe(1);
     expect(Arrays.equal(allowances.allowances[0].spender, MOCK_ACCT2)).toBe(true);
     expect(allowances.allowances[0].value).toBe(10);
 
     // Tests allowances pagination
-    allowances = vhpContract.get_allowances(new kcs4.get_allowances_arguments(MOCK_ACCT1, MOCK_ACCT2, 10));
+    allowances = koinContract.get_allowances(new kcs4.get_allowances_arguments(MOCK_ACCT1, MOCK_ACCT2, 10));
     expect(Arrays.equal(allowances.owner, MOCK_ACCT1)).toBe(true);
     expect(allowances.allowances.length).toBe(1);
     expect(Arrays.equal(allowances.allowances[0].spender, MOCK_ACCT3)).toBe(true);
     expect(allowances.allowances[0].value).toBe(20);
 
     // Tests another owner's allowances
-    allowances = vhpContract.get_allowances(new kcs4.get_allowances_arguments(MOCK_ACCT2, new Uint8Array(0), 10));
+    allowances = koinContract.get_allowances(new kcs4.get_allowances_arguments(MOCK_ACCT2, new Uint8Array(0), 10));
     expect(Arrays.equal(allowances.owner, MOCK_ACCT2)).toBe(true);
     expect(allowances.allowances.length).toBe(1);
     expect(Arrays.equal(allowances.allowances[0].spender, MOCK_ACCT3)).toBe(true);
@@ -648,17 +525,17 @@ describe("vhp", () => {
   });
 
   it("should require an approval", () => {
-    const vhpContract = new Vhp();
+    const koinContract = new Koin();
 
     MockVM.setCaller(new chain.caller_data(MOCK_ACCT2, chain.privilege.kernel_mode));
-    vhpContract.mint(new kcs4.mint_arguments(MOCK_ACCT1, 100));
+    koinContract.mint(new kcs4.mint_arguments(MOCK_ACCT1, 100));
 
     MockVM.setCaller(new chain.caller_data(MOCK_ACCT2, chain.privilege.user_mode));
 
     // should not transfer because allowance does not exist
     expect(() => {
-      const vhpContract = new Vhp();
-      vhpContract.transfer(new kcs4.transfer_arguments(MOCK_ACCT1, MOCK_ACCT2, 10));
+      const koinContract = new Koin();
+      koinContract.transfer(new kcs4.transfer_arguments(MOCK_ACCT1, MOCK_ACCT2, 10));
     }).toThrow();
 
     expect(MockVM.getErrorMessage()).toBe("from has not authorized transfer");
@@ -666,20 +543,103 @@ describe("vhp", () => {
     // create allowance for 20 tokens
     MockVM.setCaller(new chain.caller_data(new Uint8Array(0), chain.privilege.kernel_mode));
     MockVM.setAuthorities([new MockVM.MockAuthority(authority.authorization_type.contract_call, MOCK_ACCT1, true)]);
-    vhpContract.approve(new kcs4.approve_arguments(MOCK_ACCT1, MOCK_ACCT2, 20));
+    koinContract.approve(new kcs4.approve_arguments(MOCK_ACCT1, MOCK_ACCT2, 20));
 
     MockVM.setCaller(new chain.caller_data(MOCK_ACCT2, chain.privilege.user_mode));
 
     // should not transfer because allowance is too small
     expect(() => {
-      const vhpContract = new Vhp();
-      vhpContract.transfer(new kcs4.transfer_arguments(MOCK_ACCT1, MOCK_ACCT2, 25));
+      const koinContract = new Koin();
+      koinContract.transfer(new kcs4.transfer_arguments(MOCK_ACCT1, MOCK_ACCT2, 25));
     }).toThrow();
 
     // should transfer partial amount of allowance
-    vhpContract.transfer(new kcs4.transfer_arguments(MOCK_ACCT1, MOCK_ACCT2, 10));
-    expect(vhpContract.balance_of(new kcs4.balance_of_arguments(MOCK_ACCT1)).value).toBe(90);
-    expect(vhpContract.balance_of(new kcs4.balance_of_arguments(MOCK_ACCT2)).value).toBe(10);
-    expect(vhpContract.allowance(new kcs4.allowance_arguments(MOCK_ACCT1, MOCK_ACCT2)).value).toBe(10);
+    koinContract.transfer(new kcs4.transfer_arguments(MOCK_ACCT1, MOCK_ACCT2, 10));
+    expect(koinContract.balance_of(new kcs4.balance_of_arguments(MOCK_ACCT1)).value).toBe(90);
+    expect(koinContract.balance_of(new kcs4.balance_of_arguments(MOCK_ACCT2)).value).toBe(10);
+    expect(koinContract.allowance(new kcs4.allowance_arguments(MOCK_ACCT1, MOCK_ACCT2)).value).toBe(10);
+  });
+
+  it("should track mana", ()=> {
+    const koinContract = new Koin();
+    MockVM.setContractName(MOCK_ACCT3, "governance");
+    MockVM.setContractAddress("governance", MOCK_ACCT3);
+
+    const getRcArgs = new system_calls.get_account_rc_arguments(MOCK_ACCT1);
+    expect(koinContract.get_account_rc(getRcArgs).value).toBe(0);
+
+    MockVM.setCaller(new chain.caller_data(new Uint8Array(0), chain.privilege.kernel_mode));
+    koinContract.mint(new kcs4.mint_arguments(MOCK_ACCT1, 1000000));
+    expect(koinContract.get_account_rc(getRcArgs).value).toBe(1000000);
+
+    MockVM.setCaller(new chain.caller_data(new Uint8Array(0), chain.privilege.user_mode));
+    koinContract.consume_account_rc(new system_calls.consume_account_rc_arguments(MOCK_ACCT1, 800000));
+    let logs = MockVM.getLogs();
+    expect(logs.length).toBe(1);
+    expect(logs[0]).toBe("The system call 'consume_account_rc' must be called from kernel context");
+    expect(koinContract.get_account_rc(getRcArgs).value).toBe(1000000);
+
+    MockVM.setCaller(new chain.caller_data(new Uint8Array(0), chain.privilege.kernel_mode));
+    koinContract.consume_account_rc(new system_calls.consume_account_rc_arguments(MOCK_ACCT1, 800000));
+    expect(koinContract.get_account_rc(getRcArgs).value).toBe(200000);
+
+    // Regen in 1 day should be +200,000
+    MockVM.setHeadInfo(new chain.head_info(null, 86400 * 1000, 1));
+    expect(koinContract.get_account_rc(getRcArgs).value).toBe(400000);
+
+    // Regen in 4 days should be +800,000
+    MockVM.setHeadInfo(new chain.head_info(null, 4 * 86400 * 1000, 1));
+    expect(koinContract.get_account_rc(getRcArgs).value).toBe(1000000);
+
+    // Regen in 10 days should be +800,000
+    MockVM.setHeadInfo(new chain.head_info(null, 10 * 86400 * 1000, 1));
+    expect(koinContract.get_account_rc(getRcArgs).value).toBe(1000000);
+  });
+
+  it("should not allow consuming too much mana", ()=> {
+    const koinContract = new Koin();
+    MockVM.setContractName(MOCK_ACCT3, "governance");
+    MockVM.setContractAddress("governance", MOCK_ACCT3);
+
+    const getRcArgs = new system_calls.get_account_rc_arguments(MOCK_ACCT1);
+    expect(koinContract.get_account_rc(getRcArgs).value).toBe(0);
+
+    MockVM.setCaller(new chain.caller_data(new Uint8Array(0), chain.privilege.kernel_mode));
+    koinContract.mint(new kcs4.mint_arguments(MOCK_ACCT1, 1000000));
+    expect(koinContract.get_account_rc(getRcArgs).value).toBe(1000000);
+
+    expect(koinContract.consume_account_rc(new system_calls.consume_account_rc_arguments(MOCK_ACCT1, 800000)).value).toBe(true);
+    expect(koinContract.get_account_rc(getRcArgs).value).toBe(200000);
+
+    expect(koinContract.consume_account_rc(new system_calls.consume_account_rc_arguments(MOCK_ACCT1, 800000)).value).toBe(false);
+    expect(koinContract.get_account_rc(getRcArgs).value).toBe(200000);
+  });
+
+  it("should handle governance mana", ()=> {
+    const koinContract = new Koin();
+    MockVM.setContractName(MOCK_ACCT3, "governance");
+    MockVM.setContractAddress("governance", MOCK_ACCT3);
+
+    // Check governance mana
+    expect(koinContract.get_account_rc(new system_calls.get_account_rc_arguments(MOCK_ACCT3)).value).toBe(u64.MAX_VALUE);
+  });
+
+  it("should handle mana regen overflow", ()=> {
+    const koinContract = new Koin();
+    MockVM.setContractName(MOCK_ACCT3, "governance");
+    MockVM.setContractAddress("governance", MOCK_ACCT3);
+
+    // Balance will be set to a value that will guarantee 64 bit overflow when regenerating mana.
+    const balance = (u64.MAX_VALUE / (5 * 86400 * 1000)) + 1;
+    MockVM.setCaller(new chain.caller_data(new Uint8Array(0), chain.privilege.kernel_mode));
+    koinContract.mint(new kcs4.mint_arguments(MOCK_ACCT1, (u64.MAX_VALUE / (5 * 86400 * 1000)) + 1));
+
+    koinContract.consume_account_rc(new system_calls.consume_account_rc_arguments(MOCK_ACCT1, balance));
+    expect(koinContract.get_account_rc(new system_calls.get_account_rc_arguments(MOCK_ACCT1)).value).toBe(0);
+    expect(koinContract.balance_of(new kcs4.balance_of_arguments(MOCK_ACCT1)).value).toBe(balance);
+
+    MockVM.setHeadInfo(new chain.head_info(null, 5 * 86400 * 1000, 1));
+    expect(koinContract.get_account_rc(new system_calls.get_account_rc_arguments(MOCK_ACCT1)).value).toBe(balance);
+    expect(koinContract.balance_of(new kcs4.balance_of_arguments(MOCK_ACCT1)).value).toBe(balance);
   });
 });

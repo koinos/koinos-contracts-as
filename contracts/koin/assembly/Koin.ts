@@ -3,7 +3,7 @@
 // Julian Gonzalez (joticajulian@gmail.com)
 // Koinos Group, Inc. (contact@koinos.group)
 
-import { Arrays, authority, Base58, chain, error, kcs4, Protobuf, Storage, System, u128Safe } from "@koinos/sdk-as";
+import { Arrays, authority, chain, error, kcs4, Protobuf, Storage, System, system_calls, u128 } from "@koinos/sdk-as";
 import { koin } from "./proto/koin";
 
 /**
@@ -55,6 +55,10 @@ namespace Detail {
   }
 }
 
+function min<T>(a: T, b: T): T {
+  return a < b ? a : b;
+}
+
 export class Koin {
   _name: string = BUILD_FOR_TESTING ? "Test Koin" : "Koin";
   _symbol: string = BUILD_FOR_TESTING ? "tKOIN" : "KOIN";
@@ -72,12 +76,12 @@ export class Koin {
     true
   );
 
-  balances: Storage.Map< Uint8Array, koin.balance_object > = new Storage.Map(
+  balances: Storage.Map< Uint8Array, koin.mana_balance_object > = new Storage.Map(
     Detail.Zone(),
     BALANCES_SPACE_ID,
-    koin.balance_object.decode,
-    koin.balance_object.encode,
-    () => new koin.balance_object(),
+    koin.mana_balance_object.decode,
+    koin.mana_balance_object.encode,
+    () => new koin.mana_balance_object(),
     true
   );
 
@@ -111,7 +115,7 @@ export class Koin {
   }
 
   balance_of(args: kcs4.balance_of_arguments): kcs4.balance_of_result {
-    return new kcs4.balance_of_result(this.balances.get(args.owner)!.current_balance);
+    return new kcs4.balance_of_result(this.balances.get(args.owner)!.balance);
   }
 
   allowance(args: kcs4.allowance_arguments): kcs4.allowance_result {
@@ -157,16 +161,16 @@ export class Koin {
     return result;
   }
 
-  get_account_rc(args: chain.get_account_rc_arguments): chain.get_account_rc_result {
+  get_account_rc(args: system_calls.get_account_rc_arguments): system_calls.get_account_rc_result {
     const governanceAddress = System.getContractAddress("governance");
 
-    if (Arrays.equal(args.owner!, governanceAddress)) {
-      return new chain.get_account_rc_result(u64.MAX_VALUE);
+    if (Arrays.equal(args.account, governanceAddress)) {
+      return new system_calls.get_account_rc_result(u64.MAX_VALUE);
     }
 
-    const balanceObj = this.balances.get(args.owner!);
+    const balanceObj = this.balances.get(args.account)!;
     this._regenerate_mana(balanceObj);
-    return new chain.get_account_rc_result(balanceObj.mana);
+    return new system_calls.get_account_rc_result(balanceObj.mana);
   }
 
   transfer(args: kcs4.transfer_arguments): kcs4.transfer_result {
@@ -181,12 +185,18 @@ export class Koin {
     );
 
     let fromBalance = this.balances.get(args.from)!;
-    System.require(fromBalance.current_balance >= args.value, "account 'from' has insufficient balance", error.error_code.failure);
+    System.require(fromBalance.balance >= args.value, "account 'from' has insufficient balance", error.error_code.failure);
+
+    this._regenerate_mana(fromBalance);
+    System.require(fromBalance.mana >= args.value, "account 'from' has insufficient mana for transfer", error.error_code.failure);
 
     let toBalance = this.balances.get(args.to)!;
-    let blockHeight = System.getBlockField("header.height")!.uint64_value;
-    this._decrease_balance_by(fromBalance, blockHeight, args.value);
-    this._increase_balance_by(toBalance, blockHeight, args.value);
+    this._regenerate_mana(toBalance);
+
+    fromBalance.balance -= args.value;
+    fromBalance.mana -= args.value;
+    toBalance.balance += args.value;
+    toBalance.mana += args.value;
 
     this.balances.put(args.from, fromBalance);
     this.balances.put(args.to, toBalance);
@@ -217,9 +227,11 @@ export class Koin {
     System.require(supply.value <= u64.MAX_VALUE - args.value, 'mint would overflow supply', error.error_code.failure);
 
     let balance = this.balances.get(args.to)!;
+    this._regenerate_mana(balance);
 
-    this._increase_balance_by(balance, System.getBlockField("header.height")!.uint64_value, args.value);
     supply.value += args.value;
+    balance.balance += args.value;
+    balance.mana += args.value;
 
     this.supply.put(supply);
     this.balances.put(args.to, balance);
@@ -244,13 +256,17 @@ export class Koin {
     );
 
     let fromBalance = this.balances.get(args.from)!;
-    System.require(fromBalance.current_balance >= args.value, "account 'from' has insufficient balance", error.error_code.failure);
+    System.require(fromBalance.balance >= args.value, "account 'from' has insufficient balance", error.error_code.failure);
+
+    this._regenerate_mana(fromBalance);
+    System.require(fromBalance.mana >= args.value, "account 'from' has insufficient mana for burn", error.error_code.failure);
 
     let supply = this.supply.get()!;
     System.require(supply.value >= args.value, 'burn would underflow supply', error.error_code.failure);
 
     supply.value -= args.value;
-    this._decrease_balance_by(fromBalance, System.getBlockField("header.height")!.uint64_value, args.value);
+    fromBalance.balance -= args.value;
+    fromBalance.mana -= args.value;
 
     this.supply.put(supply);
     this.balances.put(args.from, fromBalance);
@@ -300,65 +316,28 @@ export class Koin {
     return System.checkAccountAuthority(account);
   }
 
-  consume_account_rc(args: chain.consume_account_rc_arguments): chain.consume_account_rc_result {
+  consume_account_rc(args: system_calls.consume_account_rc_arguments): system_calls.consume_account_rc_result {
     const callerData = System.getCaller();
 
     if (callerData.caller_privilege != chain.privilege.kernel_mode) {
       System.log( "The system call 'consume_account_rc' must be called from kernel context" );
-      return new chain.consume_account_rc_result(false);
+      return new system_calls.consume_account_rc_result(false);
     }
 
-    const balanceObj = this.balances.get(args.owner!);
+    const balanceObj = this.balances.get(args.account)!;
     this._regenerate_mana(balanceObj);
 
     // Mana cannot go negative
     if (balanceObj.mana < args.value) {
       // TODO: Improve log message?
       System.log( "Account has insufficient mana for consumption" );
-      return new chain.consume_account_rc_result(false);
+      return new system_calls.consume_account_rc_result(false);
     }
 
     balanceObj.mana -= args.value;
-    this.balances.put(args.owner!, balanceObj);
+    this.balances.put(args.account, balanceObj);
 
-    return new chain.consume_account_rc_result(true);
-  }
-
-  _increase_balance_by(balanceObj: koin.effective_balance_object, blockHeight: u64, value: u64): void {
-    this._trim_balances(balanceObj, blockHeight);
-
-    let snapshotLength = balanceObj.past_balances.length;
-
-    if (snapshotLength == 0) {
-      balanceObj.past_balances.push(new koin.balance_entry(blockHeight - 1, balanceObj.current_balance));
-      snapshotLength = 1;
-    }
-
-    let newBalance = balanceObj.current_balance + value;
-    balanceObj.current_balance = newBalance;
-
-    // If there is no entry for this block's balance, set it.
-    // Otherwise, push it to the back
-    if (balanceObj.past_balances[snapshotLength - 1].block_height != blockHeight ) {
-      balanceObj.past_balances.push(new koin.balance_entry(blockHeight, newBalance));
-    }
-    else {
-      balanceObj.past_balances[snapshotLength - 1].balance = newBalance;
-    }
-  }
-
-  _decrease_balance_by(balanceObj: koin.effective_balance_object, blockHeight: u64, value: u64): void {
-    this._trim_balances(balanceObj, blockHeight);
-
-    balanceObj.current_balance -= value;
-
-    for (let i = 0; i < balanceObj.past_balances.length; i++ ) {
-      if (balanceObj.past_balances[i].balance < value) {
-        balanceObj.past_balances[i].balance = 0;
-      } else {
-        balanceObj.past_balances[i].balance -= value;
-      }
-    }
+    return new system_calls.consume_account_rc_result(true);
   }
 
   _regenerate_mana(balanceObj: koin.mana_balance_object): void {
@@ -377,27 +356,12 @@ export class Koin {
      */
 
     const head_block_time = System.getHeadInfo().head_block_time;
-    const delta = Math.min(head_block_time - balanceObj.last_mana_update, this._mana_regen_time_ms);
+    const delta = min(head_block_time - balanceObj.last_mana_update, this._mana_regen_time_ms);
 
     if (delta > 0) {
-      const new_mana = balanceObj.mana() + ( ( u128Safe.from( delta ) * u128Safe.from( balanceObj.balance ) ) / u128Safe.from( this._mana_regen_time_ms ) ).as<u64>();
-      balanceObj.mana = Math.min( new_mana, balanceObj.balance() );
+      const new_mana = balanceObj.mana + ( ( u128.from( delta ) * u128.from( balanceObj.balance ) ) / u128.from( this._mana_regen_time_ms ) ).as<u64>();
+      balanceObj.mana = min( new_mana, balanceObj.balance );
       balanceObj.last_mana_update = head_block_time;
-    }
-  }
-
-  _trim_balances(balanceObj: koin.effective_balance_object, blockHeight: u64): void {
-    if (balanceObj.past_balances.length <= 1)
-      return;
-
-    let limitBlock = blockHeight - this._delay_blocks;
-
-    if (blockHeight < this._delay_blocks) {
-      limitBlock = 0;
-    }
-
-    while( balanceObj.past_balances.length > 1 && balanceObj.past_balances[1].block_height <= limitBlock ) {
-      balanceObj.past_balances.shift();
     }
   }
 }
