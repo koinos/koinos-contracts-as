@@ -1,7 +1,7 @@
 syntax = "proto3";
 
-package koinos.contracts.token;
-option go_package = "github.com/koinos/koinos-proto-golang/v2/koinos/contracts/token";
+package koinos.standards.kcs3;
+option go_package = "github.com/koinos/koinos-proto-golang/v2/koinos/standards/kcs3";
 
 import "koinos/options.proto";
 
@@ -37,6 +37,45 @@ message balance_of_result {
    uint64 value = 1 [jstype = JS_STRING];
 }
 
+message get_info_arguments {}
+
+message get_info_result {
+   string name = 1;
+   string symbol = 2;
+   uint32 decimals = 3;
+}
+
+message allowance_arguments {
+   bytes owner = 1 [(koinos.btype) = ADDRESS];
+   bytes spender = 2 [(koinos.btype) = ADDRESS];
+}
+
+message allowance_result {
+   uint64 value = 1 [jstype = JS_STRING];
+}
+
+enum direction {
+   ascending = 0;
+   descending = 1;
+}
+
+message spender_value {
+   bytes spender = 1 [(koinos.btype) = ADDRESS];
+   uint64 value = 2 [jstype = JS_STRING];
+}
+
+message get_allowances_arguments {
+   bytes owner = 1 [(koinos.btype) = ADDRESS];
+   bytes start = 2 [(koinos.btype) = ADDRESS];
+   int32 limit = 3;
+   direction direction = 4;
+}
+
+message get_allowances_result {
+   bytes owner = 1 [(koinos.btype) = ADDRESS];
+   repeated spender_value allowances = 2;
+}
+
 message transfer_arguments {
    bytes from = 1 [(btype) = ADDRESS];
    bytes to = 2 [(btype) = ADDRESS];
@@ -59,9 +98,13 @@ message burn_arguments {
 
 message burn_result {}
 
-message balance_object {
-   uint64 value = 1 [jstype = JS_STRING];
+message approve_arguments {
+   bytes owner = 1 [(koinos.btype) = ADDRESS];
+   bytes spender = 2 [(koinos.btype) = ADDRESS];
+   uint64 value = 3 [jstype = JS_STRING];
 }
+
+message approve_result {}
 
 message burn_event {
    bytes from = 1 [(btype) = ADDRESS];
@@ -76,5 +119,11 @@ message mint_event {
 message transfer_event {
    bytes from = 1 [(btype) = ADDRESS];
    bytes to = 2 [(btype) = ADDRESS];
+   uint64 value = 3 [jstype = JS_STRING];
+}
+
+message approve_event {
+   bytes owner = 1 [(koinos.btype) = ADDRESS];
+   bytes spender = 2 [(koinos.btype) = ADDRESS];
    uint64 value = 3 [jstype = JS_STRING];
 }

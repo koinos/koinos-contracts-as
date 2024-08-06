@@ -1,10 +1,10 @@
 syntax = "proto3";
 
 package koinos.chain;
-option go_package = "github.com/koinos/koinos-proto-golang/koinos/chain";
+option go_package = "github.com/koinos/koinos-proto-golang/v2/koinos/chain";
 
 enum system_call_id {
-   reserved_id = 0;
+   nop = 0;
 
    // General Blockchain Management
    get_head_info = 1;
@@ -18,6 +18,7 @@ enum system_call_id {
    post_block_callback = 9;
    pre_transaction_callback = 10;
    post_transaction_callback = 11;
+   get_chain_id = 12;
 
    // System Helpers
    process_block_signature = 101;
@@ -29,7 +30,9 @@ enum system_call_id {
    get_account_nonce = 107;
    verify_account_nonce = 108;
    set_account_nonce = 109;
-   require_system_authority = 110;
+   check_system_authority = 110;
+   get_operation = 111;
+   get_contract_metadata = 112;
 
    // Resource Subsystem
    get_account_rc = 201;
@@ -53,14 +56,17 @@ enum system_call_id {
    recover_public_key = 502;
    verify_merkle_root = 503;
    verify_signature = 504;
+   verify_vrf_proof = 505;
 
    // Contract Management
-   call_contract = 601;
-   get_entry_point = 602;
-   get_contract_arguments = 603;
-   set_contract_result = 604;
-   exit_contract = 605;
-   get_contract_id = 606;
-   get_caller = 607;
-   require_authority = 608;
+   call = 601;
+   exit = 602;
+   get_arguments = 603;
+   get_contract_id = 604;
+   get_caller = 605;
+   check_authority = 606;
+
+   // System Management
+   get_contract_name = 10000;
+   get_contract_address = 10001;
 }

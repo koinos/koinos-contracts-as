@@ -1,7 +1,7 @@
 syntax = "proto3";
 
-package koinos.contracts.token;
-option go_package = "github.com/koinos/koinos-proto-golang/v2/koinos/contracts/token";
+package koinos.standards.kcs1;
+option go_package = "github.com/koinos/koinos-proto-golang/v2/koinos/standards/kcs1";
 
 import "koinos/options.proto";
 
@@ -58,10 +58,6 @@ message burn_arguments {
 }
 
 message burn_result {}
-
-message balance_object {
-   uint64 value = 1 [jstype = JS_STRING];
-}
 
 message burn_event {
    bytes from = 1 [(btype) = ADDRESS];
