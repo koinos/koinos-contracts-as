@@ -49,14 +49,14 @@
          "description" : "Checks the effective balance at an address",
          "read-only"   : true
       },
-      "allownace": {
+      "allowance": {
          "argument"    : "koinos.standards.kcs4.allowance_arguments",
          "return"      : "koinos.standards.kcs4.allowance_result",
          "entry-point" : "0x32f09fa1",
          "description" : "Checks the allowance for a owner and spender",
          "read-only"   : true
       },
-      "get_allownaces": {
+      "get_allowances": {
          "argument"    : "koinos.standards.kcs4.get_allowances_arguments",
          "return"      : "koinos.standards.kcs4.get_allowances_result",
          "entry-point" : "0x8fa16456",

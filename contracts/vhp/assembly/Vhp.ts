@@ -185,7 +185,7 @@ export class Vhp {
     this.balances.put(args.to, toBalance);
 
     System.event(
-      'koinos.contracts.kcs4.transfer_event',
+      'token.transfer_event',
       Protobuf.encode(new kcs4.transfer_event(args.from, args.to, args.value, args.memo), kcs4.transfer_event.encode),
       [args.to, args.from]
     );
@@ -218,7 +218,7 @@ export class Vhp {
     this.balances.put(args.to, balance);
 
     System.event(
-      'koinos.contracts.kcs4.mint_event',
+      'token.mint_event',
       Protobuf.encode(new kcs4.mint_event(args.to, args.value), kcs4.mint_event.encode),
       [args.to]
     );
@@ -249,7 +249,7 @@ export class Vhp {
     this.balances.put(args.from, fromBalance);
 
     System.event(
-      'koinos.contracts.kcs4.burn_event',
+      'token.burn_event',
       Protobuf.encode(new kcs4.burn_event(args.from, args.value), kcs4.burn_event.encode),
       [args.from]
     );
@@ -268,7 +268,7 @@ export class Vhp {
     this.allowances.put(key, new vhp.balance_object(args.value));
 
     System.event(
-      "koinos.contracts.kcs4.approve",
+      "token.approve_event",
       Protobuf.encode(new kcs4.approve_event(args.owner, args.spender, args.value), kcs4.approve_event.encode),
       [args.owner, args.spender]
     );
