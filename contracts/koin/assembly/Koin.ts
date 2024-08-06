@@ -6,30 +6,6 @@
 import { Arrays, authority, chain, error, kcs4, Protobuf, Storage, System, system_calls, u128 } from "@koinos/sdk-as";
 import { koin } from "./proto/koin";
 
-/**
- * To prevent exploiting the PoB algorithm, the VHP has a "delayed" transfer system built in.
- * Rather, this system does not delay property rights transferral, but delays the VHP from
- * being counted towards an address for block production. Increases the balance are delayed
- * while decreases are instantaneous.
- *
- * Calculating and storing this information uses rolling snapshots. This approach only works
- * because we are only interested in a short period of history (20 blocks). Each balance has a
- * list of previous snapshots by block height and balance. When we increase the balance, we
- * store the new balance as a snapshot with the current head block height. When we decrease
- * the balance on all snapshots.
- *
- * We also need to clean up the snapshots. We want at most one snapshot earlier than 20 blocks.
- * So we trim all but the most recent snapshot older than 20 blocks. Then, when we want to
- * retrieve the effective balance, we just have to find the most recent snapshot older than
- * 20 blocks.
- *
- * All balance objects will "decay" back to the current balance and the snapshot equal to the
- * current balance.
- *
- * The trick to making the algorithms on the snapshots efficient is that new snapshots are
- * pushed to the back of the array and old snapshots are removed from the front.
- */
-
 const SUPPLY_SPACE_ID = 0;
 const BALANCES_SPACE_ID = 1;
 const ALLOWANCES_SPACE_ID = 2;
@@ -202,7 +178,7 @@ export class Koin {
     this.balances.put(args.to, toBalance);
 
     System.event(
-      'koinos.contracts.kcs4.transfer_event',
+      'token.transfer_event',
       Protobuf.encode(new kcs4.transfer_event(args.from, args.to, args.value, args.memo), kcs4.transfer_event.encode),
       [args.to, args.from]
     );
@@ -237,7 +213,7 @@ export class Koin {
     this.balances.put(args.to, balance);
 
     System.event(
-      'koinos.contracts.kcs4.mint_event',
+      'token.mint_event',
       Protobuf.encode(new kcs4.mint_event(args.to, args.value), kcs4.mint_event.encode),
       [args.to]
     );
@@ -272,7 +248,7 @@ export class Koin {
     this.balances.put(args.from, fromBalance);
 
     System.event(
-      'koinos.contracts.kcs4.burn_event',
+      'token.burn_event',
       Protobuf.encode(new kcs4.burn_event(args.from, args.value), kcs4.burn_event.encode),
       [args.from]
     );
@@ -291,7 +267,7 @@ export class Koin {
     this.allowances.put(key, new koin.balance_object(args.value));
 
     System.event(
-      "koinos.contracts.kcs4.approve",
+      "token.approve_event",
       Protobuf.encode(new kcs4.approve_event(args.owner, args.spender, args.value), kcs4.approve_event.encode),
       [args.owner, args.spender]
     );

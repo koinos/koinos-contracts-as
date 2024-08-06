@@ -1,4 +1,4 @@
-import { System, Protobuf, authority, kcs4} from "@koinos/sdk-as";
+import { System, Protobuf, authority, kcs4, system_calls} from "@koinos/sdk-as";
 import { Koin as ContractClass } from "./Koin";
 
 export function main(): i32 {
@@ -8,6 +8,32 @@ export function main(): i32 {
   const c = new ContractClass();
 
   switch (contractArgs.entry_point) {
+    case 0x2d464aab: {
+      const args = Protobuf.decode<system_calls.get_account_rc_arguments>(
+        contractArgs.args,
+        system_calls.get_account_rc_arguments.decode
+      );
+      const res = c.get_account_rc(args);
+      retbuf = Protobuf.encode(
+        res,
+        system_calls.get_account_rc_result.encode
+      );
+      break;
+    }
+
+    case 0x80e3f5c9: {
+      const args = Protobuf.decode<system_calls.consume_account_rc_arguments>(
+        contractArgs.args,
+        system_calls.consume_account_rc_arguments.decode
+      );
+      const res = c.consume_account_rc(args);
+      retbuf = Protobuf.encode(
+        res,
+        system_calls.consume_account_rc_result.encode
+      );
+      break;
+    }
+
     case 0x82a3537f: {
       const res = c.name();
       retbuf = Protobuf.encode(
