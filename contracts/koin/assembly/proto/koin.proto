@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package koin;
+
+message mana_balance_object {
+  uint64 balance = 1;
+  uint64 mana = 2;
+  uint64 last_mana_update = 3;
+}
+
+message balance_object {
+  uint64 value = 1;
+}
