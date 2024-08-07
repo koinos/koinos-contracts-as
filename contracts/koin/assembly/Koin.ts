@@ -41,8 +41,6 @@ export class Koin {
   _decimals: u32 = 8;
   _mana_regen_time_ms: u64 = 432000000; // 5 days
 
-  contractId: Uint8Array = System.getContractId();
-
   supply: Storage.Obj< koin.balance_object > = new Storage.Obj(
     Detail.Zone(),
     SUPPLY_SPACE_ID,
@@ -95,8 +93,8 @@ export class Koin {
   }
 
   allowance(args: kcs4.allowance_arguments): kcs4.allowance_result {
-    System.require(args.owner != null, "allowance argument 'owner' cannot be null");
-    System.require(args.spender != null, "allowance argument 'spender' cannot be null");
+    System.require(args.owner != null, "account 'owner' cannot be null");
+    System.require(args.spender != null, "account 'spender' cannot be null");
 
     const key = new Uint8Array(50);
     key.set(args.owner, 0);
@@ -106,7 +104,7 @@ export class Koin {
   }
 
   get_allowances(args: kcs4.get_allowances_arguments): kcs4.get_allowances_result {
-    System.require(args.owner != null, 'owner cannot be null');
+    System.require(args.owner != null, "account 'owner' cannot be null");
 
     let key = new Uint8Array(50);
     key.set(args.owner, 0);
@@ -150,13 +148,13 @@ export class Koin {
   }
 
   transfer(args: kcs4.transfer_arguments): kcs4.transfer_result {
-    System.require(args.to != null, "transfer argument 'to' cannot be null");
-    System.require(args.from != null, "transfer argument 'from' cannot be null");
+    System.require(args.to != null, "account 'to' cannot be null");
+    System.require(args.from != null, "account 'from' cannot be null");
     System.require(!Arrays.equal(args.from, args.to), 'cannot transfer to yourself');
 
     System.require(
       this._check_authority(args.from, args.value),
-      'from has not authorized transfer',
+      "account 'from' has not authorized transfer",
       error.error_code.authorization_failure
     );
 
@@ -187,8 +185,8 @@ export class Koin {
   }
 
   mint(args: kcs4.mint_arguments): kcs4.mint_result {
-    System.require(args.to != null, "mint argument 'to' cannot be null");
-    System.require(args.value != 0, "mint argument 'value' cannot be zero");
+    System.require(args.to != null, "account 'to' cannot be null");
+    System.require(args.value != 0, "account 'value' cannot be zero");
 
     if (System.getCaller().caller_privilege != chain.privilege.kernel_mode) {
       if (BUILD_FOR_TESTING) {
@@ -222,12 +220,12 @@ export class Koin {
   }
 
   burn(args: kcs4.burn_arguments): kcs4.burn_result {
-    System.require(args.from != null, "burn argument 'from' cannot be null");
+    System.require(args.from != null, "account 'from' cannot be null");
 
     let callerData = System.getCaller();
     System.require(
       callerData.caller_privilege == chain.privilege.kernel_mode || this._check_authority(args.from, args.value),
-      'from has not authorized burn',
+      "account 'from' has not authorized burn",
       error.error_code.authorization_failure
     );
 
@@ -257,8 +255,8 @@ export class Koin {
   }
 
   approve(args: kcs4.approve_arguments): kcs4.approve_result {
-    System.require(args.owner != null, "approve argument 'owner' cannot be null");
-    System.require(args.spender != null, "approve argument 'spender' cannot be null");
+    System.require(args.owner != null, "account 'owner' cannot be null");
+    System.require(args.spender != null, "account 'spender' cannot be null");
     System.requireAuthority(authority.authorization_type.contract_call, args.owner);
 
     const key = new Uint8Array(50);
@@ -275,7 +273,7 @@ export class Koin {
     return new kcs4.approve_result();
   }
 
-  _check_authority(account: Uint8Array, amount: u64): boolean {
+  _check_authority(account: Uint8Array, amount: u64): bool {
     const caller = System.getCaller().caller;
     if (caller && caller.length > 0) {
       let key = new Uint8Array(50);
