@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package vhp;
+
+import "koinos/options.proto";
+
+message effective_balance_of_arguments {
+  bytes owner = 1 [(koinos.btype) = ADDRESS];
+}
+
+message effective_balance_of_result {
+  uint64 value = 1 [jstype = JS_STRING];
+}
+
+message balance_object {
+  uint64 value = 1;
+}
+
+message balance_entry {
+  uint64 block_height = 1;
+  uint64 balance = 2;
+}
+
+message effective_balance_object {
+  uint64 current_balance = 1;
+  repeated balance_entry past_balances = 2;
+}

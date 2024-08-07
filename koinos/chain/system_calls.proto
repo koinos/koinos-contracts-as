@@ -1,14 +1,17 @@
 syntax = "proto3";
 
 package koinos.chain;
-option go_package = "github.com/koinos/koinos-proto-golang/koinos/chain";
+option go_package = "github.com/koinos/koinos-proto-golang/v2/koinos/chain";
 
 import "koinos/options.proto";
-import "koinos/common.proto";
 import "koinos/protocol/protocol.proto";
 import "koinos/chain/authority.proto";
 import "koinos/chain/chain.proto";
 import "koinos/chain/value.proto";
+
+message nop_arguments {}
+
+message nop_result {}
 
 ///////////////////////////////////////////////////////////////////////////////
 // General Blockchain Management                                             //
@@ -72,6 +75,12 @@ message post_transaction_callback_arguments {}
 
 message post_transaction_callback_result {}
 
+message get_chain_id_arguments {}
+
+message get_chain_id_result {
+   bytes value = 1;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // System Helpers                                                            //
 ///////////////////////////////////////////////////////////////////////////////
@@ -90,15 +99,6 @@ message get_transaction_arguments {}
 
 message get_transaction_result {
    protocol.transaction value = 1;
-}
-
-enum dsa {
-   ecdsa_secp256k1 = 0;
-}
-
-enum system_authorization_type {
-   set_system_contract = 0;
-   set_system_call = 1;
 }
 
 message get_transaction_field_arguments {
@@ -154,11 +154,25 @@ message set_account_nonce_arguments {
 
 message set_account_nonce_result {}
 
-message require_system_authority_arguments {
-   system_authorization_type type = 1;
+message check_system_authority_arguments {}
+
+message check_system_authority_result {
+   bool value = 1;
 }
 
-message require_system_authority_result {}
+message get_operation_arguments {}
+
+message get_operation_result {
+   protocol.operation value = 1;
+}
+
+message get_contract_metadata_arguments {
+   bytes contract_id = 1 [(btype) = CONTRACT_ID];
+}
+
+message get_contract_metadata_result {
+   contract_metadata_object value = 1;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // Resource Subsystem                                                        //
@@ -207,9 +221,7 @@ message put_object_arguments {
    bytes obj = 3;
 }
 
-message put_object_result {
-   int32 value = 1;
-}
+message put_object_result {}
 
 message remove_object_arguments {
    object_space space = 1;
@@ -287,6 +299,7 @@ message recover_public_key_arguments {
    dsa type = 1;
    bytes signature = 2;
    bytes digest = 3;
+   bool compressed = 4;
 }
 
 message recover_public_key_result {
@@ -307,9 +320,22 @@ message verify_signature_arguments {
    bytes public_key = 2 [(btype) = BASE64];
    bytes signature = 3 [(btype) = BASE64];
    bytes digest = 4 [(btype) = BASE64];
+   bool compressed = 5;
 }
 
 message verify_signature_result {
+   bool value = 1;
+}
+
+message verify_vrf_proof_arguments {
+   dsa type = 1;
+   bytes public_key = 2 [(btype) = BASE64];
+   bytes proof = 3 [(btype) = BASE64];
+   bytes hash = 4 [(btype) = BASE64];
+   bytes message = 5 [(btype) = BASE64];
+}
+
+message verify_vrf_proof_result {
    bool value = 1;
 }
 
@@ -317,39 +343,28 @@ message verify_signature_result {
 // Contract Management                                                       //
 ///////////////////////////////////////////////////////////////////////////////
 
-message call_contract_arguments {
+message call_arguments {
    bytes contract_id = 1 [(btype) = CONTRACT_ID];
    uint32 entry_point = 2;
    bytes args = 3;
 }
 
-message call_contract_result {
+message call_result {
    bytes value = 1;
 }
 
-message get_entry_point_arguments {}
+message get_arguments_arguments {}
 
-message get_entry_point_result {
-   uint32 value = 1;
+message get_arguments_result {
+   argument_data value = 1;
 }
 
-message get_contract_arguments_arguments {}
-
-message get_contract_arguments_result {
-   bytes value = 1;
+message exit_arguments {
+   int32 code = 1;
+   result res = 2;
 }
 
-message set_contract_result_arguments {
-   bytes value = 1;
-}
-
-message set_contract_result_result {}
-
-message exit_contract_arguments {
-   uint32 exit_code = 1;
-}
-
-message exit_contract_result {}
+message exit_result {}
 
 message get_contract_id_arguments {}
 
@@ -363,9 +378,12 @@ message get_caller_result {
    caller_data value = 1;
 }
 
-message require_authority_arguments {
+message check_authority_arguments {
    authorization_type type = 1;
    bytes account = 2 [(btype) = ADDRESS];
+   bytes data = 3;
 }
 
-message require_authority_result {}
+message check_authority_result {
+   bool value = 1;
+}

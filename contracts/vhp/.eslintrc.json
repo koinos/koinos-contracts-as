@@ -1,23 +1,23 @@
-module.exports = {
-  root: true,
-  parser: "@typescript-eslint/parser",
-  plugins: [
-    "@typescript-eslint",
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "plugins": [
+    "@typescript-eslint"
   ],
-  extends: [
+  "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/eslint-recommended",
-    "plugin:@typescript-eslint/recommended",
+    "plugin:@typescript-eslint/recommended"
   ],
-  parserOptions: {
-    ecmaVersion: 2020,
-    sourceType: "module",
-    ecmaFeatures: {}
+  "parserOptions": {
+    "ecmaVersion": 2020,
+    "sourceType": "module",
+    "ecmaFeatures": {}
   },
 
   // === General rules =========================================================
 
-  rules: {
+  "rules": {
     // Omitted semicolons are hugely popular, yet within the compiler it makes
     // sense to be better safe than sorry.
     "semi": "error",
@@ -56,7 +56,7 @@ module.exports = {
 
     // Typical false-positives here are `do { ... } while (true)` statements or
     // similar, but the only option provided here is not checking any loops.
-    "no-constant-condition": ["error", { checkLoops: false }],
+    "no-constant-condition": ["error", { "checkLoops": false }],
 
     // Functions are nested in blocks occasionally, and there haven't been any
     // problems with this so far, so turning the check off.
@@ -71,15 +71,15 @@ module.exports = {
     // Disabled here, but enabled again for TypeScript files.
     "@typescript-eslint/no-unused-vars": "off"
   },
-  overrides: [
+  "overrides": [
 
     // === TypeScript rules ====================================================
 
     {
-      files: [
+      "files": [
         "**/assembly/**/*.ts"
       ],
-      rules: {
+      "rules": {
         // Enforcing to remove function parameters on stubs makes code less
         // maintainable, so we instead allow unused function parameters.
         "@typescript-eslint/no-unused-vars": [
@@ -101,17 +101,17 @@ module.exports = {
         "@typescript-eslint/ban-ts-comment": "off",
 
         // Utilized to achieve portability in some cases
-        "@typescript-eslint/no-non-null-assertion": "off",
+        "@typescript-eslint/no-non-null-assertion": "off"
       }
     },
 
     // === Compiler rules (extends AssemblyScript rules) =======================
 
     {
-      files: [
+      "files": [
         "**/assembly/**/*.ts"
       ],
-      rules: {
+      "rules": {
         // There is an actual codegen difference here - TODO: revisit
         "no-cond-assign": "off",
 
@@ -130,10 +130,10 @@ module.exports = {
     // === Standard Library rules (extends AssemblyScript rules) ===============
 
     {
-      files: [
+      "files": [
         "**/assembly/**/*.ts"
       ],
-      rules: {
+      "rules": {
         // We are implementing with --noLib, so we shadow all the time
         "no-shadow-restricted-names": "off",
 
@@ -145,10 +145,10 @@ module.exports = {
     // === Standard Definition rules (extends TypeScript rules) ================
 
     {
-      files: [
+      "files": [
         "**/assembly/**/*.d.ts"
       ],
-      rules: {
+      "rules": {
         // Often required to achieve compatibility with TypeScript
         "@typescript-eslint/no-explicit-any": "off",
 
@@ -165,10 +165,10 @@ module.exports = {
     // === Test rules (extends TypeScript rules) ===============================
 
     {
-      files: [
+      "files": [
         "**/assembly/__tests__/**/*.ts"
       ],
-      rules: {
+      "rules": {
         // Tests typically include unusual code patterns on purpose. This is
         // very likely not an extensive list, but covers what's there so far.
         "no-empty": "off",
@@ -189,6 +189,6 @@ module.exports = {
         "@typescript-eslint/no-extra-non-null-assertion": "off",
         "@typescript-eslint/no-empty-interface": "off"
       }
-    },
+    }
   ]
-};
+}

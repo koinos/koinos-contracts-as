@@ -1,4 +1,10 @@
-import { Arrays, authority, chain, error, Protobuf, System, token, vhp } from "@koinos/sdk-as";
+// SPDX-License-Identifier: MIT
+// VHP Contract
+// Julian Gonzalez (joticajulian@gmail.com)
+// Koinos Group, Inc. (contact@koinos.group)
+
+import { Arrays, authority, chain, error, kcs4, Protobuf, Storage, System } from "@koinos/sdk-as";
+import { vhp } from "./proto/vhp";
 
 /**
  * To prevent exploiting the PoB algorithm, the VHP has a "delayed" transfer system built in.
@@ -24,25 +30,11 @@ import { Arrays, authority, chain, error, Protobuf, System, token, vhp } from "@
  * pushed to the back of the array and old snapshots are removed from the front.
  */
 
-namespace Constants {
-  export const NAME = "Virtual Hash Power";
-  export const SYMBOL = "VHP";
-  export const DECIMALS: u32 = 8;
-  export const SUPPLY_ID: u32 = 0;
-  export const BALANCE_ID: u32 = 1;
-  export const SUPPLY_KEY = new Uint8Array(0);
-  export const DELAY_BLOCKS: u64 = 20;
+const SUPPLY_SPACE_ID = 0;
+const BALANCES_SPACE_ID = 1;
+const ALLOWANCES_SPACE_ID = 2;
 
-  let contractId: Uint8Array | null = null;
-
-  export function ContractId() : Uint8Array {
-    if (contractId === null) {
-      contractId = System.getContractId();
-    }
-
-    return contractId!;
-  }
-
+namespace Detail {
   let zone: Uint8Array = new Uint8Array(0);
 
   export function Zone(): Uint8Array {
@@ -56,112 +48,251 @@ namespace Constants {
   }
 }
 
-namespace State {
-  export namespace Space {
-    let supply : chain.object_space | null = null;
-    let balance : chain.object_space | null = null;
-
-    export function Supply() : chain.object_space {
-      if (supply === null) {
-        supply = new chain.object_space(true, Constants.Zone(), 0);
-      }
-
-      return supply!;
-    }
-
-    export function Balance() : chain.object_space {
-      if (balance === null) {
-        balance = new chain.object_space(true, Constants.Zone(), 1);
-      }
-
-      return balance!;
-    }
-  }
-}
-
 export class Vhp {
-  private _arguments: Uint8Array = new Uint8Array(0);
+  _name: string = "Virtual Hash Power";
+  _symbol: string = "VHP";
+  _decimals: u32 = 8;
+  _delay_blocks: u64 = 20;
 
-  constructor(args: Uint8Array) {
-    this._arguments = args;
+  supply: Storage.Obj< vhp.balance_object > = new Storage.Obj(
+    Detail.Zone(),
+    SUPPLY_SPACE_ID,
+    vhp.balance_object.decode,
+    vhp.balance_object.encode,
+    () => new vhp.balance_object(),
+    true
+  );
+
+  balances: Storage.Map< Uint8Array, vhp.effective_balance_object > = new Storage.Map(
+    Detail.Zone(),
+    BALANCES_SPACE_ID,
+    vhp.effective_balance_object.decode,
+    vhp.effective_balance_object.encode,
+    () => new vhp.effective_balance_object(),
+    true
+  );
+
+  allowances: Storage.Map< Uint8Array, vhp.balance_object > = new Storage.Map(
+    Detail.Zone(),
+    ALLOWANCES_SPACE_ID,
+    vhp.balance_object.decode,
+    vhp.balance_object.encode,
+    () => new vhp.balance_object(),
+    true
+  );
+
+  name(): kcs4.name_result {
+    return new kcs4.name_result(this._name);
   }
 
-  name(args?: token.name_arguments): token.name_result {
-    let result = new token.name_result();
-    result.value = Constants.NAME;
-    return result;
+  symbol(): kcs4.symbol_result {
+    return new kcs4.symbol_result(this._symbol);
   }
 
-  symbol(args?: token.symbol_arguments): token.symbol_result {
-    let result = new token.symbol_result();
-    result.value = Constants.SYMBOL;
-    return result;
+  decimals(): kcs4.decimals_result {
+    return new kcs4.decimals_result(this._decimals);
   }
 
-  decimals(args?: token.decimals_arguments): token.decimals_result {
-    let result = new token.decimals_result();
-    result.value = Constants.DECIMALS;
-    return result;
+  get_info(): kcs4.get_info_result {
+    return new kcs4.get_info_result(this._name, this._symbol, this._decimals);
   }
 
-  total_supply(args?: token.total_supply_arguments): token.total_supply_result {
-    let result = new token.total_supply_result();
-
-    let supplyObject = System.getObject<Uint8Array, token.balance_object>(State.Space.Supply(), Constants.SUPPLY_KEY, token.balance_object.decode);
-
-    if (!supplyObject) {
-      result.value = 0;
-    }
-    else {
-      result.value = supplyObject.value;
-    }
-
-    return result;
+  total_supply(): kcs4.total_supply_result {
+    return new kcs4.total_supply_result(this.supply.get()!.value);
   }
 
-  balance_of(args: token.balance_of_arguments): token.balance_of_result {
-    let result = new token.balance_of_result();
-
-    System.require(args.owner != null, 'owner cannot be null');
-
-    let balanceObj = System.getObject<Uint8Array, vhp.effective_balance_object>(State.Space.Balance(), args.owner, vhp.effective_balance_object.decode);
-
-    if (!balanceObj) {
-      result.value = 0;
-    }
-    else {
-      result.value = balanceObj.current_balance;
-    }
-
-    return result;
+  balance_of(args: kcs4.balance_of_arguments): kcs4.balance_of_result {
+    return new kcs4.balance_of_result(this.balances.get(args.owner)!.current_balance);
   }
 
   effective_balance_of(args: vhp.effective_balance_of_arguments): vhp.effective_balance_of_result {
-    let result = new vhp.effective_balance_of_result();
+    System.require(args.owner != null, "account 'owner' cannot be null");
+    let effectiveBalances = this.balances.get(args.owner!)!;
 
-    System.require(args.owner != null, 'owner cannot be null');
-
-    let balanceObj = System.getObject<Uint8Array, vhp.effective_balance_object>(State.Space.Balance(), args.owner, vhp.effective_balance_object.decode);
-
-    if (!balanceObj) {
-      // No balance object means a balance of 0
-      result.value = 0;
+    if (effectiveBalances.past_balances.length == 0) {
+      return new vhp.effective_balance_of_result(effectiveBalances.current_balance);
     }
-    else if (balanceObj.past_balances.length == 0) {
-      // No past balances means the current balance is the effective balance
-      result.value = balanceObj.current_balance;
-    }
-    else {
-      // Otherwise, we need to find the most recent valid past balance
-      this.trim_balances(balanceObj, System.getBlockField("header.height")!.uint64_value);
-      result.value = balanceObj.past_balances[0].balance;
+
+    this._trim_balances(effectiveBalances, System.getBlockField("header.height")!.uint64_value);
+    return new vhp.effective_balance_of_result(effectiveBalances.past_balances[0].balance);
+  }
+
+  allowance(args: kcs4.allowance_arguments): kcs4.allowance_result {
+    System.require(args.owner != null, "account 'owner' cannot be null");
+    System.require(args.spender != null, "account 'spender' cannot be null");
+
+    const key = new Uint8Array(50);
+    key.set(args.owner, 0);
+    key.set(args.spender, 25);
+
+    return new kcs4.allowance_result(this.allowances.get(key)!.value);
+  }
+
+  get_allowances(args: kcs4.get_allowances_arguments): kcs4.get_allowances_result {
+    System.require(args.owner != null, "account 'owner' cannot be null");
+
+    let key = new Uint8Array(50);
+    key.set(args.owner, 0);
+    key.set(args.start ? args.start : new Uint8Array(0), 25);
+
+    let result = new kcs4.get_allowances_result(args.owner, []);
+
+    for (let i = 0; i < args.limit; i++) {
+      const nextAllowance = args.descending
+        ? this.allowances.getPrev(key)
+        : this.allowances.getNext(key);
+
+      if (!nextAllowance) {
+        break;
+      }
+
+      if (!Arrays.equal(args.owner, nextAllowance.key!.slice(0, 25))) {
+        break;
+      }
+
+      result.allowances.push(
+        new kcs4.spender_value(nextAllowance.key!.slice(25), nextAllowance.value.value)
+      );
+
+      key = nextAllowance.key!;
     }
 
     return result;
   }
 
-  increase_balance_by(balanceObj: vhp.effective_balance_object, blockHeight: u64, value: u64): void {
-    this.trim_balances(balanceObj, blockHeight);
+  transfer(args: kcs4.transfer_arguments): kcs4.transfer_result {
+    System.require(args.to != null, "account 'to' cannot be null");
+    System.require(args.from != null, "account 'from' cannot be null");
+    System.require(!Arrays.equal(args.from, args.to), 'cannot transfer to yourself');
+
+    System.require(
+      this._check_authority(args.from, args.value),
+      "account 'from' has not authorized transfer",
+      error.error_code.authorization_failure
+    );
+
+    let fromBalance = this.balances.get(args.from)!;
+    System.require(fromBalance.current_balance >= args.value, "account 'from' has insufficient balance", error.error_code.failure);
+
+    let toBalance = this.balances.get(args.to)!;
+    let blockHeight = System.getBlockField("header.height")!.uint64_value;
+    this._decrease_balance_by(fromBalance, blockHeight, args.value);
+    this._increase_balance_by(toBalance, blockHeight, args.value);
+
+    this.balances.put(args.from, fromBalance);
+    this.balances.put(args.to, toBalance);
+
+    System.event(
+      'token.transfer_event',
+      Protobuf.encode(new kcs4.transfer_event(args.from, args.to, args.value, args.memo), kcs4.transfer_event.encode),
+      [args.to, args.from]
+    );
+
+    return new kcs4.transfer_result();
+  }
+
+  mint(args: kcs4.mint_arguments): kcs4.mint_result {
+    System.require(args.to != null, "account 'to' cannot be null");
+    System.require(args.value != 0, "argument 'value' cannot be zero");
+
+    if (System.getCaller().caller_privilege != chain.privilege.kernel_mode) {
+      if (BUILD_FOR_TESTING) {
+        System.requireAuthority(authority.authorization_type.contract_call, System.getContractId());
+      }
+      else {
+        System.fail('insufficient privileges to mint', error.error_code.authorization_failure);
+      }
+    }
+
+    let supply = this.supply.get()!;
+    System.require(supply.value <= u64.MAX_VALUE - args.value, 'mint would overflow supply', error.error_code.failure);
+
+    let balance = this.balances.get(args.to)!;
+
+    this._increase_balance_by(balance, System.getBlockField("header.height")!.uint64_value, args.value);
+    supply.value += args.value;
+
+    this.supply.put(supply);
+    this.balances.put(args.to, balance);
+
+    System.event(
+      'token.mint_event',
+      Protobuf.encode(new kcs4.mint_event(args.to, args.value), kcs4.mint_event.encode),
+      [args.to]
+    );
+
+    return new kcs4.mint_result();
+  }
+
+  burn(args: kcs4.burn_arguments): kcs4.burn_result {
+    System.require(args.from != null, "account 'from' cannot be null");
+
+    let callerData = System.getCaller();
+    System.require(
+      callerData.caller_privilege == chain.privilege.kernel_mode || this._check_authority(args.from, args.value),
+      "account 'from' has not authorized burn",
+      error.error_code.authorization_failure
+    );
+
+    let fromBalance = this.balances.get(args.from)!;
+    System.require(fromBalance.current_balance >= args.value, "account 'from' has insufficient balance", error.error_code.failure);
+
+    let supply = this.supply.get()!;
+    System.require(supply.value >= args.value, 'burn would underflow supply', error.error_code.failure);
+
+    supply.value -= args.value;
+    this._decrease_balance_by(fromBalance, System.getBlockField("header.height")!.uint64_value, args.value);
+
+    this.supply.put(supply);
+    this.balances.put(args.from, fromBalance);
+
+    System.event(
+      'token.burn_event',
+      Protobuf.encode(new kcs4.burn_event(args.from, args.value), kcs4.burn_event.encode),
+      [args.from]
+    );
+
+    return new kcs4.burn_result();
+  }
+
+  approve(args: kcs4.approve_arguments): kcs4.approve_result {
+    System.require(args.owner != null, "account 'owner' cannot be null");
+    System.require(args.spender != null, "account 'spender' cannot be null");
+    System.requireAuthority(authority.authorization_type.contract_call, args.owner);
+
+    const key = new Uint8Array(50);
+    key.set(args.owner, 0);
+    key.set(args.spender, 25);
+    this.allowances.put(key, new vhp.balance_object(args.value));
+
+    System.event(
+      "token.approve_event",
+      Protobuf.encode(new kcs4.approve_event(args.owner, args.spender, args.value), kcs4.approve_event.encode),
+      [args.owner, args.spender]
+    );
+
+    return new kcs4.approve_result();
+  }
+
+  _check_authority(account: Uint8Array, amount: u64): bool {
+    const caller = System.getCaller().caller;
+    if (caller && caller.length > 0) {
+      let key = new Uint8Array(50);
+      key.set(account, 0);
+      key.set(caller, 25);
+      const allowance = this.allowances.get(key)!;
+      if (allowance.value >= amount) {
+        allowance.value -= amount;
+        this.allowances.put(key, allowance);
+        return true;
+      }
+    }
+
+    return System.checkAccountAuthority(account);
+  }
+
+  _increase_balance_by(balanceObj: vhp.effective_balance_object, blockHeight: u64, value: u64): void {
+    this._trim_balances(balanceObj, blockHeight);
 
     let snapshotLength = balanceObj.past_balances.length;
 
@@ -183,8 +314,8 @@ export class Vhp {
     }
   }
 
-  decrease_balance_by(balanceObj: vhp.effective_balance_object, blockHeight: u64, value: u64): void {
-    this.trim_balances(balanceObj, blockHeight);
+  _decrease_balance_by(balanceObj: vhp.effective_balance_object, blockHeight: u64, value: u64): void {
+    this._trim_balances(balanceObj, blockHeight);
 
     balanceObj.current_balance -= value;
 
@@ -197,160 +328,18 @@ export class Vhp {
     }
   }
 
-  trim_balances(balanceObj: vhp.effective_balance_object, blockHeight: u64): void {
+  _trim_balances(balanceObj: vhp.effective_balance_object, blockHeight: u64): void {
     if (balanceObj.past_balances.length <= 1)
       return;
 
-    let limitBlock = blockHeight - Constants.DELAY_BLOCKS;
+    let limitBlock = blockHeight - this._delay_blocks;
 
-    if (blockHeight < Constants.DELAY_BLOCKS) {
+    if (blockHeight < this._delay_blocks) {
       limitBlock = 0;
     }
 
     while( balanceObj.past_balances.length > 1 && balanceObj.past_balances[1].block_height <= limitBlock ) {
       balanceObj.past_balances.shift();
     }
-  }
-
-  transfer(args: token.transfer_arguments): token.transfer_result {
-    System.require(args.to != null, 'to cannot be null');
-    System.require(args.from != null, 'from cannot be null');
-    System.require(!Arrays.equal(args.from, args.to), 'cannot transfer to yourself');
-
-    let callerData = System.getCaller();
-    System.require(
-      Arrays.equal(callerData.caller, args.from) || System.checkAuthority(authority.authorization_type.contract_call, args.from, this._arguments),
-      'from has not authorized transfer',
-      error.error_code.authorization_failure
-    );
-
-    let fromBalanceObj = System.getObject<Uint8Array, vhp.effective_balance_object>(State.Space.Balance(), args.from, vhp.effective_balance_object.decode);
-
-    if (!fromBalanceObj) {
-      fromBalanceObj = new vhp.effective_balance_object();
-      fromBalanceObj.current_balance = 0;
-    }
-
-    System.require(fromBalanceObj.current_balance >= args.value, "account 'from' has insufficient balance", error.error_code.failure);
-
-    let toBalanceObj = System.getObject<Uint8Array, vhp.effective_balance_object>(State.Space.Balance(), args.to, vhp.effective_balance_object.decode);
-
-    if (!toBalanceObj) {
-      toBalanceObj = new vhp.effective_balance_object();
-      toBalanceObj.current_balance = 0;
-    }
-
-    let blockHeight = System.getBlockField("header.height")!.uint64_value;
-    this.decrease_balance_by(fromBalanceObj, blockHeight, args.value);
-    this.increase_balance_by(toBalanceObj, blockHeight, args.value);
-
-    System.putObject(State.Space.Balance(), args.from, fromBalanceObj, vhp.effective_balance_object.encode);
-    System.putObject(State.Space.Balance(), args.to, toBalanceObj, vhp.effective_balance_object.encode);
-
-    let event = new token.transfer_event();
-    event.from = args.from;
-    event.to = args.to;
-    event.value = args.value;
-
-    let impacted: Uint8Array[] = [];
-    impacted.push(args.to);
-    impacted.push(args.from);
-
-    System.event('koinos.contracts.token.transfer_event', Protobuf.encode(event, token.transfer_event.encode), impacted);
-
-    return new token.transfer_result();
-  }
-
-  mint(args: token.mint_arguments): token.mint_result {
-    System.require(args.to != null, "mint argument 'to' cannot be null");
-    System.require(args.value != 0, "mint argument 'value' cannot be zero");
-
-    if (System.getCaller().caller_privilege != chain.privilege.kernel_mode) {
-      if (BUILD_FOR_TESTING) {
-        System.requireAuthority(authority.authorization_type.contract_call, Constants.ContractId());
-      }
-      else {
-        System.fail('insufficient privileges to mint', error.error_code.authorization_failure);
-      }
-    }
-
-    let supplyObject = System.getObject<Uint8Array, token.balance_object>(State.Space.Supply(), Constants.SUPPLY_KEY, token.balance_object.decode);
-
-    if (!supplyObject) {
-      supplyObject = new token.balance_object();
-      supplyObject.value = 0;
-    }
-
-    System.require(supplyObject.value <= u64.MAX_VALUE - args.value, 'mint would overflow supply', error.error_code.failure);
-
-    let balanceObject = System.getObject<Uint8Array, vhp.effective_balance_object>(State.Space.Balance(), args.to, vhp.effective_balance_object.decode);
-
-    if (!balanceObject) {
-      balanceObject = new vhp.effective_balance_object();
-      balanceObject.current_balance = 0;
-    }
-
-    this.increase_balance_by(balanceObject, System.getBlockField("header.height")!.uint64_value, args.value);
-    supplyObject.value += args.value;
-
-    System.putObject(State.Space.Supply(), Constants.SUPPLY_KEY, supplyObject, token.balance_object.encode);
-    System.putObject(State.Space.Balance(), args.to, balanceObject, vhp.effective_balance_object.encode);
-
-    let event = new token.mint_event();
-    event.to = args.to;
-    event.value = args.value;
-
-    let impacted: Uint8Array[] = [];
-    impacted.push(args.to);
-
-    System.event('koinos.contracts.token.mint_event', Protobuf.encode(event, token.mint_event.encode), impacted);
-
-    return new token.mint_result();
-  }
-
-  burn(args: token.burn_arguments): token.burn_result {
-    System.require(args.from != null, "burn argument 'from' cannot be null");
-
-    let callerData = System.getCaller();
-    System.require(
-      callerData.caller_privilege == chain.privilege.kernel_mode || callerData.caller == args.from || System.checkAuthority(authority.authorization_type.contract_call, args.from, this._arguments),
-      'from has not authorized burn',
-      error.error_code.authorization_failure
-    );
-
-    let fromBalanceObject = System.getObject<Uint8Array, vhp.effective_balance_object>(State.Space.Balance(), args.from, vhp.effective_balance_object.decode);
-
-    if (fromBalanceObject == null) {
-      fromBalanceObject = new vhp.effective_balance_object();
-      fromBalanceObject.current_balance = 0;
-    }
-
-    System.require(fromBalanceObject.current_balance >= args.value, "account 'from' has insufficient balance", error.error_code.failure);
-
-    let supplyObject = System.getObject<Uint8Array, token.balance_object>(State.Space.Supply(), Constants.SUPPLY_KEY, token.balance_object.decode);
-
-    if (!supplyObject) {
-      supplyObject = new token.balance_object();
-      supplyObject.value = 0;
-    }
-
-    System.require(supplyObject.value >= args.value, 'burn would underflow supply', error.error_code.failure);
-
-    supplyObject.value -= args.value;
-    this.decrease_balance_by(fromBalanceObject, System.getBlockField("header.height")!.uint64_value, args.value);
-
-    System.putObject(State.Space.Supply(), Constants.SUPPLY_KEY, supplyObject, token.balance_object.encode);
-    System.putObject(State.Space.Balance(), args.from, fromBalanceObject, vhp.effective_balance_object.encode);
-
-    let event = new token.burn_event();
-    event.from = args.from;
-    event.value = args.value;
-
-    let impacted: Uint8Array[] = [];
-    impacted.push(args.from);
-
-    System.event('koinos.contracts.token.burn_event', Protobuf.encode(event, token.burn_event.encode), impacted);
-
-    return new token.burn_result();
   }
 }

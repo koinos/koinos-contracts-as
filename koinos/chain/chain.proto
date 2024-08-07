@@ -1,11 +1,21 @@
 syntax = "proto3";
 
 package koinos.chain;
-option go_package = "github.com/koinos/koinos-proto-golang/koinos/chain";
+option go_package = "github.com/koinos/koinos-proto-golang/v2/koinos/chain";
 
 import "koinos/options.proto";
 import "koinos/common.proto";
-import "koinos/protocol/protocol.proto";
+
+message error_data {
+   string message = 1;
+}
+
+message result {
+   oneof value {
+      bytes object = 1;
+      error_data error = 2;
+   }
+}
 
 message object_space {
    bool system = 1;
@@ -36,6 +46,11 @@ message head_info {
 message caller_data {
    bytes caller = 1 [(btype) = ADDRESS];
    privilege caller_privilege = 2;
+}
+
+message argument_data {
+   uint32 entry_point = 1;
+   bytes arguments = 2;
 }
 
 message resource_limit_data {
@@ -72,4 +87,8 @@ message genesis_entry {
 
 message genesis_data {
    repeated genesis_entry entries = 1;
+}
+
+enum dsa {
+   ecdsa_secp256k1 = 0;
 }
