@@ -31,10 +31,6 @@ namespace Detail {
   }
 }
 
-function min<T>(a: T, b: T): T {
-  return a < b ? a : b;
-}
-
 export class Koin {
   _name: string = BUILD_FOR_TESTING ? "Test Koin" : "Koin";
   _symbol: string = BUILD_FOR_TESTING ? "tKOIN" : "KOIN";
