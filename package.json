@@ -38,8 +38,8 @@
     "buildPOB:ubuntu": "cd contracts/pob && yarn install && yarn build:release && yarn test && yarn integration-tests",
     "buildVHP": "cd contracts/vhp && yarn install && yarn build:release && yarn test",
     "buildVHP:ubuntu": "cd contracts/vhp && yarn install && yarn build:release && yarn test && yarn integration-tests",
-    "buildAll": "yarn buildClaim && yarn buildClaimDelegation && yarn buildGovernance && yarn buildNameService && yarn buildPOB && yarn buildVHP && yarn buildGetContractMetadata",
-    "buildAll:ubuntu": "yarn buildClaim:ubuntu && yarn buildClaimDelegation:ubuntu && yarn buildGovernance:ubuntu && yarn buildNameService:ubuntu && yarn buildPOB:ubuntu && yarn buildVHP:ubuntu && buildGetContractMetadata:ubuntu",
+    "buildAll": "yarn buildClaim && yarn buildClaimDelegation && yarn buildGovernance && yarn buildNameService && yarn buildPOB && yarn buildVHP && yarn buildGetContractMetadata && yarn buildKoin",
+    "buildAll:ubuntu": "yarn buildClaim:ubuntu && yarn buildClaimDelegation:ubuntu && yarn buildGovernance:ubuntu && yarn buildNameService:ubuntu && yarn buildPOB:ubuntu && yarn buildVHP:ubuntu && buildGetContractMetadata:ubuntu && yarn buildKoin:ubuntu",
     "ci": "yarn buildAll && yarn lint"
   }
 }
