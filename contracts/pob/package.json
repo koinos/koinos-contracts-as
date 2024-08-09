@@ -19,6 +19,7 @@
     "lint": "eslint --max-warnings 0 --ext ts \"assembly/**/*.ts\"",
     "build:debug": "koinos-sdk-as-cli build debug",
     "build:release": "koinos-sdk-as-cli build release",
+    "build:testnet": "koinos-sdk-as-cli build release 1",
     "test": "koinos-sdk-as-cli run-tests",
     "integration-tests": "yarn jest",
     "local-koinos-auto": "local-koinos start -i 5000",

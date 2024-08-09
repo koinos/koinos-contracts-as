@@ -17,6 +17,18 @@
       "use": [
         "BUILD_FOR_TESTING=0"
       ]
+    },
+    "testnet": {
+      "outFile": "build/testnet/contract.wasm",
+      "textFile": "build/testnet/contract.wat",
+      "sourceMap": true,
+      "optimizeLevel": 3,
+      "shrinkLevel": 0,
+      "converge": false,
+      "noAssert": false,
+      "use": [
+        "BUILD_FOR_TESTING=1"
+      ]
     }
   },
   "options": {
