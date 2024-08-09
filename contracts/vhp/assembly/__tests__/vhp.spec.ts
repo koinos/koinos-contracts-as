@@ -133,7 +133,7 @@ describe("vhp", () => {
     }).toThrow();
 
     // check error message
-    expect(MockVM.getErrorMessage()).toBe("from has not authorized burn");
+    expect(MockVM.getErrorMessage()).toBe("account 'from' has not authorized burn");
 
     // check balance
     balanceArgs = new kcs4.balance_of_arguments(MOCK_ACCT1);
@@ -679,7 +679,7 @@ describe("vhp", () => {
       vhpContract.transfer(new kcs4.transfer_arguments(MOCK_ACCT1, MOCK_ACCT2, 10));
     }).toThrow();
 
-    expect(MockVM.getErrorMessage()).toBe("from has not authorized transfer");
+    expect(MockVM.getErrorMessage()).toBe("account 'from' has not authorized transfer");
 
     // create allowance for 20 tokens
     MockVM.setCaller(new chain.caller_data(new Uint8Array(0), chain.privilege.kernel_mode));

@@ -37,6 +37,6 @@
       "sign-extension",
       "bulk-memory"
     ],
-    "disableWarning": "235"
+    "disableWarning": ["235","228"]
   }
 }
