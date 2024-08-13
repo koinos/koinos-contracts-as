@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package mock_smart_wallet;
+
+import "koinos/options.proto";
+
+message authorization_key {
+  bytes contract_id = 1;
+  uint64 entry_point = 2;
+}
+
+message authorization_object {
+  bool value = 1;
+}
+
+message set_authorization_arguments {
+  optional bytes contract_id = 1 [(koinos.btype) = ADDRESS];
+  optional uint64 entry_point = 2;
+  bool value = 3;
+}
+
+message set_authorization_result {}
+
+message clear_authorization_arguments {
+  optional bytes contract_id = 1 [(koinos.btype) = ADDRESS];
+  optional uint64 entry_point = 2;
+}
+
+message clear_authorization_result {}

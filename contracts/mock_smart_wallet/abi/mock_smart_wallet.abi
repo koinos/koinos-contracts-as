@@ -1,0 +1,19 @@
+{
+   "methods" : {
+      "set_authorization": {
+         "argument"    : "mock_smart_wallet.set_authorization_arguments",
+         "return"      : "mock_smart_wallet.set_authorization_result",
+         "entry-point" : "0x61af7061",
+         "description" : "Sets an authorization",
+         "read-only"   : false
+      },
+      "claer_authorization": {
+         "argument"    : "mock_smart_wallet.clear_authorization_arguments",
+         "return"      : "mock_smart_wallet.clear_authorization_arguments",
+         "entry-point" : "0xb31b023c",
+         "description" : "Clears an authorization",
+         "read-only"   : false
+      }
+   },
+   "types" : "CsUEChdtb2NrX3NtYXJ0X3dhbGxldC5wcm90bxIRbW9ja19zbWFydF93YWxsZXQaFGtvaW5vcy9vcHRpb25zLnByb3RvIlUKEWF1dGhvcml6YXRpb25fa2V5Eh8KC2NvbnRyYWN0X2lkGAEgASgMUgpjb250cmFjdElkEh8KC2VudHJ5X3BvaW50GAIgASgEUgplbnRyeVBvaW50IiwKFGF1dGhvcml6YXRpb25fb2JqZWN0EhQKBXZhbHVlGAEgASgIUgV2YWx1ZSKlAQobc2V0X2F1dGhvcml6YXRpb25fYXJndW1lbnRzEioKC2NvbnRyYWN0X2lkGAEgASgMQgSAtRgGSABSCmNvbnRyYWN0SWSIAQESJAoLZW50cnlfcG9pbnQYAiABKARIAVIKZW50cnlQb2ludIgBARIUCgV2YWx1ZRgDIAEoCFIFdmFsdWVCDgoMX2NvbnRyYWN0X2lkQg4KDF9lbnRyeV9wb2ludCIaChhzZXRfYXV0aG9yaXphdGlvbl9yZXN1bHQikQEKHWNsZWFyX2F1dGhvcml6YXRpb25fYXJndW1lbnRzEioKC2NvbnRyYWN0X2lkGAEgASgMQgSAtRgGSABSCmNvbnRyYWN0SWSIAQESJAoLZW50cnlfcG9pbnQYAiABKARIAVIKZW50cnlQb2ludIgBAUIOCgxfY29udHJhY3RfaWRCDgoMX2VudHJ5X3BvaW50IhwKGmNsZWFyX2F1dGhvcml6YXRpb25fcmVzdWx0YgZwcm90bzM="
+}
