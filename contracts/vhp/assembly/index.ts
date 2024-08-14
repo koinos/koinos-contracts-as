@@ -42,6 +42,7 @@ export function main(): i32 {
         res,
         kcs4.get_info_result.encode
       );
+      break;
     }
 
     case 0xb0da3934: {
