@@ -61,7 +61,7 @@ export class MockSmartWallet {
 
     // Default to checking signature
     const trxId = System.getTransactionField("id")!.bytes_value;
-    const sigBytes = System.getTransactionField("signatures")!.message_value!.value!
+    const sigBytes = System.getTransactionField("signatures")!.message_value!.value!;
     const signatures = Protobuf.decode< value.list_type >( sigBytes, value.list_type.decode );
 
     for (let i = 0; i < signatures.values.length; i++) {

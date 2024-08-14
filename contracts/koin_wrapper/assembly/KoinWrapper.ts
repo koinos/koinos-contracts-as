@@ -4,7 +4,7 @@
 import { kcs4, System, Token } from "@koinos/sdk-as";
 
 export class Koin {
-  _koinToken: Token = new Token(System.getContractAddress('koin'))
+  _koinToken: Token = new Token(System.getContractAddress('koin'));
 
   name(): kcs4.name_result {
     return new kcs4.name_result(this._koinToken.name());
