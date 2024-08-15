@@ -3,7 +3,7 @@
 // Julian Gonzalez (joticajulian@gmail.com)
 // Koinos Group, Inc. (contact@koinos.group)
 
-import { Arrays, authority, chain, error, kcs4, Protobuf, Storage, System, system_calls, u128 } from "@koinos/sdk-as";
+import { Arrays, authority, chain, error, kcs4, Storage, System, system_calls, u128 } from "@koinos/sdk-as";
 import { koin } from "./proto/koin";
 
 const SUPPLY_SPACE_ID = 0;
@@ -262,7 +262,7 @@ export class Koin {
 
     System.event(
       "token.approve_event",
-      Protobuf.encode(args, kcs4.approve_arguments.encode),
+      System.getArguments().args,
       [args.owner, args.spender]
     );
 
