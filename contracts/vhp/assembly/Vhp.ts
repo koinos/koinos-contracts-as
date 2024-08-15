@@ -189,7 +189,7 @@ export class Vhp {
 
     System.event(
       'token.transfer_event',
-      Protobuf.encode(new kcs4.transfer_event(args.from, args.to, args.value, args.memo), kcs4.transfer_event.encode),
+      System.getArguments().args,
       [args.to, args.from]
     );
 
@@ -222,7 +222,7 @@ export class Vhp {
 
     System.event(
       'token.mint_event',
-      Protobuf.encode(new kcs4.mint_event(args.to, args.value), kcs4.mint_event.encode),
+      System.getArguments().args,
       [args.to]
     );
 
@@ -253,7 +253,7 @@ export class Vhp {
 
     System.event(
       'token.burn_event',
-      Protobuf.encode(new kcs4.burn_event(args.from, args.value), kcs4.burn_event.encode),
+      System.getArguments().args,
       [args.from]
     );
 
@@ -272,7 +272,7 @@ export class Vhp {
 
     System.event(
       "token.approve_event",
-      Protobuf.encode(new kcs4.approve_event(args.owner, args.spender, args.value), kcs4.approve_event.encode),
+      System.getArguments().args,
       [args.owner, args.spender]
     );
 

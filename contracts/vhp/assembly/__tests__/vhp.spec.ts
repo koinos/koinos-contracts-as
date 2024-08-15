@@ -66,6 +66,7 @@ describe("vhp", () => {
 
     // mint tokens
     const mintArgs = new kcs4.mint_arguments(MOCK_ACCT1, 123);
+    MockVM.setContractArguments(Protobuf.encode(mintArgs, kcs4.mint_arguments.encode));
     vhpContract.mint(mintArgs);
 
     totalSupplyRes = vhpContract.total_supply();
@@ -79,7 +80,9 @@ describe("vhp", () => {
     MockVM.setAuthorities([auth]);
 
     // burn tokens
-    vhpContract.burn(new kcs4.burn_arguments(MOCK_ACCT1, 10));
+    const burnArgs = new kcs4.burn_arguments(MOCK_ACCT1, 10);
+    MockVM.setContractArguments(Protobuf.encode(burnArgs, kcs4.burn_arguments.encode));
+    vhpContract.burn(burnArgs);
 
     // check events
     const events = MockVM.getEvents();
@@ -161,6 +164,7 @@ describe("vhp", () => {
 
     // mint tokens
     const mintArgs = new kcs4.mint_arguments(MOCK_ACCT1, 123);
+    MockVM.setContractArguments(Protobuf.encode(mintArgs, kcs4.mint_arguments.encode));
     vhpContract.mint(mintArgs);
 
     // check events
@@ -271,6 +275,7 @@ describe("vhp", () => {
 
     // transfer tokens
     const transferArgs = new kcs4.transfer_arguments(MOCK_ACCT1, MOCK_ACCT2, 10);
+    MockVM.setContractArguments(Protobuf.encode(transferArgs, kcs4.transfer_arguments.encode));
     vhpContract.transfer(transferArgs);
 
     // check balances
@@ -562,6 +567,7 @@ describe("vhp", () => {
 
     // transfer tokens
     const transferArgs = new kcs4.transfer_arguments(MOCK_ACCT1, MOCK_ACCT2, 10);
+    MockVM.setContractArguments(Protobuf.encode(transferArgs, kcs4.transfer_arguments.encode));
     vhpContract.transfer(transferArgs);
 
     // check balances
@@ -595,17 +601,23 @@ describe("vhp", () => {
 
     const mockAcc1Auth = new MockVM.MockAuthority(authority.authorization_type.contract_call, MOCK_ACCT1, true);
     MockVM.setAuthorities([mockAcc1Auth]);
-    vhpContract.approve(new kcs4.approve_arguments(MOCK_ACCT1, MOCK_ACCT2, 10));
+    let approveArgs = new kcs4.approve_arguments(MOCK_ACCT1, MOCK_ACCT2, 10);
+    MockVM.setContractArguments(Protobuf.encode(approveArgs, kcs4.approve_arguments.encode));
+    vhpContract.approve(approveArgs);
 
     expect(vhpContract.allowance(new kcs4.allowance_arguments(MOCK_ACCT1, MOCK_ACCT2)).value).toBe(10);
 
     MockVM.setAuthorities([mockAcc1Auth]);
-    vhpContract.approve(new kcs4.approve_arguments(MOCK_ACCT1, MOCK_ACCT3, 20));
+    approveArgs = new kcs4.approve_arguments(MOCK_ACCT1, MOCK_ACCT3, 20);
+    MockVM.setContractArguments(Protobuf.encode(approveArgs, kcs4.approve_arguments.encode));
+    vhpContract.approve(approveArgs);
 
     expect(vhpContract.allowance(new kcs4.allowance_arguments(MOCK_ACCT1, MOCK_ACCT3)).value).toBe(20);
 
     MockVM.setAuthorities([new MockVM.MockAuthority(authority.authorization_type.contract_call, MOCK_ACCT2, true)]);
-    vhpContract.approve(new kcs4.approve_arguments(MOCK_ACCT2, MOCK_ACCT3, 30));
+    approveArgs = new kcs4.approve_arguments(MOCK_ACCT2, MOCK_ACCT3, 30);
+    MockVM.setContractArguments(Protobuf.encode(approveArgs, kcs4.approve_arguments.encode));
+    vhpContract.approve(approveArgs);
 
     expect(vhpContract.allowance(new kcs4.allowance_arguments(MOCK_ACCT2, MOCK_ACCT3)).value).toBe(30);
 
