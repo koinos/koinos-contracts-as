@@ -80,6 +80,9 @@ describe("koin", () => {
     MockVM.setAuthorities([auth]);
 
     // burn tokens
+    callerData.caller = new Uint8Array(0);
+    callerData.caller_privilege = chain.privilege.user_mode;
+    MockVM.setCaller(callerData);
     const burnArgs = new kcs4.burn_arguments(MOCK_ACCT1, 10);
     MockVM.setContractArguments(Protobuf.encode(burnArgs, kcs4.burn_arguments.encode));
     koinContract.burn(burnArgs);

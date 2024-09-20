@@ -218,9 +218,8 @@ export class Koin {
   burn(args: kcs4.burn_arguments): kcs4.burn_result {
     System.require(args.from != null, "account 'from' cannot be null");
 
-    let callerData = System.getCaller();
     System.require(
-      callerData.caller_privilege == chain.privilege.kernel_mode || this._check_authority(args.from, args.value),
+      this._check_authority(args.from, args.value),
       "account 'from' has not authorized burn",
       error.error_code.authorization_failure
     );

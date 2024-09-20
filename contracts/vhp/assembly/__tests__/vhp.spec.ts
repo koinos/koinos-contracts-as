@@ -1,4 +1,4 @@
-import { Base58, MockVM, authority, Arrays, Protobuf, System, chain, kcs4, protocol } from "@koinos/sdk-as";
+import { Arrays, authority, Base58, chain, kcs4, MockVM, Protobuf, protocol, System } from "@koinos/sdk-as";
 import { vhp } from "../proto/vhp";
 import { Vhp } from "../Vhp";
 
@@ -19,6 +19,7 @@ describe("vhp", () => {
     MockVM.setCaller(new chain.caller_data(new Uint8Array(0), chain.privilege.user_mode));
     MockVM.setBlock(headBlock);
     MockVM.setContractMetadata(new chain.contract_metadata_object(new Uint8Array(0), false, false, false, false));
+    MockVM.setTransaction(new protocol.transaction(CONTRACT_ID)); // Dummy value
 
     System.resetCache();
   });
@@ -80,6 +81,9 @@ describe("vhp", () => {
     MockVM.setAuthorities([auth]);
 
     // burn tokens
+    callerData.caller = new Uint8Array(0);
+    callerData.caller_privilege = chain.privilege.user_mode;
+    MockVM.setCaller(callerData);
     const burnArgs = new kcs4.burn_arguments(MOCK_ACCT1, 10);
     MockVM.setContractArguments(Protobuf.encode(burnArgs, kcs4.burn_arguments.encode));
     vhpContract.burn(burnArgs);
@@ -541,7 +545,7 @@ describe("vhp", () => {
     expect(vhpContract.effective_balance_of(effectiveBalanceMockAcct1).value).toBe(99);
     expect(vhpContract.effective_balance_of(effectiveBalanceMockAcct2).value).toBe(1);
 
-    MockVM.setAuthorities([authMockAcct2]);
+    MockVM.setTransaction(new protocol.transaction());
     vhpContract.burn(new kcs4.burn_arguments(MOCK_ACCT2, 1));
 
     expect(vhpContract.effective_balance_of(effectiveBalanceMockAcct2).value).toBe(0);
