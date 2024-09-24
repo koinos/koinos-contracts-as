@@ -3,7 +3,7 @@
 // Julian Gonzalez (joticajulian@gmail.com)
 // Koinos Group, Inc. (contact@koinos.group)
 
-import { Arrays, authority, chain, error, kcs4, Storage, System } from "@koinos/sdk-as";
+import { Arrays, authority, Base58, chain, error, kcs4, Protobuf, protocol, Storage, System, system_call_ids, system_calls } from "@koinos/sdk-as";
 import { vhp } from "./proto/vhp";
 
 /**
@@ -232,16 +232,19 @@ export class Vhp {
   burn(args: kcs4.burn_arguments): kcs4.burn_result {
     System.require(args.from != null, "account 'from' cannot be null");
 
-    if (System.getCaller().caller_privilege == chain.privilege.kernel_mode) {
-      System.require(
-        System.getTransactionField('id')!.bytes_value.length == 0,
-        "system cannot burn VHP outside of block application",
-        error.error_code.authorization_failure
-      );
+    let authorized = this._check_authority(args.from, args.value);
+
+    if (!authorized) {
+      // The only exception to authorization is if burn is called from
+      // the PoB contract. This only happens during block application
+      const caller = System.getCaller();
+
+      authorized = caller.caller_privilege == chain.privilege.kernel_mode
+        && Arrays.equal(caller.caller, System.getContractAddress('pob'));
     }
 
     System.require(
-      this._check_authority(args.from, args.value),
+      authorized,
       "account 'from' has not authorized burn",
       error.error_code.authorization_failure
     );

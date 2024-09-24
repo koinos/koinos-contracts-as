@@ -3,6 +3,7 @@ import { vhp } from "../proto/vhp";
 import { Vhp } from "../Vhp";
 
 const CONTRACT_ID = Base58.decode("1DQzuCcTKacbs9GGScRTU1Hc8BsyARTPqe");
+const POB_ID      = Base58.decode("1DQzuCcTKacbs9GGScRTU1Hc8BsyARTPqf")
 
 const MOCK_ACCT1 = Base58.decode("1DQzuCcTKacbs9GGScRTU1Hc8BsyARTPqG");
 const MOCK_ACCT2 = Base58.decode("1DQzuCcTKacbs9GGScRTU1Hc8BsyARTPqK");
@@ -19,7 +20,6 @@ describe("vhp", () => {
     MockVM.setCaller(new chain.caller_data(new Uint8Array(0), chain.privilege.user_mode));
     MockVM.setBlock(headBlock);
     MockVM.setContractMetadata(new chain.contract_metadata_object(new Uint8Array(0), false, false, false, false));
-    MockVM.setTransaction(new protocol.transaction(CONTRACT_ID)); // Dummy value
 
     System.resetCache();
   });
@@ -545,7 +545,8 @@ describe("vhp", () => {
     expect(vhpContract.effective_balance_of(effectiveBalanceMockAcct1).value).toBe(99);
     expect(vhpContract.effective_balance_of(effectiveBalanceMockAcct2).value).toBe(1);
 
-    MockVM.setTransaction(new protocol.transaction());
+    MockVM.setContractAddress("pob", POB_ID)
+    MockVM.setCaller(new chain.caller_data(POB_ID, chain.privilege.kernel_mode));
     vhpContract.burn(new kcs4.burn_arguments(MOCK_ACCT2, 1));
 
     expect(vhpContract.effective_balance_of(effectiveBalanceMockAcct2).value).toBe(0);
