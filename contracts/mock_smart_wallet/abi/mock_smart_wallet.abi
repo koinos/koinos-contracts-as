@@ -7,7 +7,7 @@
          "description" : "Sets an authorization",
          "read-only"   : false
       },
-      "claer_authorization": {
+      "clear_authorization": {
          "argument"    : "mock_smart_wallet.clear_authorization_arguments",
          "return"      : "mock_smart_wallet.clear_authorization_arguments",
          "entry-point" : "0xb31b023c",
