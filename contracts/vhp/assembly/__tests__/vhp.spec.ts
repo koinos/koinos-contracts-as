@@ -3,7 +3,7 @@ import { vhp } from "../proto/vhp";
 import { Vhp } from "../Vhp";
 
 const CONTRACT_ID = Base58.decode("1DQzuCcTKacbs9GGScRTU1Hc8BsyARTPqe");
-const POB_ID      = Base58.decode("1DQzuCcTKacbs9GGScRTU1Hc8BsyARTPqf")
+const POB_ID      = Base58.decode("1DQzuCcTKacbs9GGScRTU1Hc8BsyARTPqf");
 
 const MOCK_ACCT1 = Base58.decode("1DQzuCcTKacbs9GGScRTU1Hc8BsyARTPqG");
 const MOCK_ACCT2 = Base58.decode("1DQzuCcTKacbs9GGScRTU1Hc8BsyARTPqK");
@@ -545,7 +545,7 @@ describe("vhp", () => {
     expect(vhpContract.effective_balance_of(effectiveBalanceMockAcct1).value).toBe(99);
     expect(vhpContract.effective_balance_of(effectiveBalanceMockAcct2).value).toBe(1);
 
-    MockVM.setContractAddress("pob", POB_ID)
+    MockVM.setContractAddress("pob", POB_ID);
     MockVM.setCaller(new chain.caller_data(POB_ID, chain.privilege.kernel_mode));
     vhpContract.burn(new kcs4.burn_arguments(MOCK_ACCT2, 1));
 

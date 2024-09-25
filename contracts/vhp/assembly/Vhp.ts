@@ -3,7 +3,7 @@
 // Julian Gonzalez (joticajulian@gmail.com)
 // Koinos Group, Inc. (contact@koinos.group)
 
-import { Arrays, authority, Base58, chain, error, kcs4, Protobuf, protocol, Storage, System, system_call_ids, system_calls } from "@koinos/sdk-as";
+import { Arrays, authority, chain, error, kcs4, Storage, System } from "@koinos/sdk-as";
 import { vhp } from "./proto/vhp";
 
 /**
