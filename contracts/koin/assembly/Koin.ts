@@ -3,7 +3,7 @@
 // Julian Gonzalez (joticajulian@gmail.com)
 // Koinos Group, Inc. (contact@koinos.group)
 
-import { Arrays, authority, chain, error, kcs4, Protobuf, Storage, System, system_calls, u128 } from "@koinos/sdk-as";
+import { Arrays, authority, chain, error, kcs4, Storage, System, system_calls, u128 } from "@koinos/sdk-as";
 import { koin } from "./proto/koin";
 
 const SUPPLY_SPACE_ID = 0;
@@ -173,7 +173,7 @@ export class Koin {
 
     System.event(
       'token.transfer_event',
-      Protobuf.encode(new kcs4.transfer_event(args.from, args.to, args.value, args.memo), kcs4.transfer_event.encode),
+      System.getArguments().args,
       [args.to, args.from]
     );
 
@@ -208,7 +208,7 @@ export class Koin {
 
     System.event(
       'token.mint_event',
-      Protobuf.encode(new kcs4.mint_event(args.to, args.value), kcs4.mint_event.encode),
+      System.getArguments().args,
       [args.to]
     );
 
@@ -218,9 +218,8 @@ export class Koin {
   burn(args: kcs4.burn_arguments): kcs4.burn_result {
     System.require(args.from != null, "account 'from' cannot be null");
 
-    let callerData = System.getCaller();
     System.require(
-      callerData.caller_privilege == chain.privilege.kernel_mode || this._check_authority(args.from, args.value),
+      this._check_authority(args.from, args.value),
       "account 'from' has not authorized burn",
       error.error_code.authorization_failure
     );
@@ -243,7 +242,7 @@ export class Koin {
 
     System.event(
       'token.burn_event',
-      Protobuf.encode(new kcs4.burn_event(args.from, args.value), kcs4.burn_event.encode),
+      System.getArguments().args,
       [args.from]
     );
 
@@ -262,7 +261,7 @@ export class Koin {
 
     System.event(
       "token.approve_event",
-      Protobuf.encode(new kcs4.approve_event(args.owner, args.spender, args.value), kcs4.approve_event.encode),
+      System.getArguments().args,
       [args.owner, args.spender]
     );
 

@@ -3,7 +3,7 @@
 // Julian Gonzalez (joticajulian@gmail.com)
 // Koinos Group, Inc. (contact@koinos.group)
 
-import { Arrays, authority, chain, error, kcs4, Protobuf, Storage, System } from "@koinos/sdk-as";
+import { Arrays, authority, chain, error, kcs4, Storage, System } from "@koinos/sdk-as";
 import { vhp } from "./proto/vhp";
 
 /**
@@ -189,7 +189,7 @@ export class Vhp {
 
     System.event(
       'token.transfer_event',
-      Protobuf.encode(new kcs4.transfer_event(args.from, args.to, args.value, args.memo), kcs4.transfer_event.encode),
+      System.getArguments().args,
       [args.to, args.from]
     );
 
@@ -222,7 +222,7 @@ export class Vhp {
 
     System.event(
       'token.mint_event',
-      Protobuf.encode(new kcs4.mint_event(args.to, args.value), kcs4.mint_event.encode),
+      System.getArguments().args,
       [args.to]
     );
 
@@ -232,9 +232,19 @@ export class Vhp {
   burn(args: kcs4.burn_arguments): kcs4.burn_result {
     System.require(args.from != null, "account 'from' cannot be null");
 
-    let callerData = System.getCaller();
+    let authorized = this._check_authority(args.from, args.value);
+
+    if (!authorized) {
+      // The only exception to authorization is if burn is called from
+      // the PoB contract. This only happens during block application
+      const caller = System.getCaller();
+
+      authorized = caller.caller_privilege == chain.privilege.kernel_mode
+        && Arrays.equal(caller.caller, System.getContractAddress('pob'));
+    }
+
     System.require(
-      callerData.caller_privilege == chain.privilege.kernel_mode || this._check_authority(args.from, args.value),
+      authorized,
       "account 'from' has not authorized burn",
       error.error_code.authorization_failure
     );
@@ -253,7 +263,7 @@ export class Vhp {
 
     System.event(
       'token.burn_event',
-      Protobuf.encode(new kcs4.burn_event(args.from, args.value), kcs4.burn_event.encode),
+      System.getArguments().args,
       [args.from]
     );
 
@@ -272,7 +282,7 @@ export class Vhp {
 
     System.event(
       "token.approve_event",
-      Protobuf.encode(new kcs4.approve_event(args.owner, args.spender, args.value), kcs4.approve_event.encode),
+      System.getArguments().args,
       [args.owner, args.spender]
     );
 

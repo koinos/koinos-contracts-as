@@ -1,8 +1,9 @@
-import { Base58, MockVM, authority, Arrays, Protobuf, System, chain, kcs4, protocol } from "@koinos/sdk-as";
+import { Arrays, authority, Base58, chain, kcs4, MockVM, Protobuf, protocol, System } from "@koinos/sdk-as";
 import { vhp } from "../proto/vhp";
 import { Vhp } from "../Vhp";
 
 const CONTRACT_ID = Base58.decode("1DQzuCcTKacbs9GGScRTU1Hc8BsyARTPqe");
+const POB_ID      = Base58.decode("1DQzuCcTKacbs9GGScRTU1Hc8BsyARTPqf");
 
 const MOCK_ACCT1 = Base58.decode("1DQzuCcTKacbs9GGScRTU1Hc8BsyARTPqG");
 const MOCK_ACCT2 = Base58.decode("1DQzuCcTKacbs9GGScRTU1Hc8BsyARTPqK");
@@ -66,6 +67,7 @@ describe("vhp", () => {
 
     // mint tokens
     const mintArgs = new kcs4.mint_arguments(MOCK_ACCT1, 123);
+    MockVM.setContractArguments(Protobuf.encode(mintArgs, kcs4.mint_arguments.encode));
     vhpContract.mint(mintArgs);
 
     totalSupplyRes = vhpContract.total_supply();
@@ -79,7 +81,12 @@ describe("vhp", () => {
     MockVM.setAuthorities([auth]);
 
     // burn tokens
-    vhpContract.burn(new kcs4.burn_arguments(MOCK_ACCT1, 10));
+    callerData.caller = new Uint8Array(0);
+    callerData.caller_privilege = chain.privilege.user_mode;
+    MockVM.setCaller(callerData);
+    const burnArgs = new kcs4.burn_arguments(MOCK_ACCT1, 10);
+    MockVM.setContractArguments(Protobuf.encode(burnArgs, kcs4.burn_arguments.encode));
+    vhpContract.burn(burnArgs);
 
     // check events
     const events = MockVM.getEvents();
@@ -161,6 +168,7 @@ describe("vhp", () => {
 
     // mint tokens
     const mintArgs = new kcs4.mint_arguments(MOCK_ACCT1, 123);
+    MockVM.setContractArguments(Protobuf.encode(mintArgs, kcs4.mint_arguments.encode));
     vhpContract.mint(mintArgs);
 
     // check events
@@ -271,6 +279,7 @@ describe("vhp", () => {
 
     // transfer tokens
     const transferArgs = new kcs4.transfer_arguments(MOCK_ACCT1, MOCK_ACCT2, 10);
+    MockVM.setContractArguments(Protobuf.encode(transferArgs, kcs4.transfer_arguments.encode));
     vhpContract.transfer(transferArgs);
 
     // check balances
@@ -536,7 +545,8 @@ describe("vhp", () => {
     expect(vhpContract.effective_balance_of(effectiveBalanceMockAcct1).value).toBe(99);
     expect(vhpContract.effective_balance_of(effectiveBalanceMockAcct2).value).toBe(1);
 
-    MockVM.setAuthorities([authMockAcct2]);
+    MockVM.setContractAddress("pob", POB_ID);
+    MockVM.setCaller(new chain.caller_data(POB_ID, chain.privilege.kernel_mode));
     vhpContract.burn(new kcs4.burn_arguments(MOCK_ACCT2, 1));
 
     expect(vhpContract.effective_balance_of(effectiveBalanceMockAcct2).value).toBe(0);
@@ -562,6 +572,7 @@ describe("vhp", () => {
 
     // transfer tokens
     const transferArgs = new kcs4.transfer_arguments(MOCK_ACCT1, MOCK_ACCT2, 10);
+    MockVM.setContractArguments(Protobuf.encode(transferArgs, kcs4.transfer_arguments.encode));
     vhpContract.transfer(transferArgs);
 
     // check balances
@@ -595,17 +606,23 @@ describe("vhp", () => {
 
     const mockAcc1Auth = new MockVM.MockAuthority(authority.authorization_type.contract_call, MOCK_ACCT1, true);
     MockVM.setAuthorities([mockAcc1Auth]);
-    vhpContract.approve(new kcs4.approve_arguments(MOCK_ACCT1, MOCK_ACCT2, 10));
+    let approveArgs = new kcs4.approve_arguments(MOCK_ACCT1, MOCK_ACCT2, 10);
+    MockVM.setContractArguments(Protobuf.encode(approveArgs, kcs4.approve_arguments.encode));
+    vhpContract.approve(approveArgs);
 
     expect(vhpContract.allowance(new kcs4.allowance_arguments(MOCK_ACCT1, MOCK_ACCT2)).value).toBe(10);
 
     MockVM.setAuthorities([mockAcc1Auth]);
-    vhpContract.approve(new kcs4.approve_arguments(MOCK_ACCT1, MOCK_ACCT3, 20));
+    approveArgs = new kcs4.approve_arguments(MOCK_ACCT1, MOCK_ACCT3, 20);
+    MockVM.setContractArguments(Protobuf.encode(approveArgs, kcs4.approve_arguments.encode));
+    vhpContract.approve(approveArgs);
 
     expect(vhpContract.allowance(new kcs4.allowance_arguments(MOCK_ACCT1, MOCK_ACCT3)).value).toBe(20);
 
     MockVM.setAuthorities([new MockVM.MockAuthority(authority.authorization_type.contract_call, MOCK_ACCT2, true)]);
-    vhpContract.approve(new kcs4.approve_arguments(MOCK_ACCT2, MOCK_ACCT3, 30));
+    approveArgs = new kcs4.approve_arguments(MOCK_ACCT2, MOCK_ACCT3, 30);
+    MockVM.setContractArguments(Protobuf.encode(approveArgs, kcs4.approve_arguments.encode));
+    vhpContract.approve(approveArgs);
 
     expect(vhpContract.allowance(new kcs4.allowance_arguments(MOCK_ACCT2, MOCK_ACCT3)).value).toBe(30);
 

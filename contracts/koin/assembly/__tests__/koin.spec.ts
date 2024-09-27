@@ -66,6 +66,7 @@ describe("koin", () => {
 
     // mint tokens
     const mintArgs = new kcs4.mint_arguments(MOCK_ACCT1, 123);
+    MockVM.setContractArguments(Protobuf.encode(mintArgs, kcs4.mint_arguments.encode));
     koinContract.mint(mintArgs);
 
     totalSupplyRes = koinContract.total_supply();
@@ -79,7 +80,12 @@ describe("koin", () => {
     MockVM.setAuthorities([auth]);
 
     // burn tokens
-    koinContract.burn(new kcs4.burn_arguments(MOCK_ACCT1, 10));
+    callerData.caller = new Uint8Array(0);
+    callerData.caller_privilege = chain.privilege.user_mode;
+    MockVM.setCaller(callerData);
+    const burnArgs = new kcs4.burn_arguments(MOCK_ACCT1, 10);
+    MockVM.setContractArguments(Protobuf.encode(burnArgs, kcs4.burn_arguments.encode));
+    koinContract.burn(burnArgs);
 
     // check events
     const events = MockVM.getEvents();
@@ -157,6 +163,7 @@ describe("koin", () => {
 
     // mint tokens
     const mintArgs = new kcs4.mint_arguments(MOCK_ACCT1, 123);
+    MockVM.setContractArguments(Protobuf.encode(mintArgs, kcs4.mint_arguments.encode));
     koinContract.mint(mintArgs);
 
     // check events
@@ -267,6 +274,7 @@ describe("koin", () => {
 
     // transfer tokens
     const transferArgs = new kcs4.transfer_arguments(MOCK_ACCT1, MOCK_ACCT2, 10);
+    MockVM.setContractArguments(Protobuf.encode(transferArgs, kcs4.transfer_arguments.encode));
     koinContract.transfer(transferArgs);
 
     // check balances
@@ -420,6 +428,7 @@ describe("koin", () => {
 
     // transfer tokens
     const transferArgs = new kcs4.transfer_arguments(MOCK_ACCT1, MOCK_ACCT2, 10);
+    MockVM.setContractArguments(Protobuf.encode(transferArgs, kcs4.transfer_arguments.encode));
     koinContract.transfer(transferArgs);
 
     // check balances
@@ -453,17 +462,23 @@ describe("koin", () => {
 
     const mockAcc1Auth = new MockVM.MockAuthority(authority.authorization_type.contract_call, MOCK_ACCT1, true);
     MockVM.setAuthorities([mockAcc1Auth]);
-    koinContract.approve(new kcs4.approve_arguments(MOCK_ACCT1, MOCK_ACCT2, 10));
+    let approveArgs = new kcs4.approve_arguments(MOCK_ACCT1, MOCK_ACCT2, 10);
+    MockVM.setContractArguments(Protobuf.encode(approveArgs, kcs4.approve_arguments.encode));
+    koinContract.approve(approveArgs);
 
     expect(koinContract.allowance(new kcs4.allowance_arguments(MOCK_ACCT1, MOCK_ACCT2)).value).toBe(10);
 
     MockVM.setAuthorities([mockAcc1Auth]);
-    koinContract.approve(new kcs4.approve_arguments(MOCK_ACCT1, MOCK_ACCT3, 20));
+    approveArgs = new kcs4.approve_arguments(MOCK_ACCT1, MOCK_ACCT3, 20);
+    MockVM.setContractArguments(Protobuf.encode(approveArgs, kcs4.approve_arguments.encode));
+    koinContract.approve(approveArgs);
 
     expect(koinContract.allowance(new kcs4.allowance_arguments(MOCK_ACCT1, MOCK_ACCT3)).value).toBe(20);
 
     MockVM.setAuthorities([new MockVM.MockAuthority(authority.authorization_type.contract_call, MOCK_ACCT2, true)]);
-    koinContract.approve(new kcs4.approve_arguments(MOCK_ACCT2, MOCK_ACCT3, 30));
+    approveArgs = new kcs4.approve_arguments(MOCK_ACCT2, MOCK_ACCT3, 30);
+    MockVM.setContractArguments(Protobuf.encode(approveArgs, kcs4.approve_arguments.encode));
+    koinContract.approve(approveArgs);
 
     expect(koinContract.allowance(new kcs4.allowance_arguments(MOCK_ACCT2, MOCK_ACCT3)).value).toBe(30);
 
