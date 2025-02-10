@@ -257,7 +257,11 @@ export class Koin {
     const key = new Uint8Array(50);
     key.set(args.owner, 0);
     key.set(args.spender, 25);
-    this.allowances.put(key, new koin.balance_object(args.value));
+
+    if (args.value == 0)
+      this.allowances.remove(key);
+    else
+      this.allowances.put(key, new koin.balance_object(args.value));
 
     System.event(
       "token.approve_event",
@@ -275,7 +279,10 @@ export class Koin {
       key.set(account, 0);
       key.set(caller, 25);
       const allowance = this.allowances.get(key)!;
-      if (allowance.value >= amount) {
+
+      if (allowance.value == amount)
+        this.allowances.remove(key);
+      else if (allowance.value > amount) {
         allowance.value -= amount;
         this.allowances.put(key, allowance);
         return true;
