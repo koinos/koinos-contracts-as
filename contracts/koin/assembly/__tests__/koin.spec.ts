@@ -536,6 +536,18 @@ describe("koin", () => {
     expect(allowances.allowances.length).toBe(1);
     expect(Arrays.equal(allowances.allowances[0].spender, MOCK_ACCT3)).toBe(true);
     expect(allowances.allowances[0].value).toBe(30);
+
+    // Test setting an allowance to 0
+    MockVM.setAuthorities([mockAcc1Auth]);
+    approveArgs = new kcs4.approve_arguments(MOCK_ACCT1, MOCK_ACCT2, 0);
+    MockVM.setContractArguments(Protobuf.encode(approveArgs, kcs4.approve_arguments.encode));
+    koinContract.approve(approveArgs);
+
+    allowances = koinContract.get_allowances(new kcs4.get_allowances_arguments(MOCK_ACCT1, new Uint8Array(0), 10));
+    expect(Arrays.equal(allowances.owner, MOCK_ACCT1)).toBe(true);
+    expect(allowances.allowances.length).toBe(1);
+    expect(Arrays.equal(allowances.allowances[0].spender, MOCK_ACCT3)).toBe(true);
+    expect(allowances.allowances[0].value).toBe(20);
   });
 
   it("should require an approval", () => {
