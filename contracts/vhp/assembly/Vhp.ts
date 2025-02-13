@@ -301,8 +301,10 @@ export class Vhp {
       key.set(caller, 25);
       const allowance = this.allowances.get(key)!;
 
-      if (allowance.value == amount)
+      if (allowance.value == amount) {
         this.allowances.remove(key);
+        return true
+      }
       if (allowance.value >= amount) {
         allowance.value -= amount;
         this.allowances.put(key, allowance);
