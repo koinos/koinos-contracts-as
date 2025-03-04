@@ -303,7 +303,7 @@ export class Vhp {
 
       if (allowance.value == amount) {
         this.allowances.remove(key);
-        return true
+        return true;
       }
       if (allowance.value >= amount) {
         allowance.value -= amount;

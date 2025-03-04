@@ -282,7 +282,7 @@ export class Koin {
 
       if (allowance.value == amount) {
         this.allowances.remove(key);
-        return true
+        return true;
       }
       else if (allowance.value > amount) {
         allowance.value -= amount;
