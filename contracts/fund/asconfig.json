@@ -1,0 +1,42 @@
+{
+  "targets": {
+    "debug": {
+      "outFile": "build/debug/contract.wasm",
+      "textFile": "build/debug/contract.wat",
+      "sourceMap": true,
+      "debug": true
+    },
+    "release": {
+      "outFile": "build/release/contract.wasm",
+      "textFile": "build/release/contract.wat",
+      "sourceMap": true,
+      "optimizeLevel": 3,
+      "shrinkLevel": 0,
+      "converge": false,
+      "noAssert": false,
+      "use": [
+        "BUILD_FOR_TESTING=0"
+      ]
+    },
+    "testnet": {
+      "outFile": "build/testnet/contract.wasm",
+      "textFile": "build/testnet/contract.wat",
+      "sourceMap": true,
+      "optimizeLevel": 3,
+      "shrinkLevel": 0,
+      "converge": false,
+      "noAssert": false,
+      "use": [
+        "BUILD_FOR_TESTING=1"
+      ]
+    }
+  },
+  "options": {
+    "exportStart": "_start",
+    "disable": [
+      "sign-extension",
+      "bulk-memory"
+    ],
+    "disableWarning": ["235","228"]
+  }
+}

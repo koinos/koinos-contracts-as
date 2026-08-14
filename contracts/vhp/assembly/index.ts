@@ -1,5 +1,6 @@
 import { System, Protobuf, authority, kcs4} from "@koinos/sdk-as";
 import { vhp } from "./proto/vhp";
+import { fund } from "./proto/fund";
 import { Vhp as ContractClass } from "./Vhp";
 
 export function main(): i32 {
@@ -100,6 +101,16 @@ export function main(): i32 {
         res,
         kcs4.get_allowances_result.encode
       );
+      break;
+    }
+
+    case 0x2178d8fa: {
+      const args = Protobuf.decode<fund.set_votes_koinos_fund_arguments>(
+        contractArgs.args,
+        fund.set_votes_koinos_fund_arguments.decode
+      );
+      c.set_votes_koinos_fund(args);
+      retbuf = new Uint8Array(0);
       break;
     }
 

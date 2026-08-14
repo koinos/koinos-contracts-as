@@ -1,5 +1,6 @@
-import {u128} from 'as-bignum';
-import { chain, System, Protobuf, authority, system_calls, Token, Crypto, pob, vhp } from "@koinos/sdk-as";
+import {u128} from 'as-bignum/assembly';
+import { chain, System, Protobuf, authority, system_calls, Token, Crypto, pob, vhp, StringBytes } from "@koinos/sdk-as";
+import { fund } from "./proto/fund";
 
 namespace Constants {
   /**
@@ -12,7 +13,7 @@ namespace Constants {
    *
    *  x = blocks_per_year * ( ( 1 + desired_inflation_rate ) ^ ( 1 / blocks_per_year ) - 1 )
    */
-  export const DEFAULT_ANNUAL_INFLATION_RATE: u32 = 19802; // 2%
+  export const DEFAULT_ANNUAL_INFLATION_RATE: u32 = 39221; // 4%
   export const DEFAULT_TARGET_BURN_PERCENT: u32 = 501000; // 50.1%
   export const DEFAULT_TARGET_BLOCK_INTERVAL_MS: u32 = 3000; // 3s
   export const DEFAULT_QUANTUM_LENGTH_MS: u32 = 10;
@@ -26,6 +27,7 @@ namespace Constants {
   let contractId: Uint8Array | null = null;
   let koinContractId: Uint8Array | null = null;
   let vhpContractId: Uint8Array | null = null;
+  let koinosFundContractId: Uint8Array | null = null;
 
   export function ContractId() : Uint8Array {
     if (contractId === null) {
@@ -49,6 +51,14 @@ namespace Constants {
     }
 
     return vhpContractId!;
+  }
+
+  export function KoinosFundContractId(): Uint8Array {
+    if (koinosFundContractId === null ) {
+      koinosFundContractId = System.getContractAddress('koinos-fund');
+    }
+
+    return koinosFundContractId!;
   }
 }
 
@@ -85,9 +95,40 @@ class VHP extends Token {
 
     const callRes = System.call(this._contractId, 0x629f31e6, Protobuf.encode(args, vhp.effective_balance_of_arguments.encode));
     System.require(callRes.code == 0, "failed to retrieve token balance");
+    if (!callRes.res.object) return 0;
     const res = Protobuf.decode<vhp.effective_balance_of_result>(callRes.res.object as Uint8Array, vhp.effective_balance_of_result.decode);
 
     return res.value;
+  }
+}
+
+class KoinosFund {
+  pay_projects(): fund.pay_projects_result {
+    const callRes = System.call(
+      Constants.KoinosFundContractId(),
+      0xffee4af6,
+      new Uint8Array(0)
+    );
+    if (callRes.code != 0) {
+      const errorMessage = `failed to call pay_projects: ${callRes.res.error && callRes.res.error!.message ? callRes.res.error!.message : "unknown error"}`;
+      System.exit(callRes.code, StringBytes.stringToBytes(errorMessage));
+    }
+    if (!callRes.res.object) return new fund.pay_projects_result();
+    return Protobuf.decode<fund.pay_projects_result>(callRes.res.object, fund.pay_projects_result.decode);
+  }
+
+  get_global_vars(): fund.global_vars {
+    const callRes = System.call(
+      Constants.KoinosFundContractId(),
+      0x2e4369d4,
+      new Uint8Array(0)
+    );
+    if (callRes.code != 0) {
+      const errorMessage = `failed to call 'Fund.get_global_vars': ${callRes.res.error && callRes.res.error!.message ? callRes.res.error!.message : "unknown error"}`;
+      System.exit(callRes.code, StringBytes.stringToBytes(errorMessage));
+    }
+    if (!callRes.res.object) return new fund.global_vars();
+    return Protobuf.decode<fund.global_vars>(callRes.res.object, fund.global_vars.decode);
   }
 }
 
@@ -175,16 +216,24 @@ export class Pob {
 
     const blocks_per_year = Constants.MILLISECONDS_PER_YEAR / params.target_block_interval;
 
-    const block_reward = yearly_inflation.toU64() / blocks_per_year;
+    const new_koins = yearly_inflation.toU64() / blocks_per_year;
+    const block_reward = new_koins / 2;
+    const block_fund = new_koins - block_reward;
     // virtual supply starts at 10000000000000000 and target_burn_percent is 501000. This already uses 73 bits
     const vhp_reduction = (virtual_supply * u128.fromU64(params.target_burn_percent)) / u128.fromU64(blocks_per_year * Constants.ONE_HUNDRED_PERCENT);
 
     // On successful block deduct vhp and mint new koin
     System.require(vhpToken.burn(args.header!.signer, vhp_reduction.toU64()), "could not burn vhp");
     System.require(koinToken.mint(args.header!.signer, block_reward + vhp_reduction.toU64()), "could not mint token");
+    System.require(koinToken.mint(Constants.KoinosFundContractId(), block_fund), "could not mint token for fund");
+
+    // pay projects in Koinos Fund
+    if (args.header!.timestamp >= metadata.next_koinos_fund_payment_time) {
+      const result = new KoinosFund().pay_projects();
+      metadata.next_koinos_fund_payment_time = result.next_payment_time;
+    }
 
     this.update_difficulty(difficulty, metadata, params, args.header!.timestamp, signature.vrf_hash);
-
     return new system_calls.process_block_signature_result(true);
   }
 
@@ -210,7 +259,8 @@ export class Pob {
     let new_data = new pob.metadata(
       System.hash(Crypto.multicodec.sha2_256, vrf_hash)!,
       new_difficulty.toUint8Array(true),
-      current_block_time
+      current_block_time,
+      metadata.next_koinos_fund_payment_time
     );
 
     System.putObject(State.Space.Metadata(), Constants.METADATA_KEY, new_data, pob.metadata.encode);
@@ -220,6 +270,12 @@ export class Pob {
     const data = System.getObject<Uint8Array, pob.metadata>(State.Space.Metadata(), Constants.METADATA_KEY, pob.metadata.decode);
 
     if (data) {
+      if (data.next_koinos_fund_payment_time == 0) {
+        // initialize next_koinos_fund_payment_time from koinos fund contract
+        const koinosFund = new KoinosFund();
+        const globalVars = koinosFund.get_global_vars();
+        data.next_koinos_fund_payment_time = globalVars.payment_times[0];
+      }
       return data;
     }
 
@@ -265,7 +321,7 @@ export class Pob {
   update_consensus_parameters(args: pob.update_consensus_parameters_arguments): pob.update_consensus_parameters_result {
     System.require(System.checkSystemAuthority(), "caller must have system authority to update consensus parameters");
 
-    System.putObject(State.Space.Metadata(), Constants.CONSENSUS_PARAMS_KEY, args.value, pob.consensus_parameters.encode);
+    System.putObject(State.Space.Metadata(), Constants.CONSENSUS_PARAMS_KEY, args.value!, pob.consensus_parameters.encode);
 
     return new pob.update_consensus_parameters_result();
   }

@@ -1,5 +1,6 @@
 import { System, Protobuf, authority, kcs4, system_calls} from "@koinos/sdk-as";
 import { Koin as ContractClass } from "./Koin";
+import { fund } from "./proto/fund";
 
 export function main(): i32 {
   const contractArgs = System.getArguments();
@@ -112,6 +113,16 @@ export function main(): i32 {
         res,
         kcs4.get_allowances_result.encode
       );
+      break;
+    }
+
+    case 0x2178d8fa: {
+      const args = Protobuf.decode<fund.set_votes_koinos_fund_arguments>(
+        contractArgs.args,
+        fund.set_votes_koinos_fund_arguments.decode
+      );
+      c.set_votes_koinos_fund(args);
+      retbuf = new Uint8Array(0);
       break;
     }
 

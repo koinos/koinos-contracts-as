@@ -24,4 +24,10 @@ message balance_entry {
 message effective_balance_object {
   uint64 current_balance = 1;
   repeated balance_entry past_balances = 2;
+  bool votes_koinos_fund = 3;
+}
+
+message set_votes_koinos_fund_arguments {
+  bytes account = 1;
+  bool votes_koinos_fund = 2;
 }

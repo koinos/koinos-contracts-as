@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package pob;
+
+message pay_projects_result {
+  uint64 next_payment_time = 1;
+}
+
+message global_vars {
+  // uint64 fee_denominator = 1;
+  // uint32 total_projects = 2;
+  // uint32 total_upcoming_projects = 3;
+  // uint32 total_active_projects = 4;
+  repeated uint64 payment_times = 5;
+  // uint64 remaining_balance = 6;
+}
