@@ -1,0 +1,102 @@
+{
+  "methods": {
+    "get_bytecode": {
+      "argument": "bytestorage.get_bytecode_arguments",
+      "return": "bytestorage.bytecode",
+      "description": "Get bytecode",
+      "entry_point": 3055330172,
+      "read_only": true
+    },
+    "set_bytecode": {
+      "argument": "bytestorage.bytecode",
+      "return": "",
+      "description": "Set bytecode",
+      "entry_point": 406256488,
+      "read_only": false
+    }
+  },
+  "types": "CqMCChFieXRlc3RvcmFnZS5wcm90bxILYnl0ZXN0b3JhZ2UaFGtvaW5vcy9vcHRpb25zLnByb3RvIkwKCGJ5dGVjb2RlEhIKBG5hbWUYASABKAlSBG5hbWUSGgoIYnl0ZWNvZGUYAiABKAxSCGJ5dGVjb2RlEhAKA2FiaRgDIAEoCVIDYWJpIiwKFmdldF9ieXRlY29kZV9hcmd1bWVudHMSEgoEbmFtZRgBIAEoCVIEbmFtZSJnChl1cGxvYWRfY29udHJhY3RfYXJndW1lbnRzEiMKDWJ5dGVjb2RlX25hbWUYASABKAlSDGJ5dGVjb2RlTmFtZRIlCgtjb250cmFjdF9pZBgCIAEoDEIEgLUYBlIKY29udHJhY3RJZGIGcHJvdG8z",
+  "koilib_types": {
+    "nested": {
+      "bytestorage": {
+        "nested": {
+          "bytecode": {
+            "fields": {
+              "name": {
+                "type": "string",
+                "id": 1
+              },
+              "bytecode": {
+                "type": "bytes",
+                "id": 2
+              },
+              "abi": {
+                "type": "string",
+                "id": 3
+              }
+            }
+          },
+          "get_bytecode_arguments": {
+            "fields": {
+              "name": {
+                "type": "string",
+                "id": 1
+              }
+            }
+          },
+          "upload_contract_arguments": {
+            "fields": {
+              "bytecode_name": {
+                "type": "string",
+                "id": 1
+              },
+              "contract_id": {
+                "type": "bytes",
+                "id": 2,
+                "options": {
+                  "(koinos.btype)": "ADDRESS"
+                }
+              }
+            }
+          }
+        }
+      },
+      "koinos": {
+        "options": {
+          "go_package": "github.com/koinos/koinos-proto-golang/koinos"
+        },
+        "nested": {
+          "bytes_type": {
+            "values": {
+              "BASE64": 0,
+              "BASE58": 1,
+              "HEX": 2,
+              "BLOCK_ID": 3,
+              "TRANSACTION_ID": 4,
+              "CONTRACT_ID": 5,
+              "ADDRESS": 6
+            }
+          },
+          "_btype": {
+            "oneof": [
+              "btype"
+            ]
+          },
+          "btype": {
+            "type": "bytes_type",
+            "id": 50000,
+            "extend": "google.protobuf.FieldOptions",
+            "options": {
+              "proto3_optional": true
+            }
+          }
+        }
+      }
+    }
+  },
+  "events": {
+    "bytestorage.set_bytecode_event": {
+      "type": "bytestorage.bytecode"
+    }
+  }
+}

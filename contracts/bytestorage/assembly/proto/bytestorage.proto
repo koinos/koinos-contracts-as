@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package bytestorage;
+
+message bytecode {
+   string name = 1;
+   bytes bytecode = 2;
+   string abi = 3;
+}
+
+message get_bytecode_arguments {
+   string name = 1;
+}

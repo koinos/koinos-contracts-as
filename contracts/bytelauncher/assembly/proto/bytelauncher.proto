@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package bytelauncher;
+
+message bytecode {
+   string name = 1;
+   bytes bytecode = 2;
+   string abi = 3;
+}
+
+message get_bytecode_arguments {
+   string name = 1;
+}
+
+message upload_contract_arguments {
+   string bytecode_name = 1;
+   bytes contract_id = 2;
+}

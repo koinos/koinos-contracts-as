@@ -1,0 +1,90 @@
+{
+  "methods": {
+    "upload_contract": {
+      "argument": "bytelauncher.upload_contract_arguments",
+      "return": "",
+      "description": "Upload a contract with a bytecode",
+      "entry_point": 2272596445,
+      "read_only": false
+    }
+  },
+  "types": "CqUCChJieXRlbGF1bmNoZXIucHJvdG8SDGJ5dGVsYXVuY2hlchoUa29pbm9zL29wdGlvbnMucHJvdG8iTAoIYnl0ZWNvZGUSEgoEbmFtZRgBIAEoCVIEbmFtZRIaCghieXRlY29kZRgCIAEoDFIIYnl0ZWNvZGUSEAoDYWJpGAMgASgJUgNhYmkiLAoWZ2V0X2J5dGVjb2RlX2FyZ3VtZW50cxISCgRuYW1lGAEgASgJUgRuYW1lImcKGXVwbG9hZF9jb250cmFjdF9hcmd1bWVudHMSIwoNYnl0ZWNvZGVfbmFtZRgBIAEoCVIMYnl0ZWNvZGVOYW1lEiUKC2NvbnRyYWN0X2lkGAIgASgMQgSAtRgGUgpjb250cmFjdElkYgZwcm90bzM=",
+  "koilib_types": {
+    "nested": {
+      "bytelauncher": {
+        "nested": {
+          "bytecode": {
+            "fields": {
+              "name": {
+                "type": "string",
+                "id": 1
+              },
+              "bytecode": {
+                "type": "bytes",
+                "id": 2
+              },
+              "abi": {
+                "type": "string",
+                "id": 3
+              }
+            }
+          },
+          "get_bytecode_arguments": {
+            "fields": {
+              "name": {
+                "type": "string",
+                "id": 1
+              }
+            }
+          },
+          "upload_contract_arguments": {
+            "fields": {
+              "bytecode_name": {
+                "type": "string",
+                "id": 1
+              },
+              "contract_id": {
+                "type": "bytes",
+                "id": 2,
+                "options": {
+                  "(koinos.btype)": "ADDRESS"
+                }
+              }
+            }
+          }
+        }
+      },
+      "koinos": {
+        "options": {
+          "go_package": "github.com/koinos/koinos-proto-golang/koinos"
+        },
+        "nested": {
+          "bytes_type": {
+            "values": {
+              "BASE64": 0,
+              "BASE58": 1,
+              "HEX": 2,
+              "BLOCK_ID": 3,
+              "TRANSACTION_ID": 4,
+              "CONTRACT_ID": 5,
+              "ADDRESS": 6
+            }
+          },
+          "_btype": {
+            "oneof": [
+              "btype"
+            ]
+          },
+          "btype": {
+            "type": "bytes_type",
+            "id": 50000,
+            "extend": "google.protobuf.FieldOptions",
+            "options": {
+              "proto3_optional": true
+            }
+          }
+        }
+      }
+    }
+  }
+}
